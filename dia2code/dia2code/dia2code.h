@@ -26,8 +26,8 @@
 #include <stdarg.h>
 
 /* libxml[2] headers */
-#include <parser.h>
-#include <tree.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 
 #define VERSION "0.8.1"
 
