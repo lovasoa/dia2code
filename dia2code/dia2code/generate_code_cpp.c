@@ -17,6 +17,9 @@
  *                                                                         *
  ***************************************************************************/
 
+/* NB: If you use CORBA stereotypes, you will need the file p_orb.h
+   found in the runtime/cpp directory.  */
+
 #include "dia2code.h"
 #include "decls.h"
 #include "includes.h"
