@@ -81,7 +81,7 @@ This is free software, and you are welcome to redistribute it\n\
 under certain conditions; read the COPYING file for details.\n";
 
     char *help = "[-h|--help] [-d <dir>] [-nc] [-cl <classlist>]\n\
-       [-t (ada|c|cpp|idl|java|php|python|shp|sql)] [-v]\n\
+       [-t (ada|c|cpp|idl|java|php|python|shp|sql|csharp)] [-v]\n\
        [-l <license file>] <diagramfile>";
 
     char *bighelp = "\
@@ -110,6 +110,7 @@ under certain conditions; read the COPYING file for details.\n";
     generators[6] = generate_code_php;
     generators[7] = generate_code_shp;
     generators[8] = generate_code_idl;
+    generators[9] = generate_code_csharp;
 
 
     if (argc < 2) {
@@ -160,6 +161,8 @@ under certain conditions; read the COPYING file for details.\n";
                 generator = generators[7];
             } else if ( ! strcmp (argv[i], "idl") ) {
                 generator = generators[8];
+	    } else if ( ! strcmp (argv[i], "csharp") ) {
+		generator = generators[9];
             } else {
 #ifdef DSO
                 generator = find_dia2code_module(argv[i]);
