@@ -5,8 +5,9 @@
     copyright            : (C) 2000-2002 by Javier O'Hara,
     email                : joh314@users.sourceforge.net
 
-    Authors		 : Javier O'Hara <joh314@users.sourceforge.net>
-    			   Thomas Hansen <thomas.hansen@adramatch.com>
+    Authors              : Javier O'Hara <joh314@users.sourceforge.net>
+                           Thomas Hansen <thomas.hansen@adramatch.com>
+                           Oliver Kellogg <okellogg@users.sourceforge.net>
  ***************************************************************************/
 
 /***************************************************************************
@@ -28,15 +29,8 @@ void generate_code_csharp(batch *b) {
     umloplist umlo;
     char *tmpname;
     char outfilename[90];
-    FILE * outfile, *dummyfile, *licensefile = NULL;
+    FILE *licensefile = NULL;
     umlclasslist used_classes;
-
-    int tmpdirlgth, tmpfilelgth;
-
-    if (b->outdir == NULL) {
-        b->outdir = ".";
-    }
-    tmpdirlgth = strlen(b->outdir);
 
     tmplist = b->classlist;
 
@@ -51,222 +45,210 @@ void generate_code_csharp(batch *b) {
 
     while ( tmplist != NULL ) {
 
-        if ( ! ( is_present(b->classes, tmplist->key->name) ^ b->mask ) ) {
+        if (is_present (b->classes, tmplist->key->name) ^ b->mask) {
+            tmplist = tmplist->next;
+            continue;
+        }
 
-            tmpname = tmplist->key->name;
+        sprintf(outfilename, "%s.cs", tmplist->key->name);
 
-            /* This prevents buffer overflows */
-            tmpfilelgth = strlen(tmpname);
-            if (tmpfilelgth + tmpdirlgth > sizeof(*outfilename) - 2) {
-                fprintf(stderr, "Sorry, name of file too long ...\nTry a smaller dir name\n");
-                exit(4);
+        spec = open_outfile (outfilename, b);
+        if (spec == NULL) {
+            tmplist = tmplist->next;
+            continue;
+        }
+
+        /* add license to the header */
+        if (b->license != NULL) {
+            char lc;
+            rewind (licensefile);
+            while ((lc = fgetc (licensefile)) != EOF)
+                print ("%c", lc);
+        }
+        emit ("%s","using System;\n");
+
+        tmppcklist = make_package_list(tmplist->key->package);
+        if ( tmppcklist != NULL ){
+            emit ("package %s",tmppcklist->key->name);
+            tmppcklist=tmppcklist->next;
+            while (tmppcklist != NULL) {
+                emit (".%s",tmppcklist->key->name);
+                tmppcklist=tmppcklist->next;
             }
+            emit (";\n\n");
+        }
 
-            sprintf(outfilename, "%s/%s.cs", b->outdir, tmplist->key->name);
-            dummyfile = fopen(outfilename, "r");
-            if ( b->clobber || ! dummyfile ) {
-
-                outfile = fopen(outfilename, "w");
-                if ( outfile == NULL ) {
-                    fprintf(stderr, "Can't open file %s for writing\n", outfilename);
-                    exit(3);
-                }
-
-                /* add license to the header */
-                if(b->license != NULL){
-                    char lc;
-                    rewind(licensefile);
-                    while((lc = fgetc(licensefile)) != EOF){
-                        fprintf(outfile,"%c",lc);
-                    }
-                }
-                fprintf(outfile,"%s","using System;\n");
-
-                tmppcklist = make_package_list(tmplist->key->package);
-                if ( tmppcklist != NULL ){
-                    fprintf(outfile,"package %s",tmppcklist->key->name);
+        /* We generate the import clauses */
+        used_classes = list_classes(tmplist, b);
+        while (used_classes != NULL) {
+            tmppcklist = make_package_list(used_classes->key->package);
+            if (tmppcklist != NULL) {
+                if (strcmp(tmppcklist->key->id,tmplist->key->package->id)) {
+                    /* This class' package and our current class' package are
+                       not the same */
+                    emit ("using ");
+                    emit ("%s",tmppcklist->key->name);
                     tmppcklist=tmppcklist->next;
-                    while ( tmppcklist != NULL ){
-                        fprintf(outfile,".%s",tmppcklist->key->name);
+                    while (tmppcklist != NULL) {
+                        emit (".%s", tmppcklist->key->name);
                         tmppcklist=tmppcklist->next;
                     }
-                    fprintf(outfile,";\n\n");
+                    emit (".");
+                    emit ("%s;\n",used_classes->key->name);
                 }
+            } else {
+                /* No info for this class' package, we include it directly */
+                /*emit ("import %s;\n",used_classes->key->name);*/
+            }
+            used_classes = used_classes->next;
+        }
 
-                /* We generate the import clauses */
-                used_classes = list_classes(tmplist, b);
-                while (used_classes != NULL) {
-                    tmppcklist = make_package_list(used_classes->key->package);
-                    if ( tmppcklist != NULL ){
-                        if ( strcmp(tmppcklist->key->id,tmplist->key->package->id)){
-                            /* This class' package and our current class' package are
-                               not the same */
-                            fprintf(outfile, "using ");
-                            fprintf(outfile,"%s",tmppcklist->key->name);
-                            tmppcklist=tmppcklist->next;
-                            while ( tmppcklist != NULL ){
-                                fprintf(outfile, ".%s", tmppcklist->key->name);
-                                tmppcklist=tmppcklist->next;
-                            }
-                            fprintf(outfile,".");
-                            fprintf(outfile,"%s;\n",used_classes->key->name);
-                        }
-                    } else {
-                        /* No info for this class' package, we include it directly */
-                        /*fprintf(outfile, "import %s;\n",used_classes->key->name);*/
-                    }
-                    used_classes = used_classes->next;
-                }
+        emit ("\n");
+        emit ("public ");
 
-                fprintf(outfile, "\n");
-                fprintf(outfile, "public ");
+        tmpname = strtolower(tmplist->key->stereotype);
+        if ( ! strcmp("interface", tmpname) ) {
+            emit ("interface ");
+        } else {
+            if (tmplist->key->isabstract)
+            {
+                emit ("interface ");
+            }
+            else
+                emit ("class ");
+        }
+        free(tmpname);
 
-                tmpname = strtolower(tmplist->key->stereotype);
-                if ( ! strcmp("interface", tmpname) ) {
-                    fprintf(outfile, "interface ");
+        emit ("%s", tmplist->key->name);
+
+        parents = tmplist->parents;
+        if (parents != NULL) {
+            while (parents != NULL) {
+                tmpname = strtolower(parents->key->stereotype);
+                if (! strcmp (tmpname, "interface")) {
+                    emit (" : ");
                 } else {
-                    if (tmplist->key->isabstract)
-                    {
-                        fprintf(outfile, "interface ");
-                    }
-                    else
-	                    fprintf(outfile, "class ");
+                    emit (" : ");
                 }
                 free(tmpname);
-
-                fprintf(outfile, "%s", tmplist->key->name);
-
-                parents = tmplist->parents;
-                if (parents != NULL) {
-                    while ( parents != NULL ) {
-                        tmpname = strtolower(parents->key->stereotype);
-                        if ( ! strcmp(tmpname, "interface") ) {
-                            fprintf(outfile, " : ");
-                        } else {
-                            fprintf(outfile, " : ");
-                        }
-                        free(tmpname);
-                        fprintf(outfile, "%s", parents->key->name);
-                        parents = parents->next;
-                    }
-                }
-                fprintf(outfile, " {\n");
-
-                umla = tmplist->key->attributes;
-
-                if( umla != NULL)
-                    fprintf(outfile, "\n\t// Attributes\n");
-
-                while ( umla != NULL) {
-                    switch (umla->key.visibility) {
-                    case '0':
-                        fprintf (outfile, "\tpublic ");
-                        break;
-                    case '1':
-                        fprintf (outfile, "\tprivate ");
-                        break;
-                    case '2':
-                        fprintf (outfile, "\tprotected ");
-                        break;
-                    }
-
-                    if (umla->key.isstatic) {
-                        fprintf(outfile, "static ");
-                    }
-                    fprintf(outfile, "%s %s", umla->key.type, umla->key.name);
-                    if ( umla->key.value[0] != 0 ) {
-                        fprintf(outfile, " = %s", umla->key.value);
-                    }
-                    fprintf(outfile, ";\n");
-                    umla = umla->next;
-                }
-
-                associations = tmplist->associations;
-	        if (associations != NULL)
-                    fprintf(outfile, "\n\t// Associations \n");
-
-                while ( associations != NULL )
-                {
-                    /* Not sure how to do this actually...*/
-                    if( associations->composite )
-                        fprintf(outfile, "\tprotected %s %s;\n", associations->key->name, associations->name);
-                    else
-                        fprintf(outfile, "\tprivate %s %s;\n", associations->key->name, associations->name);
-                    associations = associations->next;
-                }
-
-		umlo = tmplist->key->operations;
-                while ( umlo != NULL) {
-                    fprintf(outfile, "\n");
-                    fprintf(outfile, "\t// Operation\n");
-                    tmpa = umlo->key.parameters;
-                    while (tmpa != NULL) {
-                        fprintf(outfile, "\t// param %s\n", tmpa->key.name);
-                        tmpa = tmpa->next;
-		    }
-                    if(strcmp(umlo->key.attr.type, "void"))
-                        fprintf(outfile, "\t// return %s\n", umlo->key.attr.type);
-
-
-                    fprintf(outfile, "\t");
-
-                    if ( umlo->key.attr.isabstract )
-                    {
-                           /*fprintf(outfile, "public ");*/
-                           umlo->key.attr.value[0] = '0';
-                    }
-                    else
-                    {
-                        switch (umlo->key.attr.visibility)
-                        {
-                        case '0':
-                            fprintf (outfile, "public ");
-                            break;
-                        case '1':
-                            fprintf (outfile, "private ");
-                            break;
-                        case '2':
-                            fprintf (outfile, "protected ");
-		            break;
-                        }
-                    }
-                    if ( umlo->key.attr.isstatic ) {
-                        fprintf(outfile, "static ");
-                    }
-                    if (strlen(umlo->key.attr.type) > 0) {
-                        fprintf(outfile, "%s ", umlo->key.attr.type);
-                    }
-                    fprintf(outfile, "%s(", umlo->key.attr.name);
-                    tmpa = umlo->key.parameters;
-                    while (tmpa != NULL) {
-                        fprintf(outfile, "%s %s", tmpa->key.type, tmpa->key.name);
-                        /*
-                        if ( tmpa->key.value[0] != 0 ){
-                            fprintf(outfile," = %s",tmpa->key.value);
-                    }  */
-                        tmpa = tmpa->next;
-                        if (tmpa != NULL) fprintf(outfile, ", ");
-                    }
-                    fprintf(outfile, ")");
-                    if ( umlo->key.attr.isabstract ) {
-                        fprintf(outfile, ";\n");
-                    } else {
-                        fprintf(outfile, "\n\t{\n");
-                        if ( umlo->key.implementation != NULL ) {
-                            fprintf(outfile, "\n\t\t%s\n", umlo->key.implementation);
-                        }
-                        else if( strcmp(umlo->key.attr.type, "void") != 0 ) {
-                            fprintf(outfile, "\t\t%s\n", "throw new System.Exception( \"Not implemented yet!\");");
-                        }
-                        fprintf(outfile, "\t}\n");
-                    }
-                    umlo = umlo->next;
-                }
-                fprintf(outfile, "}\n\n");
-
-                fclose(outfile);
+                emit ("%s", parents->key->name);
+                parents = parents->next;
             }
         }
+        emit (" {\n");
+
+        umla = tmplist->key->attributes;
+
+        if( umla != NULL)
+            emit ("\n\t// Attributes\n");
+
+        while ( umla != NULL) {
+            switch (umla->key.visibility) {
+            case '0':
+                emit ("\tpublic ");
+                break;
+            case '1':
+                emit ("\tprivate ");
+                break;
+            case '2':
+                emit ("\tprotected ");
+                break;
+            }
+
+            if (umla->key.isstatic) {
+                emit ("static ");
+            }
+            emit ("%s %s", umla->key.type, umla->key.name);
+            if (umla->key.value[0] != 0) {
+                emit (" = %s", umla->key.value);
+            }
+            emit (";\n");
+            umla = umla->next;
+        }
+
+        associations = tmplist->associations;
+        if (associations != NULL)
+            emit ("\n\t// Associations \n");
+
+        while (associations != NULL)
+        {
+            /* Not sure how to do this actually...*/
+            if( associations->composite )
+                emit ("\tprotected %s %s;\n", associations->key->name, associations->name);
+            else
+                emit ("\tprivate %s %s;\n", associations->key->name, associations->name);
+            associations = associations->next;
+        }
+
+        umlo = tmplist->key->operations;
+        while (umlo != NULL) {
+            emit ("\n");
+            emit ("\t// Operation\n");
+            tmpa = umlo->key.parameters;
+            while (tmpa != NULL) {
+                emit ("\t// param %s\n", tmpa->key.name);
+                tmpa = tmpa->next;
+            }
+            if (strcmp (umlo->key.attr.type, "void"))
+                emit ("\t// return %s\n", umlo->key.attr.type);
+
+
+            emit ("\t");
+
+            if (umlo->key.attr.isabstract)
+            {
+                /*emit ("public ");*/
+                umlo->key.attr.value[0] = '0';
+            }
+            else
+            {
+                switch (umlo->key.attr.visibility) {
+                case '0':
+                    emit ("public ");
+                    break;
+                case '1':
+                    emit ("private ");
+                    break;
+                case '2':
+                    emit ("protected ");
+                    break;
+                }
+            }
+            if (umlo->key.attr.isstatic) {
+                emit ("static ");
+            }
+            if (strlen (umlo->key.attr.type) > 0) {
+                emit ("%s ", umlo->key.attr.type);
+            }
+            emit ("%s(", umlo->key.attr.name);
+            tmpa = umlo->key.parameters;
+            while (tmpa != NULL) {
+                emit ("%s %s", tmpa->key.type, tmpa->key.name);
+                /*
+                if ( tmpa->key.value[0] != 0 ){
+                    emit (" = %s",tmpa->key.value);
+                }  */
+                tmpa = tmpa->next;
+                if (tmpa != NULL) emit (", ");
+            }
+            emit (")");
+            if (umlo->key.attr.isabstract ) {
+                emit (";\n");
+            } else {
+                emit ("\n\t{\n");
+                if (umlo->key.implementation != NULL) {
+                    emit ("\n\t\t%s\n", umlo->key.implementation);
+                }
+                else if (strcmp(umlo->key.attr.type, "void") != 0) {
+                    emit ("\t\t%s\n", "throw new System.Exception( \"Not implemented yet!\");");
+                }
+                emit ("\t}\n");
+            }
+            umlo = umlo->next;
+        }
+        emit ("}\n\n");
+
+        fclose(spec);
         tmplist = tmplist->next;
     }
 }
