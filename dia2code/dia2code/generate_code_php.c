@@ -21,7 +21,7 @@
 #define TABS "    "  /* 4 */
 
 void generate_code_php(batch *b) {
-    umlclasslist tmplist, parents, incparent;
+    umlclasslist tmplist, parents;
     umlassoclist associations;
     umlattrlist umla, tmpa, parama;
     umlpackagelist tmppcklist;
@@ -103,9 +103,9 @@ void generate_code_php(batch *b) {
                             fprintf(outfile,"%s.php';\n",used_classes->key->name);
                         }
                     } else {
-                        /* FIXME - If the used class is different from the
-                                   actual class, we include it. I don't know
-                                   if this is ok. */
+                        /* XXX - If the used class is different from the
+                                 actual class, we include it. I don't know
+                                 if this is ok. */
                         if ( strcmp(used_classes->key->name, tmplist->key->name) ) {
                             fprintf(outfile, "require_once '%s.php';\n",
                                 used_classes->key->name);
@@ -114,18 +114,6 @@ void generate_code_php(batch *b) {
                     used_classes = used_classes->next;
                 }
                 fprintf(outfile, "\n");
-/*
-                incparent = tmplist->parents;
-                if (incparent != NULL) {
-                    while ( incparent!= NULL ) {
-                        tmpname = strtolower(incparent->key->stereotype);
-                        fprintf(outfile, "require_once '");
-                        free(tmpname);
-                        fprintf(outfile, "%s.php';\n", incparent->key->name);
-                        incparent = incparent->next;
-                    }
-                }
-*/
 
                 fprintf(outfile,"/**\n" );
                 fprintf(outfile," * XXX detailed description\n" );
@@ -137,7 +125,7 @@ void generate_code_php(batch *b) {
                 tmppcklist = make_package_list(tmplist->key->package);
                 if ( tmppcklist != NULL ){
                     int packcounter = 0;
-                    fprintf(outfile," * @package %s",tmppcklist->key->name);
+                    fprintf(outfile," * @package   %s",tmppcklist->key->name);
                     tmppcklist=tmppcklist->next;
                     while ( tmppcklist != NULL ){
                         if( packcounter == 1 ) {
@@ -152,19 +140,9 @@ void generate_code_php(batch *b) {
                     fprintf(outfile,"\n");
                 }
 
-                tmpname = strtolower(tmplist->key->stereotype);
-/*
-                if ( ! strcmp("interface", tmpname) ) {
-i                   fprintf(outfile," * @interface\n" );
-                } else {
-*/
-                    if (tmplist->key->isabstract) {
-                        fprintf(outfile," * @abstract\n" );
-                    }
-/*
+                if (tmplist->key->isabstract) {
+                    fprintf(outfile," * @abstract\n" );
                 }
-*/
-                free(tmpname);
 
                 fprintf(outfile," */\n" );
 
@@ -209,7 +187,9 @@ i                   fprintf(outfile," * @interface\n" );
                     }
                     fprintf(outfile, "%s */\n", TABS);
 
-                    fprintf(outfile, "%svar $%s", TABS, umla->key.name);
+                    fprintf(outfile, "%svar $%s%s",TABS, 
+                            (umla->key.visibility != '0') ? "_" : "",
+                            umla->key.name);
                     if ( umla->key.value[0] != 0 ) {
                         fprintf(outfile, " = %s", umla->key.value);
                     }
@@ -229,7 +209,7 @@ i                   fprintf(outfile," * @interface\n" );
                     fprintf(outfile, "%s * @accociation %s to %s\n",
                             TABS, associations->key->name, associations->name);
                     fprintf(outfile, "%s */\n", TABS );
-                    fprintf(outfile, "%svar $%s;\n\n",
+                    fprintf(outfile, "%s#var $%s;\n\n",
                             TABS, associations->name);
                     associations = associations->next;
                 }
@@ -255,11 +235,6 @@ i                   fprintf(outfile," * @interface\n" );
                                 TABS, umlo->key.attr.type);
                     }
 
-                    if ( umlo->key.attr.isabstract ) {
-                        fprintf(outfile,"%s * @abstract\n", TABS );
-                        umlo->key.attr.value[0] = '0';
-                    }
-
                     fprintf(outfile,"%s * @access ", TABS );
                     switch (umlo->key.attr.visibility) {
                     case '0':
@@ -274,6 +249,11 @@ i                   fprintf(outfile," * @interface\n" );
                     }
                     fprintf(outfile,"\n" );
 
+                    if ( umlo->key.attr.isabstract ) {
+                        fprintf(outfile,"%s * @abstract\n", TABS );
+                        umlo->key.attr.value[0] = '0';
+                    }
+
                     if ( umlo->key.attr.isstatic ) {
                         fprintf(outfile, "%s * @static ", TABS);
                     }
@@ -281,7 +261,9 @@ i                   fprintf(outfile," * @interface\n" );
                     fprintf(outfile,"%s */\n", TABS );
 
                     fprintf(outfile, TABS);
-                    fprintf(outfile, "function %s(", umlo->key.attr.name);
+                    fprintf(outfile, "function %s%s(",
+                            (umlo->key.attr.visibility != '0') ? "_" : "",
+                            umlo->key.attr.name);
                     tmpa = umlo->key.parameters;
                     while (tmpa != NULL) {
                         fprintf(outfile, "$%s", tmpa->key.name);
@@ -292,22 +274,21 @@ i                   fprintf(outfile," * @interface\n" );
                         if (tmpa != NULL) fprintf(outfile, ", ");
                     }
                     fprintf(outfile, ") ");
-/*                    if ( umlo->key.attr.isabstract ) {
-                        fprintf(outfile, ";\n");
-                    } else {
-*/
+
                         fprintf(outfile, "{\n");
                         if ( umlo->key.implementation != NULL ) {
                             fprintf(outfile, "%s\n", umlo->key.implementation);
+                        } else if (!umlo->key.attr.isabstract) {
+                            fprintf(outfile,
+                                    "%s%strigger_error('Not Implemented!', E_USER_WARNING);\n",
+                                    TABS, TABS);
                         }
                         fprintf(outfile, "%s}\n\n", TABS);
-/*                    }
-*/
+
                     umlo = umlo->next;
                 }
                 fprintf(outfile, "}\n\n");
-
-fprintf(outfile,"?>\n" );
+                fprintf(outfile,"?>\n" );
                 fclose(outfile);
             }
         }
