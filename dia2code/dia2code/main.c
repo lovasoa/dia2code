@@ -75,6 +75,8 @@ int main(int argc, char **argv) {
     namelist classestogenerate = NULL;
     int classmask = 0, parameter = 0;
     batch *thisbatch;
+    int iniParameterProcessed;
+    char inifile[HUGE_BUFFER];
 
     void (*generator)(batch *);
     void (*generators[NO_GENERATORS])(batch *);
@@ -133,7 +135,7 @@ under certain conditions; read the COPYING file for details.\n";
         exit(2);
     }
 
-    int iniParameterProcessed = 0;
+    iniParameterProcessed = 0;
 
     /* Argument parsing: rewritten from scratch */
     for (i = 1; i < argc; i++) {
@@ -233,7 +235,6 @@ parameter = -1;   /* error */
         exit(2);
     }
 
-    char inifile[HUGE_BUFFER];
     if (iniParameterProcessed == 0)
     {
         if (!process_initialization_file("dia2code.ini", 0))
@@ -371,6 +372,8 @@ int process_initialization_file(char *filename, int exit_if_not_found)
     FILE *f = fopen(filename, "r");
     int line = 0;
     int slen;
+    char s[HUGE_BUFFER];
+    
     if (f == NULL)
     if (exit_if_not_found)
     {
@@ -380,16 +383,15 @@ int process_initialization_file(char *filename, int exit_if_not_found)
     else
         return 0;
 
-    char s[HUGE_BUFFER];
-
     while (fgets(s, HUGE_BUFFER - 1, f) != NULL)
     {
+        char *name = s;
+        char *param = strchr(s, '=');
+
         line++;
         if (s[0] == '#')
             continue;
 
-        char *name = s;
-        char *param = strchr(s, '=');
         if (param == NULL)
         {
             fprintf(stderr, "Invalid parameter entry in %s:%d\n", filename, line);

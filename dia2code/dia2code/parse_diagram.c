@@ -163,6 +163,7 @@ void parse_attribute(xmlNodePtr node, umlattribute *tmp) {
     tmp->value[0] = 0;
     tmp->value[1] = 0;
     tmp->visibility = '0';
+    tmp->kind     = '0';
     while ( node != NULL ) {
         nodename = xmlGetProp(node, "name");
         if ( ! strcmp("name", nodename) ) {
@@ -177,6 +178,16 @@ void parse_attribute(xmlNodePtr node, umlattribute *tmp) {
             } else {
                 tmp->type[0] = 0;
             }
+        } else if ( ! strcmp("comment", nodename)) {
+            if (node->xmlChildrenNode->xmlChildrenNode != NULL) {
+               parse_dia_string(node->xmlChildrenNode, tmp->comment);
+            } else {
+               tmp->comment[0] = 0;
+          }
+        } else if ( ! strcmp("kind", nodename)) {
+            attrval = xmlGetProp(node->xmlChildrenNode, "val");
+            sscanf(attrval, "%c", &(tmp->kind));
+            free(attrval);
         } else if ( ! strcmp("visibility", nodename)) {
             attrval = xmlGetProp(node->xmlChildrenNode, "val");
             sscanf(attrval, "%c", &(tmp->visibility));
@@ -415,6 +426,12 @@ umlclasslist parse_class(xmlNodePtr class) {
             parse_geom_width(attribute->xmlChildrenNode, &myself->geom );
         } else if ( ! strcmp ( "elem_height", attrname ) ) {
             parse_geom_height(attribute->xmlChildrenNode, &myself->geom );
+        } else if ( ! strcmp("comment", attrname))  {
+            if (attribute->xmlChildrenNode->xmlChildrenNode != NULL) {
+               parse_dia_string(attribute->xmlChildrenNode, myself->comment);
+            }  else {
+               myself->comment[0] = 0;
+            }
         } else if ( ! strcmp("stereotype", attrname) ) {
             if ( attribute->xmlChildrenNode->xmlChildrenNode != NULL ) {
                 parse_dia_string(attribute->xmlChildrenNode, myself->stereotype);

@@ -38,13 +38,17 @@
 #define DSO_SUFFIX ".so"
 #endif
 
+#define kind_str(A)   ((A)=='1'?"in":((A)=='2'?"in/out":((A)=='3'?"out":"???")))
+
 struct umlattribute {
     char name[80];
     char value[80];
     char type [80];
+    char comment [80];
     char visibility;
     char isabstract;
     char isstatic;
+    char kind;
 };
 typedef struct umlattribute umlattribute;
 
@@ -112,6 +116,7 @@ struct umlclass {
     char id[80];
     char name[80];
     char stereotype[80];
+    char comment[80];
     int isabstract;
     umlattrlist attributes;
     umloplist operations;

@@ -199,6 +199,8 @@ gen_class (umlclassnode *node)
         is_valuetype = eq (stype, "CORBAValue");
     }
 
+    print("/// class %s - %s\n", name, node->key->comment);
+
     if (node->key->templates != NULL) {
         umltemplatelist template = node->key->templates;
         if (is_valuetype) {
@@ -297,6 +299,9 @@ gen_class (umlclassnode *node)
             print ("// Attributes\n");
             while (umla != NULL) {
                 check_visibility (&tmpv, umla->key.visibility);
+                if (strlen(umla->key.comment)) {
+                    print("/// %s\n", umla->key.comment);
+                }
                 print ("");
                 if (umla->key.isstatic) {
                     emit ("static ");
@@ -326,6 +331,20 @@ gen_class (umlclassnode *node)
             } else {
                 check_visibility (&tmpv, umlo->key.attr.visibility);
             }
+
+            /* print comments on operation */
+if (strlen(umlo->key.attr.comment)) {
+    print("/// %s\n", umlo->key.attr.comment);
+    tmpa = umlo->key.parameters;
+    while (tmpa != NULL) {
+         print("/// @param %s\t\t(%s) %s\n",
+               tmpa->key.name,
+               kind_str(tmpa->key.kind),
+               tmpa->key.comment);
+               tmpa = tmpa->next;
+    }
+}
+            /* print operation */
             print ("");
             if (umlo->key.attr.isabstract || is_valuetype) {
                 emit ("virtual ");

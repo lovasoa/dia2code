@@ -647,10 +647,12 @@ char d2c_io_lchar = 0;
 int _d2c_fputc(int c, FILE *f)
 {
 	int indent_cnt = 0;
+    int rc;
+
     if (d2c_io_lchar == '\n' && c != '\n')
         indent_cnt = d2c_fprint_indent(f);
     d2c_io_lchar = c;
-    int rc = fputc(c, f);
+    rc = fputc(c, f);
     if (rc == EOF)
     	return rc;
     else
