@@ -74,6 +74,7 @@ void generate_code_sql(batch *b) {
     while ( tmplist != NULL ) {
 
         if ( ! ( is_present(b->classes, tmplist->key->name) ^ b->mask ) ) {
+            char seenFirst = 0;
 
             /* Class (table) */
             fprintf(outfilesql, "CREATE TABLE %s(\n", tmplist->key->name);
@@ -93,7 +94,6 @@ void generate_code_sql(batch *b) {
 
             /* IsStatic attribute (Primary Key) */
             umla = tmplist->key->attributes;
-            char seenFirst = 0;
             while ( umla != NULL) {
                 if( umla->key.isstatic ) {
                     if( !seenFirst ) {
