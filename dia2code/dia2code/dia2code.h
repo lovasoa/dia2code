@@ -208,4 +208,56 @@ void pboth (char *msg, ...);  /* print with leading indentation to both */
 */
 FILE * open_outfile (char *filename, batch *b);
 
+// Added by RK 2003-02-20
+#define HUGE_BUFFER 8192
+#define LARGE_BUFFER 1024
+#define BIG_BUFFER 255
+#define SMALL_BUFFER 80
+
+#define NEW_AUTO_INDENT 1
+#ifdef NEW_AUTO_INDENT
+#define d2c_fprintf _d2c_fprintf
+#define d2c_fputs _d2c_fputs
+#define d2c_fputc _d2c_fputc
+#else
+#define d2c_fprintf fprintf
+#define d2c_fputs fputs
+#define d2c_fputc fputc
+#endif
+
+void d2c_indent();
+void d2c_outdent();
+int _d2c_fputs(const char *s, FILE *f);
+int _d2c_fputc(int c, FILE *f);
+int _d2c_fprintf(FILE *f, char *fmt, ...);
+//void d2c_set_braces(char *open, char *close);
+void d2c_open_brace(FILE *outfile, char *suffix);
+void d2c_close_brace(FILE *outfile, char *suffix);
+void d2c_parse_impl(FILE *f, char *cmt_start, char *cmt_end);
+void d2c_dump_impl(FILE *f, char *section, char *name);
+void d2c_deprecate_impl(FILE *f, char *comment_start, char *comment_end);
+char *d2c_operation_mangle_name(umlopnode *op);
+int d2c_backup(char *filename);
+
+#define TAG fprintf(stderr, "%s %d\n", __FILE__, __LINE__);
+
+struct param_list
+{
+  char *name;
+  char *value;
+  struct param_list *next;
+};
+
+typedef struct param_list param_list;
+
+void param_list_destroy();
+param_list * d2c_parameter_add(char *name, char *value);
+param_list * d2c_parameter_set(char *name, char *value);
+char * d2c_parameter_value(char *name);
+param_list *d2c_parameter_find(char *name);
+
+int indent_count;
+int indent_open_brace_on_newline;
+int generate_backup;
+
 #endif
