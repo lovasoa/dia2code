@@ -144,63 +144,6 @@ cppname (char *name)
 }
 
 
-static void
-do_operations (char *typename, umloplist umlo)
-{
-    if (umlo == NULL)
-        return;
-
-    print ("// Operations\n\n");
-
-    while (umlo != NULL) {
-        int use_procedure = (strlen (umlo->key.attr.type) == 0 ||
-                                 eq (umlo->key.attr.type, "void"));
-        umlattrlist parm = umlo->key.parameters;
-
-        print ("");
-        if (use_procedure)
-            emit ("procedure");
-        else
-            emit ("function ");
-        emit (" %s (", umlo->key.attr.name);
-        if (! umlo->key.attr.isstatic) {
-            emit ("Self : access Object");
-            if (parm != NULL)
-                emit (";\n");
-        } else {
-            emit ("\n");
-        }
-        indentlevel += 5;
-
-        while (parm != NULL) {
-            /* FIXME: Add support for parameter modes in dia.  */
-            print ("%s : in %s", parm->key.name, cppname (parm->key.type));
-            if (parm->key.value[0] != 0)
-                emit (" := %s", parm->key.value);
-            parm = parm->next;
-            if (parm != NULL) {
-                emit (";\n");
-            }
-        }
-
-        emit (")");
-
-        if (! use_procedure)
-            emit (" return %s", cppname (umlo->key.attr.type));
-
-        /* if (umlo->key.attr.isabstract) ==> don't use this:  */
-        emit (" is abstract");   /* the method must be abstract anyway.  */
-        /* The tool has no way of generating a meaningful implementation.
-           Instead, the user shall derive from this class and implement the
-           UML defined methods in the derived class.  */
-
-        emit (";\n\n");
-        indentlevel -= 5;
-        umlo = umlo->next;
-    }
-}
-
-
 static char *
 fqname (umlclassnode *node, int use_ref_type)
 {
