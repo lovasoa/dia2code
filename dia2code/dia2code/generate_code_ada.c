@@ -238,7 +238,7 @@ gen_static_attributes (umlattrlist umla, int do_private)
             ebody (" is\n");
             pbody ("begin\n");
             pbody ("   %s := To;\n", member);
-            pbody ("end Set_%s\n\n", member);
+            pbody ("end Set_%s;\n\n", member);
             pboth ("function Get_%s return ", member);
             if (ref != NULL)
                 eboth ("%s", fqname (ref, 1));
@@ -248,7 +248,7 @@ gen_static_attributes (umlattrlist umla, int do_private)
             ebody (" is\n");
             pbody ("begin\n");
             pbody ("   return %s;\n", member);
-            pbody ("end Get_%s\n\n", member);
+            pbody ("end Get_%s;\n\n", member);
         }
         if (do_private) {
             print ("%s : ", member);
@@ -287,7 +287,7 @@ gen_class (umlclassnode *node, int do_valuetype)
         if (parent->next != NULL)
             fprintf (stderr, "Warning: multiple inheritance NYI (%s)\n", name);
     } else if (do_valuetype) {
-        sprintf (parentname, "CORBA.Impl.Object");
+        sprintf (parentname, "CORBA.Value.Base");
     }
     if (parentname[0])
         emit ("new %s with", parentname);
@@ -321,7 +321,7 @@ gen_class (umlclassnode *node, int do_valuetype)
             ebody (" is\n");
             pbody ("begin\n");
             pbody ("   Self.%s := To;\n", member);
-            pbody ("end Set_%s\n\n", member);
+            pbody ("end Set_%s;\n\n", member);
             pboth ("function Get_%s (Self : access Object) return ", member);
             if (ref != NULL)
                 eboth ("%s", fqname (ref, 1));
@@ -331,7 +331,7 @@ gen_class (umlclassnode *node, int do_valuetype)
             ebody (" is\n");
             pbody ("begin\n");
             pbody ("   return Self.%s;\n", member);
-            pbody ("end Get_%s\n\n", member);
+            pbody ("end Get_%s;\n\n", member);
             umla = umla->next;
         }
     }
@@ -444,7 +444,7 @@ gen_decl (declaration *d)
     }
 
     if (eq (stype, "CORBANative")) {
-        print ("type %s is private;  -- CORBANative \n\n", name);
+        print ("-- CORBANative: %s\n\n", name);
 
     } else if (eq (stype, "CORBAConstant")) {
         if (umla == NULL) {
@@ -675,7 +675,7 @@ generate_code_ada (batch *b)
         includes = NULL;
         determine_includes (d, b);
         if (use_corba)
-            print ("with CORBA;\n\n");
+            print ("with CORBA.Value;\n\n");
         if (includes) {
             namelist incfile = includes;
             while (incfile != NULL) {
