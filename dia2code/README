@@ -1,4 +1,4 @@
-Dia2Code v. 0.8.1
+Dia2Code v. 0.8.2
 
 SUMMARY
 
@@ -8,18 +8,18 @@ This program generates code for many languages from an UML Dia Diagram.
 DESCRIPTION
 
 This program is a small utility that makes code from a Dia diagram. Supported
-languages are: Ada, C, C++, IDL, Java, PHP, Python, shapefiles and SQL create
+languages are: Ada, C, C++, IDL, Java, PHP, Python, shapefiles, C# and SQL create
 statement files.
 
 It's intended purpose is to ease the programmer's work by generating
 the structure of the classes in an Object Oriented language
-(like C++ and Java) from a graphical representation of them
+(like C++, Java and C#) from a graphical representation of them
 (a Dia Diagram).
 
 
 STATUS
 
-Current version is 0.8.1. Dia2Code generates Ada, C, C++, IDL, Java, PHP and Python files.
+Current version is 0.8.2. Dia2Code generates Ada, C, C++, IDL, Java, PHP, Python, C# files.
 It can also generate a file with SQL's CREATE TABLE statements and .bat files for
 creating shapes.  Templates and packages are supported but need testing.
 
@@ -92,9 +92,10 @@ Where <parameters> can be any combination of:
 -h|--help
    prints help on parameters and exits inmediately
 
--t (ada|c|cpp|idl|java|php|python|shp|sql)
+-t (ada|c|cpp|idl|java|php|python|shp|sql|csharp)
   tells dia2code to either create C++ (cpp), Java (java), C (c),
-  Ada (ada), Python (python) or SQL "create table" files (sql).
+  Ada (ada), Python (python), SQL "create table" files (sql) and 
+  C# (csharp).
   The default is C++.
 
 -d <outdir>
@@ -372,26 +373,31 @@ AUTHOR
 
 Javier O'Hara <joh314@users.sourceforge.net>
 
+MAINTAINER
+
+Richard Torkar <richard.torkar@htu.se>
+
 Contributors: (in alphabetical order, by last name)
 - Cyrille Chepelov <chepelov@calixo.net> Pyhton code generation, Debian package management,
-  Hurd conformance
+  Hurd conformance.
 - Harald Fielker <hfielker@softsolutions.de> PHP code generation.
-- Ruben Lopez <ryu@gpul.org>, C code generation
+- Ruben Lopez <ryu@gpul.org>, C code generation.
 - Steffen Macke <sdteffen@yahoo.com> batch shapefile generation, win32
-  installer
+  installer.
 - Chris McGee <sirnewton_01@yahoo.ca> Dependencies, Associations, C++ Templates, SQL,
-  IDL code generation
+  IDL code generation.
 - Takashi Okamoto <toraneko@kun.ne.jp> License inclusion mechanism.
-- Thomas Preymesser <tp@odn.de> Ada code generation
+- Thomas Preymesser <tp@odn.de> Ada code generation.
 - Jérôme Slangen <jeromes@mail.be> Wildcard class list mechanism.
 - Takaaki Tateishi <> Dynamic Shared Objects for dynamic code generator modules.
 - Martin Vidner <mvidner@users.sourceforge.net> Porting to libxml2.
+- Thomas Hansen <thomas.hansen@adramatch.com> C# code generation.
 
 
 THANKS
 
-Thanks to Collin Starkweather, Richard Torkar and Slush Gore for
-the extra help.  Also, thanks to all the people that have contacted me with
+Thanks to Collin Starkweather and Slush Gore for the extra help.  
+Also, thanks to all the people that have contacted me with
 suggestions and bug reports.
 
 
