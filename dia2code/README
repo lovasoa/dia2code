@@ -1,0 +1,397 @@
+Dia2Code v. 0.8.1
+
+SUMMARY
+
+This program generates code for many languages from an UML Dia Diagram.
+
+
+DESCRIPTION
+
+This program is a small utility that makes code from a Dia diagram. Supported
+languages are: Ada, C, C++, IDL, Java, PHP, Python, shapefiles and SQL create
+statement files.
+
+It's intended purpose is to ease the programmer's work by generating
+the structure of the classes in an Object Oriented language
+(like C++ and Java) from a graphical representation of them
+(a Dia Diagram).
+
+
+STATUS
+
+Current version is 0.8.1. Dia2Code generates Ada, C, C++, IDL, Java, PHP and Python files.
+It can also generate a file with SQL's CREATE TABLE statements and .bat files for
+creating shapes.  Templates and packages are supported but need testing.
+
+The basic functionality can now be considered complete.  Minor releases
+should fix bugs and add small improvements.
+
+The generation of #include and import directives is done considering the
+types used in each class but, generally, only if those types are
+declared themselves in the diagram.  Classes are searched in the types of:
+attributes, parents, method's return types, method's parameters, dependencies
+and associations.
+
+Dia2Code looks for Generalizations, Realizations, Implements, Dependencies and
+Associations and adds that information to the class list.
+
+Packages are implemented considering the geometry information of the objects
+(packages and classes).
+
+Feel free to have a try and send me your comments.
+
+
+LICENSE
+
+This program is distributed under the GNU GPL.  Read the COPYING
+file for details.
+
+
+REQUIREMENTS
+
+I've only tested it under Linux/i386 and Win32.  I have notices of
+successful compilation on *BSD and GNU Hurd. It should work with
+other platforms, but your mileage may vary.
+
+- Dia (I work with 0.88 but older versions *may* be OK).  Not for
+  the compilation part but to make some nice diagrams with it.
+- libxml2 headers and development libraries (I use 2.4.1 but it *may* be
+  OK if you use any version greater than 2.0.0).
+- A C compiler.
+- automake and autoconf (actually, optional)
+
+
+INSTALLATION
+
+Usually:
+
+        $ ./configure
+
+        $ make
+
+        # make install
+
+Read the INSTALL file for details.
+
+If that doesn't work for you, try (from the innermost dia2code directory):
+
+        $ cc -I/usr/include/libxml *.c -O2 -o dia2code -lxml2 -ldl
+
+        $ strip dia2code
+
+I've modified Makefile.am and configure.in so "configure" will hopefully
+find everything it needs.
+
+
+OPERATION
+
+    $ dia2code <parameters>
+
+Where <parameters> can be any combination of:
+
+-h|--help
+   prints help on parameters and exits inmediately
+
+-t (ada|c|cpp|idl|java|php|python|shp|sql)
+  tells dia2code to either create C++ (cpp), Java (java), C (c),
+  Ada (ada), Python (python) or SQL "create table" files (sql).
+  The default is C++.
+
+-d <outdir>
+  tells it to put the files in the specified directory.
+  The default is to output files in the current directory.
+
+-nc
+  asks dia2code to not overwrite existing files.
+         - Default return value for non-void methods.
+
+-cl <classlist>
+  generates code only for the classes specified in the
+  comma-separated <classlist>.
+
+-v
+  inverts the class list selection.  When used without -cl,
+  prevents any file from being created.
+
+-l <licensefile>
+  prepends the contents of the specified file to each source file
+  generated.
+
+<diagramfile>
+  Name of the dia file (compressed or not) that contains the
+  UML diagram to be parsed.
+
+The only mandatory parameter is the diagram file name.
+
+Note: Parameters can be specified in any order.
+
+
+EXAMPLES
+
+    $ dia2code -t java test.dia
+
+    Will generate the *.java files for the classes in the test.dia diagram
+    and put them in the current directory.
+
+    $ dia2code -nc -d ~/C++ hw.dia
+
+    Will generate the *.cpp and *.h files for the classes in the test.dia
+    diagram and  put them in the directory ~/C++.  It won't overwrite any
+    existant file.
+
+    $ dia2code -t java -cl Base,Derived test.dia
+
+    Will create the Java files only for classes "Base" and "Derived".
+
+    $ dia2code -cl B*,*Foo test.dia
+
+    Will create the *.cpp and *.h files for classes that begin with "B" or
+    end with "Foo".
+    NOTE: You can only specify one asterisk and either at the beginning or end
+    of the pattern.
+    NOTE2: You may have to quote the asterisks when typing on the shell
+    (e.g. "\*" instead of "*")
+
+    $ dia2code -cl Foo -v foobar.dia
+
+    Will create C++ code for all classes but "Foo".
+
+    $ dia2code -v test.dia
+
+    Will not create any files.  Don't know if it may be useful, but it surely
+    is syntactically correct.
+
+
+HOW IT WORKS
+
+1. Parse the diagram file with xmlParseFile().
+2. Parse the tree generated in 1 for UML classes to build an
+   umlclasslist (type defined here).
+3. Parse the tree again for UML Generalizations, Realizations,
+   Implements, Dependencies, Associations and packages to add information
+   to the class list.
+4. Generate the structure of the classes (write it into files)
+   from the class list.
+
+Steps 1-3 are done in parse_diagram().
+Step 4 is done in generate_code_*().
+Both functions are called from main().
+
+
+NOTES ON UML
+
+What you should put into your diagram
+
+These are mandatory:
+
+- A non-empty class name.
+- For each attribute, the name and type.
+- For each method, the name.
+- For each method's parameter, the name and type.
+
+These are optional:
+
+- The stereotype of the class.
+- The default value of attributes.
+- The default value of parameters.
+- The return type of a method. If no type is declared, dia2code
+  will output no type at all for it.
+
+
+Stereotypes
+
+The Stereotype attribute of a class is not important for C++ code generation,
+but it may be so for Java.  In C++, an abstract class is not explicitly
+declared as it is in Java.  To have a class declared as "abstract" you have
+to set its "abstract" flag.  The "stereotype" is only taken into account if it is
+"interface".
+
+Dia2code recognizes two stereotypes: "Interface" and "JavaBean".  The
+former is a standard stereotype name, the latter a convention we use here.
+Both interfaces are only meaningful when generating Java code.  If the
+stereotype is "JavaBean" then dia2code will output, for each attribute a of
+the class:
+
+- A "T getA();" method, with return type conformant to the type of the attribute.
+  If the type of the attribute is "boolean" then the name will be: "boolean isA()".
+- A "void setA(T value);" method, with a paramter, "value", with type conformant to
+  the type of the attribute.
+
+Note: actually, dia2code will not output these things, but it will create the
+methods and paste into each one the suggested implementation.  These methods will
+be treated as the rest.  The generate_code_java outputs an implementation if
+one's avaliable.  The generate_code_cpp just happens to do the same, but I feel
+it is most useful when generating Java code.
+
+
+Visibility
+
+Dia2Code does not handle the "implementation" visibility for methods (yet).
+So when you have a class that implements a method that was declared
+abstract in a base class, you have to give it the same visibility of the
+parent class' method.   The visibility of the method is not printed if it is
+"implementation"; this may be a source of bugs.
+
+
+Method's return type
+
+If you leave the "type" entry in the method declaration empty, then no
+type will be declared for it.  This is useful with constructors, when the
+return type is implicit (both in C++ and Java).  If the return type is
+void, you should explicitly declare it in the UML diagram.  I don't know
+if this is a good practice, I just thought it was reasonable. Everyone is
+welcome to discuss it.
+
+
+Packages
+
+The UML standard states that there are (mostly) two ways of representing
+packages: a large box with all the elements inside (Large Package in Dia)
+or a small box (Small Package in Dia) to which the package's elements
+connect with a symbol that Dia does not (yet?) include: a line with a
+crossed out circle in the end of the container.  You can put a normal line
+with a "Coordiate origin" arrow at one end, of course, and will be
+aestetically correct, but of no use to Dia2Code.
+
+Dia2code, currently, checks only for intersections of packages (Large or
+Small) with other objects like classes and other packages, so it will
+be mostly useful with diagrams that use Large Packages instead of Small
+ones.
+
+As of version 0.7, only the Java code generator uses package information.
+We should upgrade the other generators (like Python and Ada) so they
+will generate better import/include directives.  The Java code generator
+currtently outputs all the files to the specified directory, does not
+create one for each package.
+
+
+
+INFORMATION FOR DEVELOPERS
+(more will come in the future)
+
+Code Generators:
+
+A code generator function is a function that takes a pointer to a
+batch structure.  The structure looks like this:
+
+struct batch {
+    umlclasslist classlist;
+    char *       outdir;
+    int          clobber;
+    namelist     classes;
+    int          mask;
+};
+
+The classes to generate are in classlist.
+
+The output directory is outdir.  The files that the generate_code
+opens for writing MUST have this output directory as a prefix, UNLESS
+it is NULL, in which case, it will default to ".".  The function
+SHOULD check the length of the directory for possible buffer overflows
+inside the function.
+
+If the clobber flag is set, any already existing file in the output
+directory MUST NOT be overwritten.
+
+Classes is a list of the classes to create code for.  Mask is a
+flag that inverts this selection.
+
+Some example code:
+
+generate_code_foo(batch *b){
+    umlclasslist tmplist;
+    char *tmpname;
+    char outfilename[256];
+    FILE *dummyfile;
+
+    if (b->outdir == NULL) {
+        b->outdir = ".";
+    }
+    tmplist = b->classlist;
+    while ( tmplist != NULL ) {
+        if ( ! ( is_present(b->classes,tmplist->key->name) ^ b->mask ) ) {
+            tmpname=strtolower(tmplist->key->name);
+            /*
+                Buffer overflow control here
+            */
+            sprintf(outfilename,"%s/%s.h",b->outdir,tmpname);
+            dummyfile=fopen(outfilename,"r");
+            if ( b->clobber || ! dummyfile ) {
+                  /*
+                      We generate all the code here
+                  */
+                  fclose(dummyfile);
+            }
+            free(tmpname);
+        }
+        tmplist=tmplist->next;
+    }
+}
+
+
+Generating import/include clauses:
+
+Although information of the packages are loaded into the classlist (each
+class has a pointer to a package, which can be NULL), one can choose not
+to check for them.
+
+Two functions can help the code generator know which classes are used
+inside the current class: find_classes() and list_classes().  The former
+is the eldest of the two.  It returns a namelist (a list of char*) with
+the names of the classes used that are also declared in the same diagram
+(are on the classlist).  The latter is a new addition in version 0.7.  It
+does basically the same search but instead of a list of char* it returns
+a classlist with pointers to the diagram classes themselves.
+
+Which to use is up to you.  For generators of C, C++ and SQL code the
+find_classes() will suffice.  For generators of Java code, that use
+heavily the package information, the list_classes() is more suitable.
+
+
+
+EXIT CODES
+
+    0        OK
+    1        Not enough memory
+    2        Wrong parameters in the command line
+    3        Cannot write to disk
+    4        Name of output dir plus output file too long
+
+
+BUGS
+
+Note: some bugs may not be listed here.
+
+- No checking for full filesystem while writing files.
+- Does not follow the DTD of a Dia Diagram, rather parses as it sees fit.
+- Allocates memory proportionally to the size of the diagrams.  It should work
+  OK with small diagrams but may slow down with BIG ones.
+
+
+AUTHOR
+
+Javier O'Hara <joh314@users.sourceforge.net>
+
+Contributors: (in alphabetical order, by last name)
+- Cyrille Chepelov <chepelov@calixo.net> Pyhton code generation, Debian package management,
+  Hurd conformance
+- Harald Fielker <hfielker@softsolutions.de> PHP code generation.
+- Ruben Lopez <ryu@gpul.org>, C code generation
+- Steffen Macke <sdteffen@yahoo.com> batch shapefile generation, win32
+  installer
+- Chris McGee <sirnewton_01@yahoo.ca> Dependencies, Associations, C++ Templates, SQL,
+  IDL code generation
+- Takashi Okamoto <toraneko@kun.ne.jp> License inclusion mechanism.
+- Thomas Preymesser <tp@odn.de> Ada code generation
+- Jérôme Slangen <jeromes@mail.be> Wildcard class list mechanism.
+- Takaaki Tateishi <> Dynamic Shared Objects for dynamic code generator modules.
+- Martin Vidner <mvidner@users.sourceforge.net> Porting to libxml2.
+
+
+THANKS
+
+Thanks to Collin Starkweather, Richard Torkar and Slush Gore for
+the extra help.  Also, thanks to all the people that have contacted me with
+suggestions and bug reports.
+
+

@@ -1,0 +1,32 @@
+TO DO
+
+Documentation:
+- Add good (real life) examples to the docs and the web page.
+- Do a manual for Dia2Code.
+
+Core:
+- Virtual inheritance (C++)
+- A framework to allow custom code generator modules to be
+  easily made by third parties.
+- Restructure the code, some parts really suck
+
+Code generators:
+- Default return value for non-void methods.
+- Custom extension for C++ files: .c++, .C, etc.
+- Custom visibility for Java classes: by default, all are
+  public now.
+- Code generation for more languages. (CORBA IDL)
+
+Compilation, Installation and Distribution
+- Modify autoconf/automake files to install dia2code.1 and dia2code.kaptn
+  into appropiate directories.
+- Install dia2code.h into /usr/local/include/dia2code or appropriate
+  directory structure
+- Add modules to the regular build process
+- Make modules install into /usr/local/lib or something appropriate
+  to allow all users to access the files
+
+Extra:
+- A nice improvement would be generating a classlist from existing code.
+  For this task we need parsers for the supported languages.
+

@@ -1,0 +1,135 @@
+
+- Fixed the bug that caused SEGFAULTs when parsing a simple implementation
+(here called lolipop implementation) with no text associated.  Thanks to
+Max Berger and Patrice Neff.
+
+01 Jan 2002: Version 0.8.1
+- The win32 files were not included in 0.8, now they are in.
+- Fixed the bug with grouped objects.
+- Fixed the bug with integer parsing in 64 bit systems. Thanks to
+Patrik Stähli.
+- Updated generate_code_php.  Thanks to Harald Fielker.
+The following changes where made by Chris McGee:
+- Fixed the NO_GENERATORS number to reflect the actual number of
+code generators that are actually there.
+- Added _basic_ CORBA idl support
+
+27 Dec 2001: Version 0.8
+- Fixed the bug that caused SEGFAULTs when parsing templates.
+- Fixed the endless loop bug in the Java code generator.
+- Fixed the bug that scrambled the formal parameters of a method.
+- Added support for wildcards to the list specified with "-cl".
+Now one can put an asterisk either at the beggining or the end. Example:
+"dia2code -cl Foo*,*bar", will create files only for classes which names
+start with "Foo" or end with "bar".  Thanks to Jérôme Slangen.
+- Added the PHP code generator.  Thanks to Harald Fielker.
+- Added support for license file inclusion (-l). Thanks to Takashi Okamoto.
+The following changes were done by Steffen Macke:
+- Added support for shapefile generation (shp): New generate_code_shp.c
+- Added support to built with cygwin on win32: dia2code/makefile.mingw
+- Added files to built win32 installer with NSIS: dia.ico, dia1.bmp,
+dia2.bmp, dia2code Homepage.url dia2code.nsi, README.win32, Report a Bug.url
+
+01 Oct 2001: Version 0.7
+- Added support for packages. The classes now have a "package" pointer which
+points to an element of a new structure: package.  The parser fills in info
+for the packages based on the geometry of the objects in the diagram.
+Currently, only the Java code generator uses this extra info.
+- Added list_classes(), a function like find_classes() that returns an
+umlclasslist instead.
+- Regrouped the scan in the parser so we'll pass through the diagram fewer
+times.
+- Added some comments here and there.
+- Updated the README and TODO files.
+
+15 Sep 2001: Version 0.6.1
+- Fixed the Association and Dependency parsing.  They were broken because
+I rewrote the routines for libxml2.
+- Modified find_classes(): now it returns a list with the classes used in:
+attributes, method parameters, parents, dependencies and associations. The
+list has each "used" class at most once.
+- Modified code generators to use the above improvement.
+
+03 Sep 2001: Version 0.6
+- Dia2Code now uses libxml2. Thanks to Martin Vidner for the patch and
+  guidelines to it.
+- Added configuration options for libxml2 in configure.in.  Again, thanks to
+  M. Vidner for the support.
+- New argument parsing: should be easier to understand and much more flexible:
+  arguments can be specified in any order (even the filename).
+- Added my_malloc() that behaves like malloc() but exits if there's no more
+  memory avaliable.
+- Added generate_code_ada, thanks to Thomas Preymesser
+- Added generate_code_sql, thanks to Chris McGee
+- Added generate_code_python, thanks to Cyrille Chepelov
+- Added dynamic shared objects capability for adding new code generators
+  on the fly. (Thanks very much to Takaaki Tateishi)
+- Added dependency and aggregation/composition functionality to the
+  cpp, java and c generators. Thanks to Chris McGee.
+- Added a Kaptain script for dia2code (dia2code.kaptn).  Kaptain is a
+  program that creates a QT GUI from a grammar file and can invoke a
+  command-line program, like dia2code. Check out its home page:
+  http://kaptain.sourceforge.net
+
+
+23 Jan 2001: Version 0.5
+- Fixed the .in files in the docs directory so "configure" will not
+complain any more.
+- There was a bug in generate_code_java; it didn't really checked for
+a string longer than the buffer, but it was NOT vulnerable to buffer
+overflows (see next bug).
+- Another bug in generate_code_java: the output directory was not
+prepended to the output filename, so specifying it while generating
+Java code was futile.  My fault.
+- Added some comments here and there.
+- Added generate_code_c, thanks to Ruben Lopez.
+- Added the find_classes() function (again, thanks to Ruben Lopez). This
+function returns a list of names that a given class uses and are declared
+in the same diagram.  With this, generate_code_c and generate_code_cpp now
+can generate more useful #include directives.
+- Added a char * field to umloperation named "implementation" so we can
+suggest an implementation while building the class list.  The code
+generators MAY use it as a default implementation (example: a non-void
+function may return a default value).
+- Added support for JavaBeans(tm).  If you want to automagically add
+a get() and set() (or is() if it is boolean) public method for each
+attribute, you should set "JavaBean" as the stereotype.  The body of
+the method will be generated properly. This should also work when
+the target language is not Java.
+
+01 Jan 2001: Version 0.4
+- When you didn't specify a method's return type (left the space blank)
+the program would promptly crash.  This was mostly a problem with
+constructors.
+- Added support for "UML - Implements" (the lolipop implementation). The
+interface name will be declared in the implementator's file but no code
+will be generated for it.
+
+28 Dec 2000: Version 0.3
+- There was bug with the list of classes to generate: the
+discrimination was done in the class parser, so we could end
+with a list of classes without parent information. Sorry.
+- The code generators now accept only a pointer to a structure
+that contains all the information they need.  Please look into
+the README file for details.
+
+20 Dec 2000: Version 0.2
+- Added this Changelog
+- Added the online help options, "-h" and "--help"
+- Added the "-nc" option.  When specified, dia2code will not overwrite
+files already present in the target directory.
+- Added the "-cl" option, which lets you specify the list of classes you want
+generated.  Example: "-cl Base,Derived".  Also added the "-v" optiion, that
+inverts the class selection.
+- Reorganized the structure of the project.  Now it is divided into two modules:
+the parser and the code generators.
+- There was a bug in generate_code_java: tmpname is not initialized and the
+program could randomly crash.
+- The condition for the generation of abstract classes in Java was rather ugly.
+Now it looks for the Abstract flag instead of the Sterotype (which is much better
+than before).
+
+26 Nov 2000: Version 0.1
+- Initial release
+- Generates code for C++/Java
+- Does not support templates.

@@ -1,0 +1,43 @@
+INSTALLATION
+
+The windows version of dia2code is distributed as an
+executable installer. Just run the installer to set
+up the program.
+
+USAGE
+
+The installer will add context menu entries for .dia files.
+These entries are accessible through right-mouse-clicks in
+the Windows Explorer. The following options are available in
+version 0.7:
+
+* Create SQL definition
+* Create C code
+* Create C++ code
+* Create Java code
+* Create ADA code
+* Create Python code
+
+UNINSTALLATION
+
+The dia2code installer adds an uninstall option to the Windows
+start menu.
+
+COMPILATION
+
+Developers interested in compiling dia2code for windows should
+install a recent version of cygwin (See http://www.cygwin.com)
+and a binary distribution of libxml2 (See 
+http://http://www.fh-frankfurt.de/~igor/projects/libxml/index.html).
+The sourcecode of dia2code is available from http://dia2code.sourceforge.net
+
+Compiling the source *.c files (example):
+
+gcc -mno-cygwin -fnative-struct -I PATH_TO_LIBXML2_INCLUDES -c main.c
+
+Linking dia2code:
+
+gcc -mno-cygwin -fnative-struct -o dia2code.exe *.o -L PATH_TO_LIBXML2_DLL -lxml2
+
+--
+Steffen Macke <sdteffen@yahoo.com>
