@@ -328,68 +328,93 @@ flag that inverts this selection.
 
 Some example code:
 
-generate_code_foo(batch *b){
-    umlclasslist tmplist;
-    char *tmpname;
-    char outfilename[256];
-    FILE *dummyfile;
+#include "dia2code.h"
+#include "decls.h"
+#include "includes.h"
 
-    if (b->outdir == NULL) {
-        b->outdir = ".";
-    }
+generate_code_foo (batch *b)
+{
+    umlclasslist tmplist;
+    declaration *d;
+
     tmplist = b->classlist;
-    while ( tmplist != NULL ) {
-        if ( ! ( is_present(b->classes,tmplist->key->name) ^ b->mask ) ) {
-            tmpname=strtolower(tmplist->key->name);
+    while (tmplist != NULL) {
+        if (! (is_present (b->classes, tmplist->key->name) ^ b->mask)) {
+            push (tmplist, b);
             /*
-                Buffer overflow control here
+                The class is pushed onto the global `decls'.
+                We do this in order to support packages:
+                A single package may contain multiple classes
+                and these classes must be generated in the correct
+                order, i.e. declare classes that depend on other
+                classes towards the end.
             */
-            sprintf(outfilename,"%s/%s.h",b->outdir,tmpname);
-            dummyfile=fopen(outfilename,"r");
-            if ( b->clobber || ! dummyfile ) {
-                  /*
-                      We generate all the code here
-                  */
-                  fclose(dummyfile);
-            }
-            free(tmpname);
         }
         tmplist=tmplist->next;
+    }
+    /* Generate a file for each outer declaration.  */
+    d = decls;
+    while (d != NULL) {
+        char *name;
+        char outfilename[256];
+
+        if (d->decl_kind == dk_module) {
+            name = d->u.this_module->pkg->name;
+        } else {         /* dk_class */
+            name = d->u.this_class->key->name;
+        }
+
+        sprintf (outfilename, "%s.h", name);
+
+        spec = open_outfile (outfilename, b);
+        if (spec == NULL) {
+            d = d->next;
+            continue;
+        }
+
+        /* Determine include files needed.  */
+        includes = NULL;
+        determine_includes (d, b);
+        if (includes) {
+            namelist incfile = includes;
+            while (incfile != NULL) {
+                if (!eq (incfile->name, name)) {
+                    emit ("#include \"%s.h\"\n", incfile->name);
+                }
+                incfile = incfile->next;
+            }
+            emit ("\n");
+        }
+
+        /*
+            We generate all the code here
+        */
+
+        fclose (spec);
+        d = d->next;
     }
 }
 
 
-NB, the following info are no longer quite up to date, in particular
-with respect to the IDL, C++, and Ada generators. For definitive
-reference, look in the source code.
-
 Generating import/include clauses:
 
-Although information of the packages are loaded into the classlist (each
-class has a pointer to a package, which can be NULL), one can choose not
-to check for them.
+includes.h contains the function determine_includes() and the global
+variable `includes'.  Handling is as shown in the example above.
 
-Two functions can help the code generator know which classes are used
-inside the current class: find_classes() and list_classes().  The former
-is the eldest of the two.  It returns a namelist (a list of char*) with
-the names of the classes used that are also declared in the same diagram
-(are on the classlist).  The latter is a new addition in version 0.7.  It
-does basically the same search but instead of a list of char* it returns
-a classlist with pointers to the diagram classes themselves.
+determine_includes() assumes that a file is generated for each outer
+package and for each class not nested inside a package.
 
-Which to use is up to you.  For generators of C, C++ and SQL code the
+If this does not make sense for the programming language you are targeting,
+then there are two lower-level functions that can help the code generator
+know which classes are used inside the current class: find_classes() and
+list_classes().  The former is the eldest of the two.  It returns a namelist
+(a list of char*) with the names of the classes used that are also declared
+in the same diagram (are on the classlist).  The latter is a new addition
+in version 0.7.  It does basically the same search but instead of a list of
+char* it returns a classlist with pointers to the diagram classes themselves.
+Which to use is up to you.  For generators of C and SQL code the
 find_classes() will suffice.  For generators of Java code, that use
 heavily the package information, the list_classes() is more suitable.
-
-
-
-EXIT CODES
-
-    0        OK
-    1        Not enough memory
-    2        Wrong parameters in the command line
-    3        Cannot write to disk
-    4        Name of output dir plus output file too long
 
 
 BUGS
