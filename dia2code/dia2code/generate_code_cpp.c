@@ -75,7 +75,7 @@ pass_by_reference (umlclass *cl)
         return pass_by_reference (ref->key);
     }
     return (!eq (st, "CORBAConstant") &&
-            !eq (st, "CORBAEnum"));
+            !is_enum_stereo (st));
 }
 
 static int
@@ -89,7 +89,7 @@ is_oo_class (umlclass *cl)
         return 1;
     return (!eq (st, "CORBAConstant") &&
             !eq (st, "CORBATypedef") &&
-            !eq (st, "CORBAEnum") &&
+            !is_enum_stereo (st) &&
             !eq (st, "CORBAStruct") &&
             !eq (st, "CORBAUnion") &&
             !eq (st, "CORBAException"));
@@ -441,7 +441,7 @@ gen_decl (declaration *d)
         print ("const %s %s = %s;\n\n", cppname (umla->key.type), name,
                                                  umla->key.value);
 
-    } else if (eq (stype, "CORBAEnum")) {
+    } else if (is_enum_stereo (stype)) {
         print ("enum %s {\n", name);
         indentlevel++;
         while (umla != NULL) {

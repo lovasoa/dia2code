@@ -168,6 +168,8 @@ int is_present(namelist list, const char *name);
 namelist find_classes(umlclasslist current_class, batch *b);
 umlclasslist find_by_name(umlclasslist list, const char * name);
 
+int is_enum_stereo (char * stereo);
+
 void * my_malloc( size_t size );
 
 umlpackagelist make_package_list( umlpackage * package);

@@ -268,3 +268,11 @@ FILE * open_outfile (char *filename, batch *b)
 }
 
 
+int
+is_enum_stereo (char *stereo)
+{
+    return (!strcmp (stereo, "CORBAEnum") ||
+            !strcmp (stereo, "Enumeration") ||
+            !strcmp (stereo, "enumeration"));
+}
+

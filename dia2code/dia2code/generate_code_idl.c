@@ -184,7 +184,7 @@ gen_decl (declaration *d)
 
         print ("const %s %s = %s;\n\n", umla->key.type, name, umla->key.value);
 
-    } else if (eq (stype, "CORBAEnum")) {
+    } else if (is_enum_stereo (stype)) {
         print ("enum %s {\n", name);
         indentlevel++;
         while (umla != NULL) {

@@ -71,7 +71,7 @@ is_oo_class (umlclass *cl)
         return 1;
     return (!eq (st, "CORBAConstant") &&
             !eq (st, "CORBATypedef") &&
-            !eq (st, "CORBAEnum") &&
+            !is_enum_stereo (st) &&
             !eq (st, "CORBAStruct") &&
             !eq (st, "CORBAUnion") &&
             !eq (st, "CORBAException"));
@@ -457,7 +457,7 @@ gen_decl (declaration *d)
         print ("%s : constant %s := %s;\n\n", name, adaname (umla->key.type),
                                                              umla->key.value);
 
-    } else if (eq (stype, "CORBAEnum")) {
+    } else if (is_enum_stereo (stype)) {
         print ("type %s is (\n", name);
         indentlevel++;
         while (umla != NULL) {
