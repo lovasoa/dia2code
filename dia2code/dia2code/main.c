@@ -19,7 +19,7 @@
 #include "code_generators.h"
 #include "parse_diagram.h"
 
-void process_initialization_file(char *filename);
+int process_initialization_file(char *filename, int exit_if_not_found);
 
 #define DEFAULT_TARGET 0
 
@@ -133,6 +133,8 @@ under certain conditions; read the COPYING file for details.\n";
         exit(2);
     }
 
+    int iniParameterProcessed = 0;
+
     /* Argument parsing: rewritten from scratch */
     for (i = 1; i < argc; i++) {
         switch ( parameter ) {
@@ -182,8 +184,8 @@ under certain conditions; read the COPYING file for details.\n";
                 generator = generators[7];
             } else if ( ! strcmp (argv[i], "idl") ) {
                 generator = generators[8];
-	    } else if ( ! strcmp (argv[i], "csharp") ) {
-		generator = generators[9];
+            } else if ( ! strcmp (argv[i], "csharp") ) {
+                generator = generators[9];
             } else {
 #ifdef DSO
                 generator = find_dia2code_module(argv[i]);
@@ -217,10 +219,11 @@ parameter = -1;   /* error */
             body_file_ext = argv[i];
             parameter = 0;
             break;
-		case 7:   /* Use initialization file */
-			process_initialization_file(argv[i]);
-			parameter = 0;
-			break;
+        case 7:   /* Use initialization file */
+            process_initialization_file(argv[i], 1);
+            iniParameterProcessed = 1;
+            parameter = 0;
+            break;
         }
     }
     /* parameter != 0 means the command line was invalid */
@@ -229,6 +232,26 @@ parameter = -1;   /* error */
         printf("%s\nUsage: %s %s\n\n%s\n", notice, argv[0], help, bighelp);
         exit(2);
     }
+
+    char inifile[HUGE_BUFFER];
+    if (iniParameterProcessed == 0)
+    {
+        if (!process_initialization_file("dia2code.ini", 0))
+        {
+#ifdef WIN32
+            if (getenv("HOME") == NULL)
+                strcpy(inifile, "c:");
+            else
+                strcpy(inifile, getenv("HOME"));
+            strcat(inifile, "\\dia2code\\dia2code.ini");
+#else
+            strcpy(inifile, "~/.dia2code/dia2code.ini");
+#endif
+            process_initialization_file(inifile, 0);           
+        }
+    }
+
+
 
     thisbatch = (batch*)my_malloc(sizeof(batch));
 
@@ -250,15 +273,15 @@ parameter = -1;   /* error */
     };
     (*generator)(thisbatch);
 
-	param_list_destroy();
+    param_list_destroy();
     return 0;
 }
 
 typedef struct ini_parse_command
 {
-	char *name;
-	int type;
-	void *ref;
+    char *name;
+    int type;
+    void *ref;
 } ini_parse_command;
 
 #define PARSE_TYPE_FUNCTION 0
@@ -270,114 +293,120 @@ typedef struct ini_parse_command
 
 ini_parse_command ini_parse_commands[] =
 {
-	{"file.outdir", PARSE_TYPE_STRDUP, &outdir},
-	{"indent.brace.newline", PARSE_TYPE_YESNO, &indent_open_brace_on_newline},
-	{"indent.size", PARSE_TYPE_INT, &indent_count},
-	{"generate.backup", PARSE_TYPE_YESNO, &generate_backup},
-	{NULL, -1, NULL}
+    {"file.outdir", PARSE_TYPE_STRDUP, &outdir},
+    {"indent.brace.newline", PARSE_TYPE_YESNO, &indent_open_brace_on_newline},
+    {"indent.size", PARSE_TYPE_INT, &indent_count},
+    {"generate.backup", PARSE_TYPE_YESNO, &generate_backup},
+    {NULL, -1, NULL}
 };
 
 void parse_command(char *name, char *value)
 {
-	int i = 0;
-	void (*method)(char *, char *);
-	char **css;
+    int i = 0;
+    void (*method)(char *, char *);
+    char **css;
 
-	while (1)
-	{
-		ini_parse_command *cmd = &ini_parse_commands[i];
-		if(cmd->name == NULL)
-			break;
-		if (!strcmp(cmd->name, name) == 0)
-		{
-			i++;
-			continue;
-		}
-		switch(cmd->type)
-		{
-		case PARSE_TYPE_FUNCTION:
-			method = cmd->ref;
-			(*method)(name, value);
-			break;
+    while (1)
+    {
+        ini_parse_command *cmd = &ini_parse_commands[i];
+        if(cmd->name == NULL)
+            break;
+        if (!strcmp(cmd->name, name) == 0)
+        {
+            i++;
+            continue;
+        }
+        switch(cmd->type)
+        {
+        case PARSE_TYPE_FUNCTION:
+            method = cmd->ref;
+            (*method)(name, value);
+            break;
 
-		case PARSE_TYPE_INT:
-			*(int *)(cmd->ref) = atoi(value);
-			break;
+        case PARSE_TYPE_INT:
+            *(int *)(cmd->ref) = atoi(value);
+            break;
 
-		case PARSE_TYPE_STRCPY:
-			strcpy(value, (char *)cmd->ref);
-			break;
+        case PARSE_TYPE_STRCPY:
+            strcpy(value, (char *)cmd->ref);
+            break;
 
-		case PARSE_TYPE_STRDUP:
-			css = (char **)cmd->ref;
-			if (*css)
-				free(*css);
-			*css = strdup(value);
-			break;
+        case PARSE_TYPE_STRDUP:
+            css = (char **)cmd->ref;
+            if (*css)
+                free(*css);
+               *css = strdup(value);
+            break;
 
-		case PARSE_TYPE_YESNO:
-			switch(tolower(value[0]))
-			{
-			case 'y': *(int *)(cmd->ref) = 1; break;
-			case 'n': *(int *)(cmd->ref) = 0; break;
-			default:
-				fprintf(stderr, "Invalid yes/no value for %s(%s)\n", name, value);
-			}
-			break;
+        case PARSE_TYPE_YESNO:
+            switch(tolower(value[0]))
+            {
+            case 'y': *(int *)(cmd->ref) = 1; break;
+            case 'n': *(int *)(cmd->ref) = 0; break;
+            default:
+                fprintf(stderr, "Invalid yes/no value for %s(%s)\n", name, value);
+            }
+            break;
 
-		case PARSE_TYPE_TRUEFALSE:
-			switch(tolower(value[0]))
-			{
-			case 't': *(int *)(cmd->ref) = 1; break;
-			case 'f': *(int *)(cmd->ref) = 0; break;
-			default:
-				fprintf(stderr, "Invalid true/false value for %s(%s)\n", name, value);
-			}
-			break;
+        case PARSE_TYPE_TRUEFALSE:
+            switch(tolower(value[0]))
+            {
+            case 't': *(int *)(cmd->ref) = 1; break;
+            case 'f': *(int *)(cmd->ref) = 0; break;
+            default:
+                fprintf(stderr, "Invalid true/false value for %s(%s)\n", name, value);
+            }
+            break;
 
 
-		default:
-			break;
-		}
-		return;
-	}
+        default:
+            break;
+        }
+        return;
+    }
 }
 
-void process_initialization_file(char *filename)
+int process_initialization_file(char *filename, int exit_if_not_found)
 {
-	FILE *f = fopen(filename, "r");
-	int line = 0;
-	int slen;
-	if (f == NULL)
-	{
-		fprintf(stderr, "Could not open initialization file %s\n", filename);
-		exit(-1);
-	}
+    FILE *f = fopen(filename, "r");
+    int line = 0;
+    int slen;
+    if (f == NULL)
+    if (exit_if_not_found)
+    {
+        fprintf(stderr, "Could not open initialization file %s\n", filename);
+        exit(-1);
+    }
+    else
+        return 0;
+
     char s[HUGE_BUFFER];
 
     while (fgets(s, HUGE_BUFFER - 1, f) != NULL)
-	{
-		line++;
-		if (s[0] == '#')
-			continue;
+    {
+        line++;
+        if (s[0] == '#')
+            continue;
 
-		char *name = s;
-		char *param = strchr(s, '=');
-		if (param == NULL)
-		{
-			fprintf(stderr, "Invalid parameter entry in %s:%d\n", filename, line);
-		}
-		else
-		{
-			*(param++) = '\0';
-			slen = strlen(param) - 1;
-			while (param[slen] == '\n' || param[slen] == '\r')
-		    {
-			    param[slen--] = '\0';
-			}
-		}
-		d2c_parameter_set(name, param);
-		parse_command(name, param);
-	}
-	fclose(f);
+        char *name = s;
+        char *param = strchr(s, '=');
+        if (param == NULL)
+        {
+            fprintf(stderr, "Invalid parameter entry in %s:%d\n", filename, line);
+        }
+        else
+        {
+            *(param++) = '\0';
+            slen = strlen(param) - 1;
+            while (param[slen] == '\n' || param[slen] == '\r')
+            {
+                param[slen--] = '\0';
+            }
+        }
+        d2c_parameter_set(name, param);
+        parse_command(name, param);
+    }
+    fclose(f);
+    
+    return 1;
 }
