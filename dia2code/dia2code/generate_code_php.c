@@ -4,6 +4,7 @@
     begin                : Sat Dec 12 2001
     copyright            : (C) 2001 by Harald Fielker
     email                : fielker@softsolutions.de
+    modified by          : Leandro Lucarella <luca@lugmen.org.ar>
  ***************************************************************************/
 
 /***************************************************************************
@@ -61,7 +62,7 @@ void generate_code_php(batch *b) {
                 exit(4);
             }
 
-            sprintf(outfilename, "%s/%s.class.php", b->outdir, tmplist->key->name);
+            sprintf(outfilename, "%s/%s.php", b->outdir, tmplist->key->name);
             dummyfile = fopen(outfilename, "r");
             if ( b->clobber || ! dummyfile ) {
 
@@ -70,7 +71,10 @@ void generate_code_php(batch *b) {
                     fprintf(stderr, "Can't open file %s for writing\n", outfilename);
                     exit(3);
                 }
-/* header */
+
+                fprintf(outfile,"<?php\n" );
+
+                /* header */
                 /* add license to the header */
                 if(b->license != NULL){
                     char lc;
@@ -80,7 +84,6 @@ void generate_code_php(batch *b) {
                     }
                 }
 
-fprintf(outfile,"<?php\n\n" );
                 /* We generate the include clauses */
                 used_classes = list_classes(tmplist, b);
                 while (used_classes != NULL) {
@@ -89,45 +92,52 @@ fprintf(outfile,"<?php\n\n" );
                         if ( strcmp(tmppcklist->key->id,tmplist->key->package->id)){
                             /* This class' package and our current class' package are
                                not the same */
-                            fprintf(outfile, "#include (\"");
-                            fprintf(outfile,"%s",tmppcklist->key->name);
+                            fprintf(outfile, "require_once '");
+                            fprintf(outfile, "%s",tmppcklist->key->name);
                             tmppcklist=tmppcklist->next;
                             while ( tmppcklist != NULL ){
                                 fprintf(outfile, "/%s", tmppcklist->key->name);
                                 tmppcklist=tmppcklist->next;
                             }
                             fprintf(outfile,"/");
-                            fprintf(outfile,"%s.class.php\");\n",used_classes->key->name);
+                            fprintf(outfile,"%s.php';\n",used_classes->key->name);
                         }
                     } else {
-                        /* No info for this class' package, we include it directly */
-                        fprintf(outfile, "#include( \"%s.class.php\" );\n",used_classes->key->name);
+                        /* FIXME - If the used class is different from the
+                                   actual class, we include it. I don't know
+                                   if this is ok. */
+                        if ( strcmp(used_classes->key->name, tmplist->key->name) ) {
+                            fprintf(outfile, "require_once '%s.php';\n",
+                                used_classes->key->name);
+                        }
                     }
                     used_classes = used_classes->next;
                 }
-
+                fprintf(outfile, "\n");
+/*
                 incparent = tmplist->parents;
                 if (incparent != NULL) {
                     while ( incparent!= NULL ) {
                         tmpname = strtolower(incparent->key->stereotype);
-                        fprintf(outfile, "include( \"");
+                        fprintf(outfile, "require_once '");
                         free(tmpname);
-                        fprintf(outfile, "%s.class.php\" );\n", incparent->key->name);
+                        fprintf(outfile, "%s.php';\n", incparent->key->name);
                         incparent = incparent->next;
                     }
                 }
+*/
 
-
-fprintf(outfile,"/**\n" );
-fprintf(outfile," * XXX detailed description\n" );
-fprintf(outfile," *\n" );
-fprintf(outfile," * @author    XXX\n" );
-fprintf(outfile," * @copyright XXX\n" );
+                fprintf(outfile,"/**\n" );
+                fprintf(outfile," * XXX detailed description\n" );
+                fprintf(outfile," *\n" );
+                fprintf(outfile," * @author    XXX\n" );
+                fprintf(outfile," * @version   XXX\n" );
+                fprintf(outfile," * @copyright XXX\n" );
 
                 tmppcklist = make_package_list(tmplist->key->package);
                 if ( tmppcklist != NULL ){
                     int packcounter = 0;
-fprintf(outfile," * @package %s",tmppcklist->key->name);
+                    fprintf(outfile," * @package %s",tmppcklist->key->name);
                     tmppcklist=tmppcklist->next;
                     while ( tmppcklist != NULL ){
                         if( packcounter == 1 ) {
@@ -145,18 +155,18 @@ fprintf(outfile," * @package %s",tmppcklist->key->name);
                 tmpname = strtolower(tmplist->key->stereotype);
 /*
                 if ( ! strcmp("interface", tmpname) ) {
-fprintf(outfile," * @interface\n" );
+i                   fprintf(outfile," * @interface\n" );
                 } else {
 */
                     if (tmplist->key->isabstract) {
-fprintf(outfile," * @abstract\n" );
+                        fprintf(outfile," * @abstract\n" );
                     }
 /*
                 }
 */
                 free(tmpname);
 
-fprintf(outfile," */\n" );
+                fprintf(outfile," */\n" );
 
                 fprintf(outfile, "class %s", tmplist->key->name);
 
@@ -176,9 +186,12 @@ fprintf(outfile," */\n" );
 
                 umla = tmplist->key->attributes;
                 while ( umla != NULL) {
-fprintf(outfile,"   /**\n" );
-fprintf(outfile,"    *    XXX\n" );
-fprintf(outfile,"    *    @access " );
+                    fprintf(outfile, "%s/**\n", TABS);
+                    fprintf(outfile, "%s * XXX\n", TABS );
+                    fprintf(outfile, "%s *\n", TABS );
+                    fprintf(outfile, "%s * @var    %s $%s\n",
+                            TABS, umla->key.type, umla->key.name);
+                    fprintf(outfile, "%s * @access ", TABS );
                     switch (umla->key.visibility) {
                     case '0':
                         fprintf (outfile, "public");
@@ -190,19 +203,13 @@ fprintf(outfile,"    *    @access " );
                         fprintf (outfile, "protected");
                         break;
                     }
-fprintf(outfile,"\n" );
-fprintf(outfile,"    */\n" );
-
-/*
+                    fprintf(outfile,"\n" );
                     if (umla->key.isstatic) {
-                        fprintf(outfile, "static ");
+                        fprintf(outfile, "%s * @static ", TABS);
                     }
-*/
-/*                    fprintf(outfile, "%s %s", umla->key.type, umla->key.name);
-*/
-                    fprintf(outfile, TABS);
+                    fprintf(outfile, "%s */\n", TABS);
 
-                    fprintf(outfile, "var $%s", umla->key.name);
+                    fprintf(outfile, "%svar $%s", TABS, umla->key.name);
                     if ( umla->key.value[0] != 0 ) {
                         fprintf(outfile, " = %s", umla->key.value);
                     }
@@ -213,14 +220,17 @@ fprintf(outfile,"    */\n" );
                 fprintf(outfile, "%s// Associations\n", TABS);
                 associations = tmplist->associations;
                 while ( associations != NULL ) {
-fprintf(outfile,"   /**\n" );
-fprintf(outfile,"    *    XXX\n" );
-fprintf(outfile,"    *    @accociation %s to %s\n",
-                        associations->key->name, associations->name);
-fprintf(outfile,"    *    @access private\n" );
-fprintf(outfile,"    */\n" );
-                    fprintf(outfile, "%s#var $%s;\n\n", 
-                     TABS, associations->name);
+                    fprintf(outfile, "%s/**\n", TABS );
+                    fprintf(outfile, "%s * XXX\n", TABS );
+                    fprintf(outfile, "%s *\n", TABS );
+                    fprintf(outfile, "%s * @var    %s $%s\n",
+                            TABS, associations->key->name, associations->name);
+                    fprintf(outfile, "%s * @access private\n", TABS );
+                    fprintf(outfile, "%s * @accociation %s to %s\n",
+                            TABS, associations->key->name, associations->name);
+                    fprintf(outfile, "%s */\n", TABS );
+                    fprintf(outfile, "%svar $%s;\n\n",
+                            TABS, associations->name);
                     associations = associations->next;
                 }
 
@@ -228,47 +238,50 @@ fprintf(outfile,"    */\n" );
                 fprintf(outfile, "%s// Operations\n", TABS);
                 while ( umlo != NULL) {
 
-fprintf(outfile,"   /**\n" );
-fprintf(outfile,"    *    XXX\n" );
-fprintf(outfile,"    *    \n" );
+                    fprintf(outfile,"%s/**\n", TABS );
+                    fprintf(outfile,"%s * XXX\n", TABS );
+                    fprintf(outfile,"%s * \n", TABS );
 
-                    if ( umlo->key.attr.isabstract ) {
-fprintf(outfile,"    *    @abstract\n" );
-                        umlo->key.attr.value[0] = '0';
-                    }
-
-fprintf(outfile,"    *    @access " );
-                    switch (umlo->key.attr.visibility) {
-                    case '0':
-                        fprintf (outfile, "public ");
-                        break;
-                    case '1':
-                        fprintf (outfile, "private ");
-                        break;
-                    case '2':
-                        fprintf (outfile, "protected ");
-                        break;
-                    }
-fprintf(outfile,"\n" );
-
-/*                    if ( umlo->key.attr.isstatic ) {
-                        fprintf(outfile, "static ");
-                    }
-*/
-                    if (strlen(umlo->key.attr.type) > 0) {
-fprintf(outfile,"    *    @returns %s\n", umlo->key.attr.type);
-                    }
                     parama = umlo->key.parameters;
 // document parameters
                     while (parama != NULL) {
-fprintf(outfile,"    *    @param %s $%s XXX\n", parama->key.type, parama->key.name);
+                        fprintf(outfile,"%s * @param  %s $%s XXX\n",
+                                TABS, parama->key.type, parama->key.name);
                         parama= parama->next;
                     }
 
-fprintf(outfile,"    */\n" );
+                    if (strlen(umlo->key.attr.type) > 0) {
+                        fprintf(outfile,"%s * @return %s XXX\n",
+                                TABS, umlo->key.attr.type);
+                    }
+
+                    if ( umlo->key.attr.isabstract ) {
+                        fprintf(outfile,"%s * @abstract\n", TABS );
+                        umlo->key.attr.value[0] = '0';
+                    }
+
+                    fprintf(outfile,"%s * @access ", TABS );
+                    switch (umlo->key.attr.visibility) {
+                    case '0':
+                        fprintf (outfile, "public");
+                        break;
+                    case '1':
+                        fprintf (outfile, "private");
+                        break;
+                    case '2':
+                        fprintf (outfile, "protected");
+                        break;
+                    }
+                    fprintf(outfile,"\n" );
+
+                    if ( umlo->key.attr.isstatic ) {
+                        fprintf(outfile, "%s * @static ", TABS);
+                    }
+
+                    fprintf(outfile,"%s */\n", TABS );
 
                     fprintf(outfile, TABS);
-                    fprintf(outfile, "function %s ( ", umlo->key.attr.name);
+                    fprintf(outfile, "function %s(", umlo->key.attr.name);
                     tmpa = umlo->key.parameters;
                     while (tmpa != NULL) {
                         fprintf(outfile, "$%s", tmpa->key.name);
@@ -278,7 +291,7 @@ fprintf(outfile,"    */\n" );
                         tmpa = tmpa->next;
                         if (tmpa != NULL) fprintf(outfile, ", ");
                     }
-                    fprintf(outfile, " )");
+                    fprintf(outfile, ") ");
 /*                    if ( umlo->key.attr.isabstract ) {
                         fprintf(outfile, ";\n");
                     } else {
@@ -294,7 +307,7 @@ fprintf(outfile,"    */\n" );
                 }
                 fprintf(outfile, "}\n\n");
 
-fprintf(outfile,"\n\n?>\n" );
+fprintf(outfile,"?>\n" );
                 fclose(outfile);
             }
         }
