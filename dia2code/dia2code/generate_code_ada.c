@@ -103,37 +103,30 @@ void generate_code_ada(batch *b) {
                 free(tmpname);
 
                 tmpname = strtoupper(tmplist->key->name);
-                /*prey: fprintf(outfileads,"#ifndef %s_H\n",tmpname);*/
-                /*prey: fprintf(outfileads,"#define %s_H\n\n",tmpname);*/
                 free(tmpname);
 
                 used_classes = find_classes(tmplist, b);
                 tmpnamelist = used_classes;
                 while (tmpnamelist != NULL) {
                     tmpname = strtolower(tmpnamelist->name);
-                    /*prey: fprintf(outfileads,"#include \"%s.ads\"\n",tmpname);*/
                     fprintf(outfileads, "with %s_types;\nuse %s_types\n", tmpname, tmpname);
                     tmpnamelist = tmpnamelist->next;
                     free(tmpname);
                 }
 
-                /*prey*/tmpname = strtolower(tmplist->key->name);
-                /*prey:*/
+                tmpname = strtolower(tmplist->key->name);
                 fprintf(outfileads, "package %s_types is\n",  tmpname);
-                /*prey:*/
                 fprintf(outfileadb, "package body %s_types is\n\n",  tmpname);
-                /*prey*/
                 free(tmpname);
 
                 fprintf(outfileads, "\n");
 
                 if ( strlen(tmplist->key->stereotype) > 0 ) {
-                    fprintf(outfileads, "-- %s\n", tmplist->key->stereotype);
+                    fprintf(outfileads, "   --  %s\n", tmplist->key->stereotype);
                 }
 
                 parents = tmplist->parents;
                 if (parents != NULL) {
-                    /*prey: fprintf(outfileads,": ");*/
                     //prey: Mehrfachvererbung. In Ada nicht moeglich
                     //prey: Wir lassen absichtlich ungueltigen Code erzeugen,
                     //prey: falls Mehrfachvererbung angegeben wurde ...
@@ -149,37 +142,36 @@ void generate_code_ada(batch *b) {
                         }
                     }
                 } else {
-                    fprintf(outfileads, "type %s is tagged record", tmplist->key->name);
+                    fprintf(outfileads, "   type %s is tagged record", tmplist->key->name);
                 }
-                fprintf(outfileads, " \n");
+                fprintf(outfileads, "\n");
 
-                fprintf(outfileads, "  -- Attributes\n");
+                fprintf(outfileads, "      --  Attributes\n");
                 tmpv = -1;
                 umla = tmplist->key->attributes;
                 while ( umla != NULL) {
-                    fprintf(outfileads, "  ");
+                    fprintf(outfileads, "   ");
                     if ( tmpv != umla->key.visibility ) {
                         switch (umla->key.visibility) {
                         case '0':
-                            fprintf (outfileads, "-- public:\n    ");
+                            fprintf (outfileads, "   --  public:\n      ");
                             break;
                         case '1':
-                            fprintf (outfileads, "-- private:\n    ");
+                            fprintf (outfileads, "   --  private:\n      ");
                             break;
                         case '2':
-                            fprintf (outfileads, "-- protected:\n    ");
+                            fprintf (outfileads, "   --  protected:\n      ");
                             break;
                         }
                         tmpv = umla->key.visibility;
                     } else {
-                        fprintf (outfileads, "  ");
+                        fprintf (outfileads, "   ");
                     }
 
                     if (umla->key.isstatic) {
                         fprintf(outfileads, "static ");
                     }
-                    /*prey: fprintf(outfileads,"%s %s",umla->key.type,umla->key.name);*/
-                    fprintf(outfileads, "%s: %s", umla->key.name, umla->key.type);
+                    fprintf(outfileads, "%-20s : %s", umla->key.name, umla->key.type);
                     if ( umla->key.value[0] != 0 && umla->key.isstatic) {
                         /*prey:fprintf(outfileadb,"%s %s::%s",umla->key.type,tmplist->key->name,umla->key.name);*/
                         fprintf(outfileadb, "function %s return %s",
@@ -195,22 +187,21 @@ void generate_code_ada(batch *b) {
                 }
 
                 umlo = tmplist->key->operations;
-                /*prey*/
-                fprintf(outfileads, "end record;\n");
-                fprintf(outfileads, "\n-- Operations\n");
+                fprintf(outfileads, "   end record;\n");
+                fprintf(outfileads, "\n--   Operations\n");
                 tmpv = -1;
                 while ( umlo != NULL) {
                     fprintf(outfileads, "  ");
                     if ( tmpv != umlo->key.attr.visibility ) {
                         switch (umlo->key.attr.visibility) {
                         case '0':
-                            fprintf(outfileads, "-- public:\n    ");
+                            fprintf(outfileads, "--   public:\n    ");
                             break;
                         case '1':
-                            fprintf(outfileads, "-- private:\n    ");
+                            fprintf(outfileads, "--   private:\n    ");
                             break;
                         case '2':
-                            fprintf(outfileads, "-- protected:\n    ");
+                            fprintf(outfileads, "--   protected:\n    ");
                             break;
                         }
                         tmpv = umlo->key.attr.visibility;
@@ -225,28 +216,19 @@ void generate_code_ada(batch *b) {
                     if ( umlo->key.attr.isstatic ) {
                         fprintf(outfileads, "static ");
                     }
-                    /*prey:fprintf(outfileads,"%s ( ",umlo->key.attr.name);*/
-                    /*prey:*/fprintf(outfileads, "function %s ", umlo->key.attr.name);
+                    fprintf(outfileads, "function %s ", umlo->key.attr.name);
                     if ( ! umlo->key.attr.isabstract ) {
-                        /*prey:fprintf(outfileadb,"%s::%s ( ",tmplist->key->name,umlo->key.attr.name);*/
                         fprintf(outfileadb, "function %s ", umlo->key.attr.name);
                     }
                     tmpa = umlo->key.parameters;
                     first_arg = 0;
                     while (tmpa != NULL) {
-                        /*prey: fprintf(outfileads,"%s %s",tmpa->key.type,tmpa->key.name);*/
                         if ( first_arg == 0 ) {
                             fprintf(outfileads, "( ");
                             fprintf(outfileadb, "( ");
                             first_arg = 1;
                         }
-                        /*prey:
-                                                fprintf(outfileadb,"%s: %s",
-                        tmpa->key.name,
-                        tmpa->key.type
-                        );
-                        --*/
-                        fprintf(outfileads, "%s: %s",
+                        fprintf(outfileads, "%s : %s",
                                 tmpa->key.name,
                                 tmpa->key.type
                                );
@@ -257,7 +239,7 @@ void generate_code_ada(batch *b) {
                                    );
                         }
                         if ( tmpa->key.value[0] != 0 ) {
-                            /*prey:*/fprintf(outfileads, " := %s", tmpa->key.value);
+                            fprintf(outfileads, " := %s", tmpa->key.value);
                             if ( ! umlo->key.attr.isabstract ) {
                                 fprintf(outfileadb, " := %s", tmpa->key.value);
                             }
@@ -296,18 +278,11 @@ void generate_code_ada(batch *b) {
                     }
                     umlo = umlo->next;
                 }
-                /*prey:fprintf(outfileads,"end record;\n\n");*/
-                /*prey:*/tmpname = strtolower(tmplist->key->name);
-                /*prey:*/
+                tmpname = strtolower(tmplist->key->name);
                 fprintf(outfileads, "end %s_types;\n", tmpname);
-                /*prey:*/
                 fprintf(outfileadb, "begin\n");
-                /*prey:*/
                 fprintf(outfileadb, "end %s_types;\n", tmpname);
-                /*prey:*/
                 free(tmpname);
-
-                /*prey: fprintf(outfileads,"#endif\n");*/
 
                 fclose(outfileads);
                 fclose(outfileadb);
