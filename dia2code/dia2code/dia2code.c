@@ -156,3 +156,115 @@ umlpackagelist make_package_list(umlpackage * package){
     return tmplist;
 }
 
+int indentlevel = 0;
+static int number_of_spaces_for_one_indentation = 2;
+
+void set_number_of_spaces_for_one_indentation(int n)
+{
+    number_of_spaces_for_one_indentation = n;
+}
+
+char *spc()
+{
+   static char spcbuf[132];
+   int n_spaces = number_of_spaces_for_one_indentation * indentlevel;
+   if (n_spaces >= sizeof(spcbuf)) {
+       fprintf (stderr, "spc(): spaces buffer overflow\n");
+       exit (1);
+   }
+   memset (spcbuf, ' ', n_spaces);
+   spcbuf[n_spaces] = '\0';
+   return spcbuf;
+}
+
+FILE *spec = NULL, *body = NULL;
+
+/* Auxiliary define for the emit/print functions  */
+#define var_arg_to_str(first_arg) \
+    va_list vargu; \
+    char str[4096]; \
+    va_start (vargu, first_arg); \
+    vsnprintf (str, 4096, first_arg, vargu); \
+    va_end (vargu)
+
+void emit (char *msg, ...)
+{
+    var_arg_to_str (msg);
+    fputs (str, spec);
+}
+
+void ebody (char *msg, ...)
+{
+    var_arg_to_str (msg);
+    if (body != NULL)
+        fputs (str, body);
+}
+
+void eboth (char *msg, ...)
+{
+    var_arg_to_str (msg);
+    fputs (str, spec);
+    if (body != NULL)
+        fputs (str, body);
+}
+
+
+void print (char *msg, ...)
+{
+    var_arg_to_str (msg);
+    fprintf (spec, "%s%s", spc(), str);
+}
+
+void pbody (char *msg, ...)
+{
+    var_arg_to_str (msg);
+    if (body != NULL)
+        fprintf (body, "%s%s", spc(), str);
+}
+
+void pboth (char *msg, ...)
+{
+    var_arg_to_str (msg);
+    fprintf (spec, "%s%s", spc(), str);
+    if (body != NULL)
+        fprintf (body, "%s%s", spc(), str);
+}
+
+char *file_ext = NULL;
+char *body_file_ext = NULL;
+
+FILE * open_outfile (char *filename, batch *b)
+{
+    static char outfilename[512];
+    FILE *o;
+    int tmpdirlgth, tmpfilelgth;
+
+    if (b->outdir == NULL) {
+        b->outdir = ".";
+    }
+
+    tmpdirlgth = strlen (b->outdir);
+    tmpfilelgth = strlen (filename);
+
+    /* This prevents buffer overflows */
+    if (tmpfilelgth + tmpdirlgth > sizeof(outfilename) - 2) {
+        fprintf (stderr, "Sorry, name of file too long ...\n"
+                    "Try a smaller dir name\n");
+        exit (1);
+    }
+
+    sprintf (outfilename, "%s/%s", b->outdir, filename);
+    o = fopen (outfilename, "r");
+    if (o != NULL && !b->clobber) {
+        fclose (o);
+        return NULL;
+    }
+    o = fopen (outfilename, "w");
+    if (o == NULL) {
+        fprintf (stderr, "Can't open file %s for writing\n", outfilename);
+        exit (1);
+    }
+    return o;
+}
+
+

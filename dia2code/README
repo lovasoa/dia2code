@@ -201,14 +201,40 @@ These are optional:
 
 Stereotypes
 
-The Stereotype attribute of a class is not important for C++ code generation,
-but it may be so for Java.  In C++, an abstract class is not explicitly
-declared as it is in Java.  To have a class declared as "abstract" you have
-to set its "abstract" flag.  The "stereotype" is only taken into account if it is
-"interface".
+In IDL, C++, and Ada, some stereotypes are supported that all begin with
+"CORBA". These are: CORBAConstant, CORBAEnum, CORBATypedef, CORBAStruct,
+CORBAUnion, CORBAValue.  When generating IDL, the corresponding IDL syntax
+is generated for the UML class.  When generating other languages, a rough
+mapping from the IDL to the other language is generated.
 
-Dia2code recognizes two stereotypes: "Interface" and "JavaBean".  The
-former is a standard stereotype name, the latter a convention we use here.
+The following conventions are followed by the code generation for CORBA
+stereotypes:
+
+Constant   First attribute's type contains the const type; first attribute's
+           value contains the const's value. Everything else unused.
+Enum       Attribute names contain the enum literals, everything else unused.
+Typedef    First attribute's type contains the original type;
+           first attribute's value optionally contains the dimensions
+           in case of an array. Everything else unused.
+Struct     Attribute names and types contain the struct members.
+           Everything else unused.
+Union      First attribute's type contains the switch type. Only
+           enum types are supported as the switch type.
+           Following attributes contain the union cases as follows:
+           Attribute value contains the switch value for the case
+           (only exactly one value possible per case); attribute
+           name and type contains the union member name and type
+           for that case.
+           Everything else unused.
+Value      Use much like a normal class. Staticness not supported.
+
+
+In C++, an abstract class is not explicitly declared as it is in Java.
+To have a class declared as "abstract" you have to set its "abstract" flag.
+
+For generating Java, dia2code recognizes two stereotypes: "Interface" and
+"JavaBean".  The former is a standard stereotype name, the latter a convention
+we use here.
 Both interfaces are only meaningful when generating Java code.  If the
 stereotype is "JavaBean" then dia2code will output, for each attribute a of
 the class:
@@ -259,11 +285,14 @@ Small) with other objects like classes and other packages, so it will
 be mostly useful with diagrams that use Large Packages instead of Small
 ones.
 
-As of version 0.7, only the Java code generator uses package information.
-We should upgrade the other generators (like Python and Ada) so they
-will generate better import/include directives.  The Java code generator
-currtently outputs all the files to the specified directory, does not
-create one for each package.
+As of version 0.8.2, the Java, IDL, C++, and Ada code generators use
+package information.  We should upgrade the other generators so they will
+generate better import/include directives.  The Java code generator
+currently outputs all the files to the specified directory, does not
+create one for each package. The IDL, C++, and Ada generators generate
+files only for the outermost packages/classes. UML elements nested inside
+packages are generated as items nested with the IDL module, C++ namespace,
+or Ada package.
 
 
 
@@ -330,6 +359,10 @@ generate_code_foo(batch *b){
 }
 
 
+NB, the following info are no longer quite up to date, in particular
+with respect to the IDL, C++, and Ada generators. For definitive
+reference, look in the source code.
+
 Generating import/include clauses:
 
 Although information of the packages are loaded into the classlist (each
@@ -381,6 +414,8 @@ Contributors: (in alphabetical order, by last name)
 - Cyrille Chepelov <chepelov@calixo.net> Pyhton code generation, Debian package management,
   Hurd conformance.
 - Harald Fielker <hfielker@softsolutions.de> PHP code generation.
+- Oliver Kellogg <okellogg@users.sourceforge.net>, CORBA stereotype and
+  package support
 - Ruben Lopez <ryu@gpul.org>, C code generation.
 - Steffen Macke <sdteffen@yahoo.com> batch shapefile generation, win32
   installer.

@@ -23,6 +23,7 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 /* libxml[2] headers */
 #include <parser.h>
@@ -165,11 +166,44 @@ char *strtoupperfirst(char *s);
 namelist parse_class_names(const char *s);
 int is_present(namelist list, const char *name);
 namelist find_classes(umlclasslist current_class, batch *b);
+umlclasslist find_by_name(umlclasslist list, const char * name);
 
 void * my_malloc( size_t size );
 
 umlpackagelist make_package_list( umlpackage * package);
 
 umlclasslist list_classes(umlclasslist current_class, batch *b);
+
+extern char *file_ext;       /* Set by switch "-ext". Language specific
+                                default applies when NULL.  */
+extern char *body_file_ext;  /* Set by switch "-bext". Language specific
+                                default applies when NULL.  */
+
+extern int indentlevel;
+void set_number_of_spaces_for_one_indentation(int n);  /* default: 2 spaces */
+char *spc();
+/* Returns a string consisting of (indentlevel *
+   number_of_spaces_for_one_indentation) spaces.  */
+
+/**
+ * Output target files:
+ * All backends would use `spec', but not all backends require `body'.
+ * Hence not all backends need the {e,p}{body,both} functions below.
+*/
+extern FILE *spec, *body;
+
+/* Emitters for file output  */
+void emit  (char *msg, ...);  /* print verbatim to spec */
+void ebody (char *msg, ...);  /* print verbatim to body (e stands for emit) */
+void eboth (char *msg, ...);  /* print verbatim to both spec and body */
+void print (char *msg, ...);  /* print with leading indentation to spec */
+void pbody (char *msg, ...);  /* print with leading indentation to body */
+void pboth (char *msg, ...);  /* print with leading indentation to both */
+
+/**
+ * open_outfile() returns NULL if the file exists and is not rewritten
+ * due to a clobber prohibition. Does an exit(1) if serious problems happen.
+*/
+FILE * open_outfile (char *filename, batch *b);
 
 #endif

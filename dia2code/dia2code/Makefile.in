@@ -69,11 +69,11 @@ XML_INCLUDES = @XML_INCLUDES@
 
 noinst_LIBRARIES = libdia2code.a
 
-libdia2code_a_SOURCES = generate_code_idl.c generate_code_php.c generate_code_shp.c generate_code_python.c generate_code_ada.c generate_code_sql.c scan_tree.c generate_code_c.c parse_diagram.c dia2code.c generate_code_java.c generate_code_cpp.c generate_code_csharp.c main.c 
+libdia2code_a_SOURCES = decls.c includes.c generate_code_idl.c generate_code_php.c generate_code_shp.c generate_code_python.c generate_code_ada.c generate_code_sql.c scan_tree.c generate_code_c.c parse_diagram.c dia2code.c generate_code_java.c generate_code_cpp.c generate_code_csharp.c main.c 
 
 SUBDIRS = docs 
 
-EXTRA_DIST = main.c generate_code_cpp.c generate_code_java.c code_generators.h dia2code.h dia2code.c parse_diagram.c parse_diagram.h generate_code_c.c scan_tree.c generate_code_sql.c generate_code_ada.c generate_code_python.c Makefile.am generate_code_shp.c generate_code_php.c makefile.mingw generate_code_idl.c generate_code_csharp.c
+EXTRA_DIST = main.c generate_code_cpp.c generate_code_java.c code_generators.h dia2code.h dia2code.c parse_diagram.c parse_diagram.h generate_code_c.c scan_tree.c generate_code_sql.c generate_code_ada.c generate_code_python.c Makefile.am generate_code_shp.c generate_code_php.c makefile.mingw generate_code_idl.c generate_code_csharp.c decls.c includes.c
 
 ####### kdevelop will overwrite this part!!! (end)############
 bin_PROGRAMS = dia2code
@@ -81,7 +81,7 @@ INCLUDES = @XML_INCLUDES@
 dia2code_SOURCES = dia2code.c main.c parse_diagram.c scan_tree.c generate_code_c.c \
 generate_code_java.c generate_code_cpp.c generate_code_ada.c generate_code_sql.c \
 generate_code_python.c generate_code_php.c generate_code_shp.c generate_code_idl.c \
-generate_code_csharp.c
+generate_code_csharp.c decls.c includes.c
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
@@ -97,11 +97,12 @@ libdia2code_a_LIBADD =
 libdia2code_a_OBJECTS =  generate_code_idl.o generate_code_php.o \
 generate_code_shp.o generate_code_python.o generate_code_ada.o \
 generate_code_sql.o scan_tree.o generate_code_c.o parse_diagram.o \
-dia2code.o generate_code_java.o generate_code_cpp.o generate_code_csharp.o main.o
+dia2code.o generate_code_java.o generate_code_cpp.o generate_code_csharp.o \
+decls.o includes.o main.o
 AR = ar
 PROGRAMS =  $(bin_PROGRAMS)
 
-dia2code_OBJECTS =  dia2code.o main.o parse_diagram.o scan_tree.o \
+dia2code_OBJECTS =  decls.o includes.o dia2code.o main.o parse_diagram.o scan_tree.o \
 generate_code_c.o generate_code_java.o generate_code_cpp.o \
 generate_code_ada.o generate_code_sql.o generate_code_python.o \
 generate_code_php.o generate_code_shp.o generate_code_idl.o generate_code_csharp.o

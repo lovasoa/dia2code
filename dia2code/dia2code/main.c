@@ -97,6 +97,15 @@ under certain conditions; read the COPYING file for details.\n";
                          E.g: Base,Derived.\n\
     -v                   Invert the class list selection.  When used \n\
                          without -cl prevents any file from being created\n\
+    -ext <extension>     Use <extension> as the file extension.\n\
+                         Here are the defaults:\n\
+                         ada:\"ads\", c:\"h\", cpp:\"h\", idl:\"idl\",\n\
+                         java:\"java\", php:\"php\", python:\"py\".\n\
+                         Not applicable to shp, sql.\n\
+    -bext <extension>    Use <extension> as the body (implementation) file\n\
+                         extension. Currently only applies only to ada.\n\
+                         Here are the defaults:\n\
+                         ada:\"adb\"\n\
     <diagramfile>        The Dia file that holds the diagram to be read\n\n\
     Note: parameters can be specified in any order.";
 
@@ -132,6 +141,10 @@ under certain conditions; read the COPYING file for details.\n";
                 parameter = 3;
             } else if ( ! strcmp (argv[i], "-l") ) {
                 parameter = 4;
+            } else if ( ! strcmp (argv[i], "-ext") ) {
+                parameter = 5;
+            } else if ( ! strcmp (argv[i], "-bext") ) {
+                parameter = 6;
             } else if ( ! strcmp (argv[i], "-v") ) {
                 classmask = 1 - classmask;
             } else if ( ! strcmp("-h", argv[i]) || ! strcmp("--help", argv[i]) ) {
@@ -186,6 +199,14 @@ parameter = -1;   /* error */
             break;
         case 4:   /* Which license file */
             license = argv[i];
+            parameter = 0;
+            break;
+        case 5:   /* Which file extension */
+            file_ext = argv[i];
+            parameter = 0;
+            break;
+        case 6:   /* Which implementation file extension */
+            body_file_ext = argv[i];
             parameter = 0;
             break;
         }
