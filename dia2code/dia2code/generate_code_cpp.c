@@ -122,7 +122,7 @@ cppname (char *name)
             eq (name, "double") ||
             eq (name, "string") ||
             eq (name, "any")) {
-            sprintf (buf, "CORBA::%s", nospc (strtoupperfirst (name)));
+            sprintf (buf, "CORBA::%s", strtoupperfirst (name));
         } else if (eq (name, "long long")) {
             sprintf (buf, "CORBA::LongLong");
         } else if (eq (name, "unsigned short")) {
@@ -245,21 +245,29 @@ static void
 gen_class (umlclassnode *node)
 {
     char *name = node->key->name;
+    char *stype = node->key->stereotype;
+    int is_valuetype = 0;
+
+    if (strlen (stype) > 0) {
+        print ("// %s\n", stype);
+        is_valuetype = eq (stype, "CORBAValue");
+    }
 
     if (node->key->templates != NULL) {
         umltemplatelist template = node->key->templates;
-        print ("template <");
-        while (template != NULL) {
-            print ("%s %s", template->key.type, template->key.name);
-            template = template->next;
-            if (template != NULL)
-                emit (", ");
+        if (is_valuetype) {
+            fprintf (stderr, "CORBAValue %s: template ignored\n", name);
+        } else {
+            print ("template <");
+            while (template != NULL) {
+                print ("%s %s", template->key.type, template->key.name);
+                template = template->next;
+                if (template != NULL)
+                    emit (", ");
+            }
+            emit (">\n");
         }
-        emit (">\n");
     }
-
-    if (strlen (node->key->stereotype) > 0)
-        print ("// %s\n", node->key->stereotype);
 
     print ("class %s", name);
     if (node->parents != NULL) {
@@ -271,6 +279,8 @@ gen_class (umlclassnode *node)
             if (parent != NULL)
                 emit (", ");
         }
+    } else if (is_valuetype) {
+        emit (" : CORBA::ValueBase");
     }
     emit (" {\n");
     indentlevel++;
@@ -278,29 +288,77 @@ gen_class (umlclassnode *node)
     if (node->associations != NULL) {
         umlassoclist assoc = node->associations;
         print ("// Associations\n");
+        /*
+         * The associations are mapped as private members.
+         * Is that really what we want?
+         * (For example, other UML tools additionally generate
+         * setters/getters.)  Ideas and comments welcome.
+        */
         while (assoc != NULL) {
-            print ("%s ", assoc->key->name);
-            if (assoc->composite == 0) {
-                emit ("* ");
-            }
-            emit ("%s;\n", assoc->name);
+            umlclassnode *ref;
+            ref = find_by_name (gb->classlist, assoc->key->name);
+            print ("");
+            if (ref != NULL)
+                emit ("%s", fqname (ref, !assoc->composite));
+            else
+                emit ("%s", cppname (assoc->key->name));
+            emit (" %s;\n", assoc->name);
             assoc = assoc->next;
         }
     }
 
     if (node->key->attributes != NULL) {
         umlattrlist umla = node->key->attributes;
-        int tmpv = -1;
-        print ("// Attributes\n");
-        while (umla != NULL) {
-            check_visibility (&tmpv, umla->key.visibility);
-            print ("");
-            if (umla->key.isstatic) {
-                emit ("static ");
+        if (is_valuetype) {
+            print ("// Public state members\n");
+            indentlevel--;
+            print ("public:\n");
+            indentlevel++;
+            while (umla != NULL) {
+                char *member = umla->key.name;
+                umlclassnode *ref;
+                if (umla->key.visibility != '0') {
+                    umla = umla->next;
+                    continue;
+                }
+                print ("");
+                if (umla->key.isstatic) {
+                    fprintf (stderr, "CORBAValue %s/%s: static not supported\n",
+                                     name, member);
+                }
+                ref = find_by_name (gb->classlist, umla->key.type);
+                if (ref != NULL)
+                    eboth ("%s", fqname (ref, 1));
+                else
+                    eboth ("%s", cppname (umla->key.type));
+                emit (" %s () { return _%s; }\n", member, member);
+                print ("void %s (", member);
+                if (ref != NULL) {
+                    int by_ref = pass_by_reference (ref->key);
+                    if (by_ref)
+                        emit ("const ");
+                    emit ("%s", fqname (ref, 1));
+                    if (by_ref)
+                        emit ("&");
+                } else {
+                    emit ("%s", cppname (umla->key.type));
+                }
+                emit (" value_) { _%s = value_; }\n");
+                umla = umla->next;
             }
-            emit ("%s %s", umla->key.type, umla->key.name);
-            emit (";\n");
-            umla = umla->next;
+        } else {
+            int tmpv = -1;
+            print ("// Attributes\n");
+            while (umla != NULL) {
+                check_visibility (&tmpv, umla->key.visibility);
+                print ("");
+                if (umla->key.isstatic) {
+                    emit ("static ");
+                }
+                emit ("%s %s", umla->key.type, umla->key.name);
+                emit (";\n");
+                umla = umla->next;
+            }
         }
     }
 
@@ -308,25 +366,44 @@ gen_class (umlclassnode *node)
         umloplist umlo = node->key->operations;
         int tmpv = -1;
         print ("// Operations\n");
+        if (is_valuetype) {
+            indentlevel--;
+            print ("public:\n");
+            indentlevel++;
+        }
         while (umlo != NULL) {
             umlattrlist tmpa = umlo->key.parameters;
-            check_visibility (&tmpv, umlo->key.attr.visibility);
+            if (is_valuetype) {
+                if (umlo->key.attr.visibility != '0')
+                    fprintf (stderr, "CORBAValue %s/%s: must be public\n",
+                                     name, umlo->key.attr.name);
+            } else {
+                check_visibility (&tmpv, umlo->key.attr.visibility);
+            }
             print ("");
-            if (umlo->key.attr.isabstract) {
+            if (umlo->key.attr.isabstract || is_valuetype) {
                 emit ("virtual ");
                 umlo->key.attr.value[0] = '0';
             }
             if (umlo->key.attr.isstatic) {
-                emit ("static ");
+                if (is_valuetype)
+                    fprintf (stderr, "CORBAValue %s/%s: static not supported\n",
+                                     name, umlo->key.attr.name);
+                else
+                    emit ("static ");
             }
             if (strlen (umlo->key.attr.type) > 0) {
-                emit ("%s ", umlo->key.attr.type);
+                emit ("%s ", cppname (umlo->key.attr.type));
             }
             emit ("%s (", umlo->key.attr.name);
             while (tmpa != NULL) {
                 emit ("%s %s", tmpa->key.type, tmpa->key.name);
                 if (tmpa->key.value[0] != 0) {
-                    emit (" = %s", tmpa->key.value);
+                    if (is_valuetype)
+                        fprintf (stderr, "CORBAValue %s/%s: param default "
+                                 "not supported\n", name, umlo->key.attr.name);
+                    else
+                       emit (" = %s", tmpa->key.value);
                 }
                 tmpa = tmpa->next;
                 if (tmpa != NULL) {
@@ -334,7 +411,7 @@ gen_class (umlclassnode *node)
                 }
             }
             emit (")");
-            if ( umlo->key.attr.value[0] != 0 ) {
+            if (umlo->key.attr.value[0]) {
                 emit (" = %s", umlo->key.attr.value);
             }
             emit (";\n");
@@ -342,92 +419,30 @@ gen_class (umlclassnode *node)
         }
     }
 
-    indentlevel--;
-    print ("};\n\n");
-
-/*
-    if (node->key->isabstract)
-        emit ("  // abstract");
-    emit ("\n");
-    print ("public:\n");
-    indentlevel++;
-    if (umla) {
-        int tmpv = -1;
-        print ("// State members\n\n");
-        while (umla != NULL) {
-            char *member = umla->key.name;
-            umlclassnode *ref;
-            if (umla->key.visibility != '0') {
-                umla = umla->next;
-                continue;
-            }
-            print ("");
-            if (umla->key.isstatic) {
-                emit ("static ");
-            }
-            ref = find_by_name (gb->classlist, umla->key.type);
-            if (ref != NULL)
-                eboth ("%s", fqname (ref, 1));
-            else
-                eboth ("%s", cppname (umla->key.type));
-            emit (" %s", member);
-            if (umla->key.isstatic) {
-                emit (";\n");
-                umla = umla->next;
-                continue;
-            }
-            emit (" () { return %s_; }\n", member);
-            print ("void %s (", member);
-            if (ref != NULL) {
-                int by_ref = pass_by_reference (ref->key);
-                if (by_ref)
-                    emit ("const ");
-                emit ("%s", fqname (ref, 1));
-                if (by_ref)
-                    emit ("&");
-            } else {
-                emit ("%s", cppname (umla->key.type));
-            }
-            emit (" _value) { %s_ = _value; }\n");
-            umla = umla->next;
-        }
-    }
-    do_operations (name, node->key->operations);
-    indentlevel--;
-    emit ("\n");
-    print ("private:\n");
-    indentlevel++;
-    if (node->key->attributes) {
-        umla = node->key->attributes;
+    if (node->key->attributes != NULL && is_valuetype) {
+        umlattrlist umla = node->key->attributes;
+        emit ("\n");
+        indentlevel--;
+        print ("private:  // State member implementation\n");
+        indentlevel++;
         while (umla != NULL) {
             umlclassnode *ref = find_by_name (gb->classlist, umla->key.type);
-            print ("%s : ", umla->key.name);
-            if (ref != NULL)
-                emit ("%s", fqname (ref, 1));
-            else
+            print ("");
+            if (ref != NULL) {
+                emit ("%s", fqname (ref, is_oo_class (ref->key)));
+                /*
+                 * FIXME: Find a better way to decide whether to use
+                 * a pointer.
+                */
+            } else
                 emit ("%s", cppname (umla->key.type));
-            emit (";\n");
+            emit (" _%s;\n", umla->key.name);
             umla = umla->next;
         }
-    } else if (node->associations == NULL) {
-        print ("null;\n");
     }
-    if (node->associations) {
-        umlassoclist assoc = node->associations;
-        print ("// Associations\n");
-        while (assoc != NULL) {
-            umlclassnode *ref;
-            ref = find_by_name (gb->classlist, assoc->key->name);
-            print ("%s : ", assoc->name);
-            if (ref != NULL)
-                emit ("%s", fqname (ref, !assoc->composite));
-            else
-                emit ("%s", cppname (assoc->key->name));
-            emit (";\n");
-            assoc = assoc->next;
-        }
-    }
- */
+
+    indentlevel--;
+    print ("};\n\n");
 }
 
 
@@ -467,7 +482,7 @@ gen_decl (declaration *d)
     }
 
     if (eq (stype, "CORBANative")) {
-        print ("type %s is private;  // CORBANative \n\n", name);
+        print ("// CORBANative: %s \n\n", name);
 
     } else if (eq (stype, "CORBAConstant")) {
         if (umla == NULL) {
@@ -504,7 +519,8 @@ gen_decl (declaration *d)
             check_umlattr (&umla->key, name);
             print ("%s %s", cppname (umla->key.type), umla->key.name);
             if (strlen (umla->key.value) > 0)
-                emit (" = %s", umla->key.value);
+                fprintf (stderr, "%s/%s: ignoring value\n",
+                                 name, umla->key.name);
             emit (";\n");
             umla = umla->next;
         }
@@ -512,7 +528,7 @@ gen_decl (declaration *d)
         print ("};\n\n");
 
     } else if (eq (stype, "CORBAException")) {
-        /* To Be Done.  */
+        fprintf (stderr, "%s: CORBAException not yet implemented\n", name);
 
     } else if (eq (stype, "CORBAUnion")) {
         umlattrnode *sw = umla;
@@ -520,16 +536,17 @@ gen_decl (declaration *d)
             fprintf (stderr, "Error: attributes not set at union %s\n", name);
             exit (1);
         }
+        fprintf (stderr, "%s: CORBAUnion not yet fully implemented\n", name);
         print ("class %s {  // CORBAUnion\n", name);
         print ("public:\n", name);
         indentlevel++;
-        print ("%s _d();  // TBD\n\n", umla->key.type);
+        print ("%s _d();  // body TBD\n\n", umla->key.type);
         umla = umla->next;
         while (umla != NULL) {
             check_umlattr (&umla->key, name);
-            print ("%s %s ();  // TBD\n",
+            print ("%s %s ();  // body TBD\n",
                    cppname (umla->key.type), umla->key.name);
-            print ("void %s (%s _value);  // TBD\n\n", umla->key.name,
+            print ("void %s (%s _value);  // body TBD\n\n", umla->key.name,
                    cppname (umla->key.type));
             umla = umla->next;
         }
