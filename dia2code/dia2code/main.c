@@ -87,7 +87,7 @@ under certain conditions; read the COPYING file for details.\n";
     char *bighelp = "\
     -h --help            Print this help and exit\n\
     -t <target>          Selects the output language. <target> can be\n\
-                         one of: ada,c,cpp,idl,java,php,python,shp or sql. \n\
+                         one of: ada,c,cpp,idl,java,php,python,shp,sql or csharp. \n\
                          Default is C++\n\
     -d <dir>             Output generated files to <dir>, default is \".\" \n\
     -l <license>         License file to prepend to generated files.\n\
@@ -100,7 +100,7 @@ under certain conditions; read the COPYING file for details.\n";
     -ext <extension>     Use <extension> as the file extension.\n\
                          Here are the defaults:\n\
                          ada:\"ads\", c:\"h\", cpp:\"h\", idl:\"idl\",\n\
-                         java:\"java\", php:\"php\", python:\"py\".\n\
+                         java:\"java\", php:\"php\", python:\"py\", csharp:\"cs\".\n\
                          Not applicable to shp, sql.\n\
     -bext <extension>    Use <extension> as the body (implementation) file\n\
                          extension. Currently only applies only to ada.\n\
