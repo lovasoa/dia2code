@@ -16,4 +16,5 @@ Contributors: (in alphabetical order, by last name)
 - Jérôme Slangen <jeromes@mail.be> Wildcard class list mechanism.
 - Takaaki Tateishi <> Dynamic Shared Objects for dynamic code generator modules.
 - Martin Vidner <mvidner@users.sourceforge.net> Porting to libxml2.
-- Thomas Hansen <thomas.hansen@adramatch.com> C# code generation
+- Thomas Hansen <thomas.hansen@adramatch.com> C# code generation.
+- Oliver Kellogg <Oliver.Kellogg@t-online.de> Fixes for scan_tree.c and idl generation.

@@ -106,7 +106,7 @@ namelist find_classes(umlclasslist current_class, batch *b) {
 }
 
 umlclasslist find_by_name(umlclasslist list, const char * name ){
-    if ( name != NULL ) {
+    if ( name != NULL && strlen(name) > 0 ) {
         while ( list != NULL ) {
             if ( ! strcmp(name, list->key->name) ) {
                 return list;
@@ -124,6 +124,9 @@ umlclasslist append ( umlclasslist list, umlclass * class ){
 
     tmpnode = (umlclasslist) my_malloc ( sizeof(umlclassnode) );
     tmpnode->key = class;
+    tmpnode->parents = NULL;
+    tmpnode->associations = NULL;
+    tmpnode->dependencies = NULL;
     tmpnode->next = NULL;
 
     if ( tmplist != NULL ){
@@ -151,9 +154,11 @@ umlclasslist list_classes(umlclasslist current_class, batch *b) {
 
     umla = current_class->key->attributes;
     while ( umla != NULL) {
-        tmpnode = find_by_name(classes, umla->key.type);
-        if ( tmpnode && ! find_by_name(result, umla->key.type)) {
-            result = append(result, tmpnode->key);
+        if ( strlen(umla->key.type) > 0 ) {
+            tmpnode = find_by_name(classes, umla->key.type);
+            if ( tmpnode && ! find_by_name(result, umla->key.type)) {
+                result = append(result, tmpnode->key);
+            }
         }
         umla = umla->next;
     }
