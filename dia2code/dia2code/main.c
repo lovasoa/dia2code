@@ -113,7 +113,7 @@ under certain conditions; read the COPYING file for details.\n";
                          extension. Currently only applies only to ada.\n\
                          Here are the defaults:\n\
                          ada:\"adb\"\n\
-    -ini <file>          Can be used instead of command-line parameters\n
+    -ini <file>          Can be used instead of command-line parameters\n\
     <diagramfile>        The Dia file that holds the diagram to be read\n\n\
     Note: parameters can be specified in any order.";
 
