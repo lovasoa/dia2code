@@ -343,3 +343,4 @@ void generate_code_java(batch *b)
         tmplist = tmplist->next;
     }
 }
+
