@@ -175,6 +175,8 @@ umlclasslist find_by_name(umlclasslist list, const char * name);
 
 int is_enum_stereo (char * stereo);
 
+umlattrlist copy_attributes(umlattrlist src);
+
 void * my_malloc( size_t size );
 
 umlpackagelist make_package_list( umlpackage * package);

@@ -14,7 +14,19 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "../dia2code/dia2code.h"
+#include "dia2code.h"
+#include "parse_diagram.h"
+#include "code_generators.h"
+
+void inherit_attributes(umlclasslist parents, umlattrlist umla) {
+    umlattrlist pumla;
+
+    while (parents != NULL) {
+        pumla = parents->key->attributes;
+        insert_attribute(copy_attributes(pumla), umla);
+        parents = parents->next;
+    }
+}
 
 void generate_code_sql(batch *b) {
     /*
@@ -76,6 +88,11 @@ void generate_code_sql(batch *b) {
         if ( ! ( is_present(b->classes, tmplist->key->name) ^ b->mask ) ) {
             char seenFirst = 0;
 
+            if (tmplist->key->isabstract) {
+                tmplist = tmplist->next;
+	        continue;
+            }
+
             /* Class (table) */
             fprintf(outfilesql, "CREATE TABLE %s(\n", tmplist->key->name);
 
@@ -83,6 +100,7 @@ void generate_code_sql(batch *b) {
             fprintf(outfilesql, "-- Attributes --\n");
             tmpv = -1;
             umla = tmplist->key->attributes;
+            inherit_attributes (tmplist->parents, umla);
             while ( umla != NULL) {
                 fprintf(outfilesql, "%s %s", umla->key.name, umla->key.type);
                 if (umla->next != NULL) {
@@ -137,3 +155,4 @@ void generate_code_sql(batch *b) {
     fprintf(stderr, "Finished!");
     fclose(outfilesql);
 }
+

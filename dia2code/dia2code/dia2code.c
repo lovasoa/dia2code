@@ -157,6 +157,29 @@ umlpackagelist make_package_list(umlpackage * package){
     return tmplist;
 }
 
+umlattrlist copy_attributes(umlattrlist src)
+{
+    umlattrlist cpy = NULL, start = NULL;
+
+    while (src != NULL)
+    {
+        umlattrlist tmp = (umlattrlist) my_malloc(sizeof(umlattrnode));
+        tmp->key = src->key;
+        if (cpy == NULL) {
+            cpy = tmp;
+            start = tmp;
+        } else {
+            cpy->next = tmp;
+            cpy = tmp;
+        }
+        src = src->next;
+    }
+    if (cpy != NULL)
+        cpy->next = NULL;
+
+    return start;
+}
+
 int indentlevel = 0;
 static int number_of_spaces_for_one_indentation = 2;
 

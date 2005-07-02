@@ -30,4 +30,4 @@ void generate_code_shp(batch *b);
 void generate_code_idl(batch *b);
 void generate_code_csharp(batch *b);
 
-
+void inherit_attributes(umlclasslist, umlattrlist);
