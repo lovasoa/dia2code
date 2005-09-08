@@ -189,8 +189,8 @@ under certain conditions; read the COPYING file for details.\n";
                 generator = generators[8];
             } else if ( ! strcmp (argv[i], "csharp") ) {
                 generator = generators[9];
-	    } else if ( ! strcmp(argv[i], "php5") ) {
-		generator = generators[10];
+            } else if ( ! strcmp(argv[i], "php5") ) {
+                generator = generators[10];
             } else {
 #ifdef DSO
                 generator = find_dia2code_module(argv[i]);
