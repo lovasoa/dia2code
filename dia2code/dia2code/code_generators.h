@@ -29,5 +29,6 @@ void generate_code_php(batch *b);
 void generate_code_shp(batch *b);
 void generate_code_idl(batch *b);
 void generate_code_csharp(batch *b);
+void generate_code_php_five(batch *b);
 
 void inherit_attributes(umlclasslist, umlattrlist);
