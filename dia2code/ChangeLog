@@ -1,4 +1,5 @@
-
+17 Nov 2006: Version 0.8.2
+- Added PHP5 code generator by Tim Rodger.
 - Fixed the bug that caused SEGFAULTs when parsing a simple implementation
 (here called lolipop implementation) with no text associated.  Thanks to
 Max Berger and Patrice Neff.

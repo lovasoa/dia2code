@@ -82,19 +82,19 @@ int main(int argc, char **argv) {
     void (*generators[NO_GENERATORS])(batch *);
 
     char * notice = "\
-dia2code version 0.8.1, Copyright (C) 2000-2001 Javier O'Hara\n\
+dia2code version 0.8.2, Copyright (C) 2000-2001 Javier O'Hara\n\
 Dia2Code comes with ABSOLUTELY NO WARRANTY\n\
 This is free software, and you are welcome to redistribute it\n\
 under certain conditions; read the COPYING file for details.\n";
 
     char *help = "[-h|--help] [-d <dir>] [-nc] [-cl <classlist>]\n\
-       [-t (ada|c|cpp|idl|java|php|python|shp|sql|csharp)] [-v]\n\
+       [-t (ada|c|cpp|idl|java|php|php5|python|shp|sql|csharp)] [-v]\n\
        [-l <license file>] [-ini <initialization file>]<diagramfile>";
 
     char *bighelp = "\
     -h --help            Print this help and exit\n\
     -t <target>          Selects the output language. <target> can be\n\
-                         one of: ada,c,cpp,idl,java,php,python,shp,sql or csharp. \n\
+                         one of: ada,c,cpp,idl,java,php,php5,python,shp,sql or csharp. \n\
                          Default is C++\n\
     -d <dir>             Output generated files to <dir>, default is \".\" \n\
     -l <license>         License file to prepend to generated files.\n\
