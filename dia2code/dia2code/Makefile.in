@@ -134,13 +134,13 @@ libdia2code_a_AR = $(AR) cru
 libdia2code_a_LIBADD =
 am_libdia2code_a_OBJECTS = decls.$(OBJEXT) includes.$(OBJEXT) \
 	generate_code_idl.$(OBJEXT) generate_code_php.$(OBJEXT) \
-        generate_code_php_five.$(OBJEXT) \
-	generate_code_shp.$(OBJEXT) generate_code_python.$(OBJEXT) \
-	generate_code_ada.$(OBJEXT) generate_code_sql.$(OBJEXT) \
-	scan_tree.$(OBJEXT) generate_code_c.$(OBJEXT) \
-	parse_diagram.$(OBJEXT) dia2code.$(OBJEXT) \
-	generate_code_java.$(OBJEXT) generate_code_cpp.$(OBJEXT) \
-	generate_code_csharp.$(OBJEXT) main.$(OBJEXT)
+	generate_code_php_five.$(OBJEXT) generate_code_shp.$(OBJEXT) \
+	generate_code_python.$(OBJEXT) generate_code_ada.$(OBJEXT) \
+	generate_code_sql.$(OBJEXT) scan_tree.$(OBJEXT) \
+	generate_code_c.$(OBJEXT) parse_diagram.$(OBJEXT) \
+	dia2code.$(OBJEXT) generate_code_java.$(OBJEXT) \
+	generate_code_cpp.$(OBJEXT) generate_code_csharp.$(OBJEXT) \
+	main.$(OBJEXT)
 libdia2code_a_OBJECTS = $(am_libdia2code_a_OBJECTS)
 bin_PROGRAMS = dia2code$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
