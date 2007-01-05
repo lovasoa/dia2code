@@ -19,8 +19,7 @@ the structure of the classes in an Object Oriented language
 
 STATUS
 
-Current version is 0.8.2. Dia2Code generates Ada, C, C++, IDL, Java, PHP, Python, C#,
-and Ruby files.
+Dia2Code generates Ada, C, C++, IDL, Java, PHP, Python, C#, and Ruby files.
 It can also generate a file with SQL's CREATE TABLE statements and .bat files for
 creating shapes.  Templates and packages are supported but need testing.
 
