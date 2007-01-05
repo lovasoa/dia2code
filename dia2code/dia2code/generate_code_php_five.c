@@ -21,8 +21,6 @@ generate_code_php5.c  -  Function that generates Php 5 code
 
 #define TABS "    "  /* 4 */
 
-#define eq  !strcmp
-
 /*
  * return the string declaring the class type
  */

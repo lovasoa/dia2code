@@ -29,7 +29,7 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
-#define VERSION "0.8.2"
+#define VERSION "0.8.3"
 
 #ifdef DSO
 #include <dlfcn.h>
@@ -247,6 +247,7 @@ char *d2c_operation_mangle_name(umlopnode *op);
 int d2c_backup(char *filename);
 
 #define TAG fprintf(stderr, "%s %d\n", __FILE__, __LINE__);
+#define eq  !strcmp
 
 struct param_list
 {

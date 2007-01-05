@@ -25,8 +25,6 @@
 #define SPEC_EXT "ads"
 #define BODY_EXT "adb"
 
-#define eq  !strcmp
-
 int use_convention_c = 0;  /* Temporarily here. */
 int strict_corba = 0;      /* Should be turned into command line options.  */
 

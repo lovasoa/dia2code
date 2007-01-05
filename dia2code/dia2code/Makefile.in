@@ -110,11 +110,11 @@ target_alias = @target_alias@
 ####### kdevelop will overwrite this part!!! (begin)##########
 noinst_LIBRARIES = libdia2code.a
 
-libdia2code_a_SOURCES = decls.c includes.c generate_code_idl.c generate_code_php.c generate_code_php_five.c generate_code_shp.c generate_code_python.c generate_code_ada.c generate_code_sql.c scan_tree.c generate_code_c.c parse_diagram.c dia2code.c generate_code_java.c generate_code_cpp.c generate_code_csharp.c main.c 
+libdia2code_a_SOURCES = decls.c includes.c generate_code_idl.c generate_code_php.c generate_code_php_five.c generate_code_shp.c generate_code_python.c generate_code_ada.c generate_code_sql.c scan_tree.c generate_code_c.c parse_diagram.c dia2code.c generate_code_java.c generate_code_cpp.c generate_code_csharp.c generate_code_ruby.c main.c 
 
 SUBDIRS = docs 
 
-EXTRA_DIST = main.c generate_code_cpp.c generate_code_java.c code_generators.h dia2code.h dia2code.c parse_diagram.c parse_diagram.h generate_code_c.c scan_tree.c generate_code_sql.c generate_code_ada.c generate_code_python.c Makefile.am generate_code_shp.c generate_code_php.c generate_code_php_five.c makefile.mingw generate_code_idl.c generate_code_csharp.c decls.c includes.c
+EXTRA_DIST = main.c generate_code_cpp.c generate_code_java.c code_generators.h dia2code.h dia2code.c parse_diagram.c parse_diagram.h generate_code_c.c scan_tree.c generate_code_sql.c generate_code_ada.c generate_code_python.c Makefile.am generate_code_shp.c generate_code_php.c generate_code_php_five.c makefile.mingw generate_code_idl.c generate_code_csharp.c generate_code_ruby.c decls.c includes.c
 
 ####### kdevelop will overwrite this part!!! (end)############
 bin_PROGRAMS = dia2code
@@ -122,7 +122,7 @@ INCLUDES = @XML_INCLUDES@
 dia2code_SOURCES = dia2code.c main.c parse_diagram.c scan_tree.c generate_code_c.c \
 generate_code_java.c generate_code_cpp.c generate_code_ada.c generate_code_sql.c \
 generate_code_python.c generate_code_php.c generate_code_shp.c generate_code_idl.c \
-generate_code_csharp.c generate_code_php_five.c decls.c includes.c
+generate_code_csharp.c generate_code_php_five.c generate_code_ruby.c decls.c includes.c
 
 subdir = dia2code
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -140,7 +140,7 @@ am_libdia2code_a_OBJECTS = decls.$(OBJEXT) includes.$(OBJEXT) \
 	generate_code_c.$(OBJEXT) parse_diagram.$(OBJEXT) \
 	dia2code.$(OBJEXT) generate_code_java.$(OBJEXT) \
 	generate_code_cpp.$(OBJEXT) generate_code_csharp.$(OBJEXT) \
-	main.$(OBJEXT)
+	generate_code_ruby.$(OBJEXT) main.$(OBJEXT)
 libdia2code_a_OBJECTS = $(am_libdia2code_a_OBJECTS)
 bin_PROGRAMS = dia2code$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
@@ -152,8 +152,8 @@ am_dia2code_OBJECTS = dia2code.$(OBJEXT) main.$(OBJEXT) \
 	generate_code_sql.$(OBJEXT) generate_code_python.$(OBJEXT) \
 	generate_code_php.$(OBJEXT) generate_code_shp.$(OBJEXT) \
 	generate_code_idl.$(OBJEXT) generate_code_csharp.$(OBJEXT) \
-	generate_code_php_five.$(OBJEXT) decls.$(OBJEXT) \
-	includes.$(OBJEXT)
+	generate_code_php_five.$(OBJEXT) generate_code_ruby.$(OBJEXT) \
+	decls.$(OBJEXT) includes.$(OBJEXT)
 dia2code_OBJECTS = $(am_dia2code_OBJECTS)
 dia2code_LDADD = $(LDADD)
 dia2code_DEPENDENCIES =
@@ -172,6 +172,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/generate_code_php.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/generate_code_php_five.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/generate_code_python.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/generate_code_ruby.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/generate_code_shp.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/generate_code_sql.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/includes.Po ./$(DEPDIR)/main.Po \
@@ -255,6 +256,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_php.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_php_five.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_python.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_ruby.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_shp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_sql.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/includes.Po@am__quote@

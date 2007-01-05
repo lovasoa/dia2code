@@ -1,5 +1,5 @@
 %define name dia2code
-%define ver 0.8.2
+%define ver 0.8.3
 %define prefix /usr
 %define rel 1
 

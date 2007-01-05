@@ -105,7 +105,7 @@ void generate_code_csharp (batch *b) {
         print ("public ");
 
         tmpname = strtolower (tmplist->key->stereotype);
-        if (! strcmp ("interface", tmpname)) {
+        if (eq ("interface", tmpname)) {
             emit ("interface ");
         } else {
             if (tmplist->key->isabstract)
@@ -123,7 +123,7 @@ void generate_code_csharp (batch *b) {
             umlclasslist parents = tmplist->parents;
             while (parents != NULL) {
                 tmpname = strtolower (parents->key->stereotype);
-                if (! strcmp (tmpname, "interface")) {
+                if (eq (tmpname, "interface")) {
                     emit (" : ");
                 } else {
                     emit (" : ");

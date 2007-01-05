@@ -23,8 +23,6 @@
 #include "decls.h"
 #include "includes.h"
 
-#define eq  !strcmp
-
 static void
 check_umlattr (umlattribute *u, char *typename)
 {

@@ -47,7 +47,7 @@ int java_manage_parents(FILE *f, umlclasslist parents, int stereotype)
     while ( parents != NULL )
     {
         tmpname = strtolower(parents->key->stereotype);
-        if ( ! strcmp(tmpname, "interface"))
+        if (eq(tmpname, "interface"))
         {
             if (stereotype == JAVA_IMPLEMENTS)
             {
@@ -200,7 +200,7 @@ void generate_code_java(batch *b)
                 d2c_fprintf(outfile, "\npublic ");
 
                 tmpname = strtolower(tmplist->key->stereotype);
-                if ( ! strcmp("interface", tmpname) )
+                if (eq("interface", tmpname) )
                     classtype = CLASSTYPE_INTERFACE;
                 else
                 {

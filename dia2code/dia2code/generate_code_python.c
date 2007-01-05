@@ -89,7 +89,7 @@ void generate_code_python(batch *b) {
                 fprintf(outfile, "\n");
 
                 tmpname = strtolower(tmplist->key->stereotype);
-                interface = !strcmp("interface", tmpname);
+                interface = eq("interface", tmpname);
                 abstract = tmplist->key->isabstract;
                 free(tmpname);
 

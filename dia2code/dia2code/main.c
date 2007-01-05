@@ -82,19 +82,19 @@ int main(int argc, char **argv) {
     void (*generators[NO_GENERATORS])(batch *);
 
     char * notice = "\
-dia2code version 0.8.2, Copyright (C) 2000-2001 Javier O'Hara\n\
+dia2code version 0.8.3, Copyright (C) 2000-2001 Javier O'Hara\n\
 Dia2Code comes with ABSOLUTELY NO WARRANTY\n\
 This is free software, and you are welcome to redistribute it\n\
 under certain conditions; read the COPYING file for details.\n";
 
     char *help = "[-h|--help] [-d <dir>] [-nc] [-cl <classlist>]\n\
-       [-t (ada|c|cpp|idl|java|php|php5|python|shp|sql|csharp)] [-v]\n\
+       [-t (ada|c|cpp|csharp|idl|java|php|php5|python|ruby|shp|sql)] [-v]\n\
        [-l <license file>] [-ini <initialization file>]<diagramfile>";
 
     char *bighelp = "\
     -h --help            Print this help and exit\n\
     -t <target>          Selects the output language. <target> can be\n\
-                         one of: ada,c,cpp,idl,java,php,php5,python,shp,sql or csharp. \n\
+                         one of: ada,c,cpp,idl,java,php,php5,python,ruby,shp,sql or csharp. \n\
                          Default is C++\n\
     -d <dir>             Output generated files to <dir>, default is \".\" \n\
     -l <license>         License file to prepend to generated files.\n\
@@ -129,6 +129,7 @@ under certain conditions; read the COPYING file for details.\n";
     generators[8] = generate_code_idl;
     generators[9] = generate_code_csharp;
     generators[10] = generate_code_php_five;
+    generators[11] = generate_code_ruby;
 
 
     if (argc < 2) {
@@ -142,25 +143,25 @@ under certain conditions; read the COPYING file for details.\n";
     for (i = 1; i < argc; i++) {
         switch ( parameter ) {
         case 0:
-            if ( ! strcmp (argv[i], "-t") ) {
+            if ( eq (argv[i], "-t") ) {
                 parameter = 1;
-            } else if ( ! strcmp (argv[i], "-d") ) {
+            } else if ( eq (argv[i], "-d") ) {
                 parameter = 2;
-            } else if ( ! strcmp (argv[i], "-nc") ) {
+            } else if ( eq (argv[i], "-nc") ) {
                 clobber = 0;
-            } else if ( ! strcmp (argv[i], "-cl") ) {
+            } else if ( eq (argv[i], "-cl") ) {
                 parameter = 3;
-            } else if ( ! strcmp (argv[i], "-l") ) {
+            } else if ( eq (argv[i], "-l") ) {
                 parameter = 4;
-            } else if ( ! strcmp (argv[i], "-ext") ) {
+            } else if ( eq (argv[i], "-ext") ) {
                 parameter = 5;
-            } else if ( ! strcmp (argv[i], "-bext") ) {
+            } else if ( eq (argv[i], "-bext") ) {
                 parameter = 6;
-            } else if ( ! strcmp (argv[i], "-ini") ) {
+            } else if ( eq (argv[i], "-ini") ) {
                 parameter = 7;
-            } else if ( ! strcmp (argv[i], "-v") ) {
+            } else if ( eq (argv[i], "-v") ) {
                 classmask = 1 - classmask;
-            } else if ( ! strcmp("-h", argv[i]) || ! strcmp("--help", argv[i]) ) {
+            } else if ( eq("-h", argv[i]) || eq("--help", argv[i]) ) {
                 printf("%s\nUsage: %s %s\n\n%s\n", notice, argv[0], help, bighelp);
                 exit(0);
             } else {
@@ -169,28 +170,30 @@ under certain conditions; read the COPYING file for details.\n";
             break;
         case 1:   /* Which code generator */
             parameter = 0;
-            if ( ! strcmp (argv[i], "c") ) {
-                generator = generators[2];
-            } else if ( ! strcmp (argv[i], "cpp") ) {
+            if ( eq (argv[i], "cpp") ) {
                 generator = generators[0];
-            } else if ( ! strcmp (argv[i], "java") ) {
+            } else if ( eq (argv[i], "java") ) {
                 generator = generators[1];
-            } else if ( ! strcmp (argv[i], "sql") ) {
+            } else if ( eq (argv[i], "c") ) {
+                generator = generators[2];
+            } else if ( eq (argv[i], "sql") ) {
                 generator = generators[3];
-            } else if ( ! strcmp (argv[i], "ada") ) {
+            } else if ( eq (argv[i], "ada") ) {
                 generator = generators[4];
-            } else if ( ! strcmp (argv[i], "python") ) {
+            } else if ( eq (argv[i], "python") ) {
                 generator = generators[5];
-            } else if ( ! strcmp (argv[i], "php") ) {
+            } else if ( eq (argv[i], "php") ) {
                 generator = generators[6];
-            } else if ( ! strcmp (argv[i], "shp") ) {
+            } else if ( eq (argv[i], "shp") ) {
                 generator = generators[7];
-            } else if ( ! strcmp (argv[i], "idl") ) {
+            } else if ( eq (argv[i], "idl") ) {
                 generator = generators[8];
-            } else if ( ! strcmp (argv[i], "csharp") ) {
+            } else if ( eq (argv[i], "csharp") ) {
                 generator = generators[9];
-            } else if ( ! strcmp(argv[i], "php5") ) {
+            } else if ( eq(argv[i], "php5") ) {
                 generator = generators[10];
+            } else if ( eq(argv[i], "ruby") ) {
+                generator = generators[11];
             } else {
 #ifdef DSO
                 generator = find_dia2code_module(argv[i]);
@@ -315,7 +318,7 @@ void parse_command(char *name, char *value)
         ini_parse_command *cmd = &ini_parse_commands[i];
         if(cmd->name == NULL)
             break;
-        if (!strcmp(cmd->name, name) == 0)
+        if (eq(cmd->name, name) == 0)
         {
             i++;
             continue;

@@ -8,10 +8,10 @@ This program generates code for many languages from an UML Dia Diagram.
 DESCRIPTION
 
 This program is a small utility that makes code from a Dia diagram. Supported
-languages are: Ada, C, C++, IDL, Java, PHP, Python, shapefiles, C# and SQL create
-statement files.
+languages are: Ada, C, C++, C#, IDL, Java, PHP(4,5), Python, Ruby, shapefiles,
+and SQL create statement files.
 
-It's intended purpose is to ease the programmer's work by generating
+Its intended purpose is to ease the programmer's work by generating
 the structure of the classes in an Object Oriented language
 (like C++, Java and C#) from a graphical representation of them
 (a Dia Diagram).
@@ -19,7 +19,8 @@ the structure of the classes in an Object Oriented language
 
 STATUS
 
-Current version is 0.8.2. Dia2Code generates Ada, C, C++, IDL, Java, PHP, Python, C# files.
+Current version is 0.8.2. Dia2Code generates Ada, C, C++, IDL, Java, PHP, Python, C#,
+and Ruby files.
 It can also generate a file with SQL's CREATE TABLE statements and .bat files for
 creating shapes.  Templates and packages are supported but need testing.
 
@@ -448,6 +449,7 @@ Contributors: (in alphabetical order, by last name)
   IDL code generation.
 - Takashi Okamoto <toraneko@kun.ne.jp> License inclusion mechanism.
 - Thomas Preymesser <tp@odn.de> Ada code generation.
+- Dmitry V. Sabanin <sdmitry@lrn.ru> Ruby code generation.
 - Jérôme Slangen <jeromes@mail.be> Wildcard class list mechanism.
 - Takaaki Tateishi <> Dynamic Shared Objects for dynamic code generator modules.
 - Martin Vidner <mvidner@users.sourceforge.net> Porting to libxml2.

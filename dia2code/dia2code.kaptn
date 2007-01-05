@@ -5,12 +5,13 @@ dia2code :tabbed -> main about;
 main "Dia2Code" -> "dia2code" language outdir classlist mask noclobber licensefile " " diagramfile;
 
 language "Output Language" -> " -t " outlanguage ;
-outlanguage :double :horizontal -> ada | c | ! cpp | idl | java | php | python | shp | sql ;
+outlanguage :double :horizontal -> ada | c | ! cpp | idl | java | php | python | ruby | shp | sql ;
 c "C" -> "c";
 cpp "C++" -> "cpp";
 java "Java" -> "java";
 ada "Ada" -> "ada";
 python "Python" -> "python";
+ruby "Ruby" -> "ruby";
 sql "SQL" -> "sql";
 shp "SHP" -> "shp";
 php "PHP" -> "php";
