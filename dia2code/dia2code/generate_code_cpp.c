@@ -333,17 +333,17 @@ gen_class (umlclassnode *node)
             }
 
             /* print comments on operation */
-if (strlen(umlo->key.attr.comment)) {
-    print("/// %s\n", umlo->key.attr.comment);
-    tmpa = umlo->key.parameters;
-    while (tmpa != NULL) {
-         print("/// @param %s\t\t(%s) %s\n",
-               tmpa->key.name,
-               kind_str(tmpa->key.kind),
-               tmpa->key.comment);
-               tmpa = tmpa->next;
-    }
-}
+            if (strlen(umlo->key.attr.comment)) {
+                print("/// %s\n", umlo->key.attr.comment);
+                tmpa = umlo->key.parameters;
+                while (tmpa != NULL) {
+                     print("/// @param %s\t\t(%s) %s\n",
+                           tmpa->key.name,
+                           kind_str(tmpa->key.kind),
+                           tmpa->key.comment);
+                           tmpa = tmpa->next;
+                }
+            }
             /* print operation */
             print ("");
             if (umlo->key.attr.isabstract || is_valuetype) {
