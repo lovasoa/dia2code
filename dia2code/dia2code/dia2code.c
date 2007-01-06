@@ -18,6 +18,41 @@
 #include "dia2code.h"
 #include "errno.h"
 
+char * d2c_indentstring = "   ";
+int d2c_indentposition = 0;
+
+int indentlevel = 0;
+static int number_of_spaces_for_one_indentation = 2;
+static int DBG_LEVEL = 4;
+
+void dia2code_initializations()
+{
+}
+
+void debug_setlevel( int newlevel )
+{
+    DBG_LEVEL = newlevel;
+}
+
+/* 
+ * a dummy logger / debugger function
+ */
+void debug( int level, char *fmt, ... )
+{
+    static char debug_buffer[4200];
+    va_list argptr;
+    int cnt;
+    //printf( "debug call\n" );
+    if( level != DBG_LEVEL ) 
+        return;
+    va_start(argptr, fmt);
+    cnt = vsprintf(debug_buffer, fmt, argptr);
+    va_end(argptr);
+    fprintf( stderr, "DBG %d: %s\n", level, debug_buffer );
+    fflush( stderr);
+    //printf( "END debug call\n" );
+}
+
 /**
  * This function returns the upper case char* of the one taken on input
  * The char * received may be freed by the caller
@@ -135,6 +170,8 @@ void * my_malloc( size_t size ) {
         fprintf(stderr, "Out of memory\n");
         exit(1);
     }
+    /* safer zone */
+    //memset( tmp, 0, size );
     return tmp;
 }
 
@@ -145,14 +182,14 @@ void * my_malloc( size_t size ) {
     package will be the last.
 */
 umlpackagelist make_package_list(umlpackage * package){
-    umlpackagelist dummylist,tmplist=NULL;
+    umlpackagelist dummylist, tmplist=NULL;
 
     while ( package != NULL ){
         dummylist = (umlpackagelist) my_malloc(sizeof(umlpackagenode));
         dummylist->next = tmplist;
         tmplist = dummylist;
         tmplist->key = package;
-        package = package -> parent;
+        package = package->parent;
     }
     return tmplist;
 }
@@ -180,8 +217,44 @@ umlattrlist copy_attributes(umlattrlist src)
     return start;
 }
 
-int indentlevel = 0;
-static int number_of_spaces_for_one_indentation = 2;
+
+/**
+ * create a directory hierarchy for the package name 
+ * batch.outdir is taken as root directory 
+ * works with java-like package naming convention 
+ * the directory path is stored in pkg->directory
+ * eg. org.foo.bar will create directory tree org/foo/bar
+ * @param the current batch
+ * @param the package pointer
+ * @return the full directory path eg. "<outdir>/org/foo/bar"
+ * 
+ */
+char *create_package_dir( const batch *batch, umlpackage *pkg )
+{
+    char * fulldirname, *dirname;
+    int ret;
+    /* created directories permissions */
+    mode_t dir_mask = S_IRUSR | S_IWUSR | S_IXUSR |S_IRGRP | S_IXGRP;
+    if( pkg == NULL ) {
+        return NULL;
+    }
+    if( (batch->buildtree == 0) || (pkg->name == NULL )) {
+        pkg->directory = batch->outdir;
+    } else {
+        fulldirname = strdup( batch->outdir );
+        dirname = strdup(pkg->name);
+        dirname = strtok( dirname, "." );
+        while( dirname != NULL ) {
+            sprintf( fulldirname, "%s/%s", fulldirname, dirname );
+            /* TODO : should create only if not existant */
+            ret = mkdir( fulldirname, dir_mask );
+            dirname = strtok( NULL, "." );
+        }
+        /* set the package directory used later for source file creation */
+        pkg->directory = fulldirname;
+    }
+    return pkg->directory;
+}
 
 void set_number_of_spaces_for_one_indentation(int n)
 {
@@ -430,6 +503,7 @@ void d2c_impl_comment(FILE *f, char *nm, char *range, int preserve, char *commen
                    comment_start, IMPLEMENTATION, preserve?"":"no", range, nm, comment_end);
 }
 
+#if defined (USE_DUMPIMPL)
 void d2c_dump_impl(FILE *f, char *section, char *name)
 {
     char nm[LARGE_BUFFER];
@@ -444,6 +518,11 @@ void d2c_dump_impl(FILE *f, char *section, char *name)
     dump_endless_string(f, d2ci->impl);
     d2c_impl_comment(f, nm, "end", 1, "//", "");
 }
+#else
+void d2c_dump_impl(FILE *f, char *section, char *name)
+{
+}
+#endif
 
 void d2c_deprecate_impl(FILE *f, char *comment_start, char *comment_end)
 {
@@ -466,7 +545,7 @@ void d2c_deprecate_impl(FILE *f, char *comment_start, char *comment_end)
             esb = p->impl->start;
             while (esb != NULL)
             {
-                 /* We do not d2c_fprintf the buffer, cause it's read in indented. */
+                /* We do not d2c_fprintf the buffer, cause it's read in indented. */
                 fprintf(f, "// %s", esb->buf);
                 esb = esb->next;
             }
@@ -494,10 +573,10 @@ void d2c_parse_impl(FILE *f, char *cmt_start, char *cmt_end)
          s_preserve[SMALL_BUFFER], s_marker[SMALL_BUFFER], s_class[LARGE_BUFFER], s_name[LARGE_BUFFER];
     int state = IN_SOURCE;
     int count;
-    d2c_impl *d2ci;
-    endless_string *es;
+    d2c_impl *d2ci=NULL;
+    endless_string *es=NULL;
     long line = 0;
-    int preserve;
+    int preserve=0;
     d2c_impl_list_destroy();
 
     while (fgets(s, HUGE_BUFFER - 1, f) != NULL)
@@ -557,13 +636,13 @@ void d2c_parse_impl(FILE *f, char *cmt_start, char *cmt_end)
    Because it uses an internal buffer to store and return, repeated calls to this
    function will overwrite previous values.
 */
-char *d2c_operation_mangle_name(umlopnode *op)
+char *d2c_operation_mangle_name(umloperation *ope)
 {
     static char d2c_mangle_name[LARGE_BUFFER];
-    umlattrlist params = op->key.parameters;
+    umlattrlist params = ope->parameters;
     char *p;
 
-    sprintf(d2c_mangle_name, "%s@%s@@", op->key.attr.name, op->key.attr.type);
+    sprintf(d2c_mangle_name, "%s@%s@@", ope->attr.name, ope->attr.type);
     while (params != NULL)
     {
         strcat(d2c_mangle_name, "@");
@@ -589,25 +668,25 @@ int d2c_backup(char *filename)
     strcpy(backup_filename, filename);
     strcat(backup_filename, ".bak");
 
-	if (generate_backup)
-	{
-		if (remove(backup_filename))
-		{
-			if (errno != ENOENT)
-			{
-				fprintf(stderr, "Error %d while trying to delete file %s\n", errno, backup_filename);
-				return -1;
-			}
-		}
-		if (rename(filename, backup_filename))
-		{
-			if (errno != ENOENT)
-			{
-				fprintf(stderr, "Error %d while trying to rename %s to %s\n", errno, filename, backup_filename);
-				return -1;
-			}
-		}
-	}
+    if (generate_backup)
+    {
+        if (remove(backup_filename))
+        {
+            if (errno != ENOENT)
+            {
+                fprintf(stderr, "Error %d while trying to delete file %s\n", errno, backup_filename);
+                return -1;
+            }
+        }
+        if (rename(filename, backup_filename))
+        {
+            if (errno != ENOENT)
+            {
+                fprintf(stderr, "Error %d while trying to rename %s to %s\n", errno, filename, backup_filename);
+                return -1;
+            }
+        }
+    }
     return 0;
 }
 
@@ -669,7 +748,7 @@ char d2c_io_lchar = 0;
 
 int _d2c_fputc(int c, FILE *f)
 {
-	int indent_cnt = 0;
+    int indent_cnt = 0;
     int rc;
 
     if (d2c_io_lchar == '\n' && c != '\n')
@@ -677,9 +756,9 @@ int _d2c_fputc(int c, FILE *f)
     d2c_io_lchar = c;
     rc = fputc(c, f);
     if (rc == EOF)
-    	return rc;
+        return rc;
     else
-    	return indent_cnt + 1;
+        return indent_cnt + 1;
 }
 
 int _d2c_fputs(const char *s, FILE *f)
@@ -695,8 +774,8 @@ int _d2c_fputs(const char *s, FILE *f)
     return 1;
 }
 
-char d2c_fprintf_buf[HUGE_BUFFER * 2];
 
+char d2c_fprintf_buf[HUGE_BUFFER * 2];
 int _d2c_fprintf(FILE *f, char *fmt, ...)
 {
     va_list argptr;
@@ -716,8 +795,19 @@ int _d2c_fprintf(FILE *f, char *fmt, ...)
             extern_cnt += _d2c_fputc(d2c_fprintf_buf[i], f);
         }
     }
-
     return extern_cnt;
+}
+
+int d2c_directprintf(FILE *f, char *fmt, ...)
+{
+    va_list argptr;
+    int cnt;
+
+    d2c_indentate(f);
+    va_start(argptr, fmt);
+    cnt = vfprintf(f, fmt, argptr);
+    va_end(argptr);
+    return 0;
 }
 
 void d2c_open_brace(FILE *f, char *suffix)
@@ -772,22 +862,22 @@ param_list * d2c_parameter_set(char *name, char *value)
 {
     param_list *entry = d2c_parameter_find(name);
     if (entry == NULL)
-    	entry=d2c_parameter_add(name, value);
+        entry=d2c_parameter_add(name, value);
     else
-	{
-    	free(entry->value);
-    	entry->value = value ? strdup(value) : NULL;
-	}
+    {
+        free(entry->value);
+        entry->value = value ? strdup(value) : NULL;
+    }
 
     return entry;
 }
 
 char * d2c_parameter_value(char *name)
 {
-	param_list *entry = d2c_parameter_find(name);
-	if (entry != NULL)
-		return entry->value;
-	return NULL;
+    param_list *entry = d2c_parameter_find(name);
+    if (entry != NULL)
+        return entry->value;
+    return NULL;
 }
 
 param_list *d2c_parameter_find(char *name)
@@ -801,3 +891,72 @@ param_list *d2c_parameter_find(char *name)
     }
     return NULL;
 }
+
+
+void d2c_indentate( FILE *f)
+{
+    int i;
+    for ( i = 0; i < d2c_indentposition; i++) {
+        fputs( d2c_indentstring, f);
+    }
+}
+
+
+/*
+ * increment the tab position 
+ * tab position is used in d2c_fprintf and alike
+ */
+void d2c_shift_code()
+{
+    d2c_indentposition ++;   
+}
+
+
+/*
+ * increment the tab position 
+ * tab position is used in d2c_fprintf and alike
+ */
+void d2c_unshift_code()
+{
+    if( d2c_indentposition > 0 )
+        d2c_indentposition --;
+}
+
+
+
+
+/* 
+* find a diaoid token in a string
+* the diaoid must be formatted as @diaoid <oid> where oid is a string without space
+* @param the NULL terminated string buffer to look in 
+* @param (out) a pointer located on the first oid charater - NULL is allowed if you dont need this pointer
+* @return the diaoid found or NULL if none is found 
+*/
+char *find_diaoid( const char *buf, char **newpos  )
+{
+    static const char *oidtag = "@diaoid";
+    char *cp, *ep; // current pos, diaoid ending position
+    char *oidp=NULL;
+    debug( DBG_CORE, "find_diaoid()" );
+    if( buf == NULL ) {
+        return NULL;
+    }
+    cp = strstr( buf, oidtag );
+    if( cp == NULL )
+        return NULL;
+    cp += strlen(oidtag)+1;
+    /* get the oid */
+    ep = strpbrk( cp, " \t\n\r" );
+    if( ep == NULL ) {
+        oidp = strdup(cp);
+    } else {
+        oidp= (char*) strndup( cp, (size_t) ( ep-cp));
+    }
+    /* caller want the new position : we set it */
+    if( newpos != NULL ) {
+        (*newpos) = cp;
+    }
+    return oidp;
+}
+
+

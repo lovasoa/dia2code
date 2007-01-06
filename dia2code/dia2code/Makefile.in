@@ -110,11 +110,11 @@ target_alias = @target_alias@
 ####### kdevelop will overwrite this part!!! (begin)##########
 noinst_LIBRARIES = libdia2code.a
 
-libdia2code_a_SOURCES = decls.c includes.c generate_code_idl.c generate_code_php.c generate_code_php_five.c generate_code_shp.c generate_code_python.c generate_code_ada.c generate_code_sql.c scan_tree.c generate_code_c.c parse_diagram.c dia2code.c generate_code_java.c generate_code_cpp.c generate_code_csharp.c generate_code_ruby.c main.c 
+libdia2code_a_SOURCES = decls.c includes.c generate_code_idl.c generate_code_php.c generate_code_php_five.c generate_code_shp.c generate_code_python.c generate_code_ada.c generate_code_sql.c scan_tree.c generate_code_c.c parse_diagram.c dia2code.c generate_code_java.c generate_code_cpp.c generate_code_csharp.c generate_code_ruby.c source_parser.c comment_helper.c main.c 
 
 SUBDIRS = docs 
 
-EXTRA_DIST = main.c generate_code_cpp.c generate_code_java.c code_generators.h dia2code.h dia2code.c parse_diagram.c parse_diagram.h generate_code_c.c scan_tree.c generate_code_sql.c generate_code_ada.c generate_code_python.c Makefile.am generate_code_shp.c generate_code_php.c generate_code_php_five.c makefile.mingw generate_code_idl.c generate_code_csharp.c generate_code_ruby.c decls.c includes.c
+EXTRA_DIST = main.c generate_code_cpp.c generate_code_java.c code_generators.h dia2code.h dia2code.c parse_diagram.c parse_diagram.h generate_code_c.c scan_tree.c generate_code_sql.c generate_code_ada.c generate_code_python.c Makefile.am generate_code_shp.c generate_code_php.c generate_code_php_five.c makefile.mingw generate_code_idl.c generate_code_csharp.c generate_code_ruby.c decls.c includes.c source_parser.c source_parser.h comment_helper.h comment_helper.c
 
 ####### kdevelop will overwrite this part!!! (end)############
 bin_PROGRAMS = dia2code
@@ -122,7 +122,8 @@ INCLUDES = @XML_INCLUDES@
 dia2code_SOURCES = dia2code.c main.c parse_diagram.c scan_tree.c generate_code_c.c \
 generate_code_java.c generate_code_cpp.c generate_code_ada.c generate_code_sql.c \
 generate_code_python.c generate_code_php.c generate_code_shp.c generate_code_idl.c \
-generate_code_csharp.c generate_code_php_five.c generate_code_ruby.c decls.c includes.c
+generate_code_csharp.c generate_code_php_five.c generate_code_ruby.c decls.c includes.c \
+source_parser.c comment_helper.c
 
 subdir = dia2code
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -140,7 +141,8 @@ am_libdia2code_a_OBJECTS = decls.$(OBJEXT) includes.$(OBJEXT) \
 	generate_code_c.$(OBJEXT) parse_diagram.$(OBJEXT) \
 	dia2code.$(OBJEXT) generate_code_java.$(OBJEXT) \
 	generate_code_cpp.$(OBJEXT) generate_code_csharp.$(OBJEXT) \
-	generate_code_ruby.$(OBJEXT) main.$(OBJEXT)
+	generate_code_ruby.$(OBJEXT) source_parser.$(OBJEXT) \
+	comment_helper.$(OBJEXT) main.$(OBJEXT)
 libdia2code_a_OBJECTS = $(am_libdia2code_a_OBJECTS)
 bin_PROGRAMS = dia2code$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
@@ -153,7 +155,8 @@ am_dia2code_OBJECTS = dia2code.$(OBJEXT) main.$(OBJEXT) \
 	generate_code_php.$(OBJEXT) generate_code_shp.$(OBJEXT) \
 	generate_code_idl.$(OBJEXT) generate_code_csharp.$(OBJEXT) \
 	generate_code_php_five.$(OBJEXT) generate_code_ruby.$(OBJEXT) \
-	decls.$(OBJEXT) includes.$(OBJEXT)
+	decls.$(OBJEXT) includes.$(OBJEXT) source_parser.$(OBJEXT) \
+	comment_helper.$(OBJEXT)
 dia2code_OBJECTS = $(am_dia2code_OBJECTS)
 dia2code_LDADD = $(LDADD)
 dia2code_DEPENDENCIES =
@@ -162,7 +165,8 @@ dia2code_LDFLAGS =
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/decls.Po ./$(DEPDIR)/dia2code.Po \
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/comment_helper.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/decls.Po ./$(DEPDIR)/dia2code.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/generate_code_ada.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/generate_code_c.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/generate_code_cpp.Po \
@@ -177,7 +181,8 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/generate_code_sql.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/includes.Po ./$(DEPDIR)/main.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/parse_diagram.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/scan_tree.Po
+@AMDEP_TRUE@	./$(DEPDIR)/scan_tree.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/source_parser.Po
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -245,6 +250,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/comment_helper.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decls.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dia2code.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_ada.Po@am__quote@
@@ -263,6 +269,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse_diagram.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scan_tree.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/source_parser.Po@am__quote@
 
 distclean-depend:
 	-rm -rf ./$(DEPDIR)

@@ -17,20 +17,46 @@
  ***************************************************************************/
 
 #include "dia2code.h"
+#include "source_parser.h"
+#include "comment_helper.h"
 
 #define TABS "    "  /* 4 */
 
-void generate_code_php(batch *b) {
+/**
+ * get the visibility java keyword from the Dia visibility code
+ * @param int the dia visibility constant
+ * @return the java keyword for visibility 
+ */
+char *php_visibility(int visibility)
+{
+    switch (visibility)
+    {
+    case '0':
+        return "public";
+    case '1':
+        return "private";
+    case '2':
+        return "protected";
+    default:
+        return "";
+    }
+}
+
+void generate_code_php(batch *b) 
+{
     umlclasslist tmplist, parents;
     umlassoclist associations;
     umlattrlist umla, tmpa, parama;
     umlpackagelist tmppcklist;
     umloplist umlo;
-    char *tmpname;
+    char *tmpname, *outdir;
     char outfilename[90];
-    FILE * outfile, *dummyfile, *licensefile = NULL;
+    FILE * outfile, *licensefile = NULL;
     umlclasslist used_classes;
-
+    sourceblocknode *sbklist = NULL;
+    sourceblock *srcblock;
+    sourcecode *source;
+    
     int tmpdirlgth, tmpfilelgth;
 
     if (b->outdir == NULL) {
@@ -44,17 +70,20 @@ void generate_code_php(batch *b) {
     if ( b->license != NULL ) {
         licensefile = fopen(b->license, "r");
         if(!licensefile) {
-            fprintf(stderr, "Can't open the license file.\n");
-            exit(2);
+            debug( 1, "warning: Can't open the license file.\n");
         }
     }
-
+    
+    
+    
     while ( tmplist != NULL ) {
-
+        char *sourcebuffer = NULL;
+        sbklist = NULL;
+        
         if ( ! ( is_present(b->classes, tmplist->key->name) ^ b->mask ) ) {
 
             tmpname = tmplist->key->name;
-
+            debug( 4, "----------generating class %s",  tmpname );
             /* This prevents buffer overflows */
             tmpfilelgth = strlen(tmpname);
             if (tmpfilelgth + tmpdirlgth > sizeof(*outfilename) - 2) {
@@ -62,9 +91,16 @@ void generate_code_php(batch *b) {
                 exit(4);
             }
 
-            sprintf(outfilename, "%s/%s.php", b->outdir, tmplist->key->name);
-            dummyfile = fopen(outfilename, "r");
-            if ( b->clobber || ! dummyfile ) {
+            tmppcklist = make_package_list(tmplist->key->package);
+
+            /* here we  calculate and create the directory if necessary */
+            outdir = create_package_dir( b, tmppcklist->key );
+            /* create the destination filename */
+            sprintf( outfilename, "%s/%s.php", outdir, tmplist->key->name );
+            /* get implementation code from the existing file */
+            source_preserve( b, tmplist->key, outfilename, source );
+            
+            if ( b->clobber ) {
 
                 outfile = fopen(outfilename, "w");
                 if ( outfile == NULL ) {
@@ -92,23 +128,15 @@ void generate_code_php(batch *b) {
                         if ( strcmp(tmppcklist->key->id,tmplist->key->package->id)){
                             /* This class' package and our current class' package are
                                not the same */
-                            fprintf(outfile, "require_once '");
-                            fprintf(outfile, "%s",tmppcklist->key->name);
-                            tmppcklist=tmppcklist->next;
-                            while ( tmppcklist != NULL ){
-                                fprintf(outfile, "/%s", tmppcklist->key->name);
-                                tmppcklist=tmppcklist->next;
-                            }
-                            fprintf(outfile,"/");
-                            fprintf(outfile,"%s.php';\n",used_classes->key->name);
+                            outdir = create_package_dir( b, tmppcklist->key );
+                            fprintf(outfile, "require_once '%s/%s.php';\n", tmppcklist->key->directory, used_classes->key->name );
                         }
                     } else {
                         /* XXX - If the used class is different from the
                                  actual class, we include it. I don't know
                                  if this is ok. */
                         if ( strcmp(used_classes->key->name, tmplist->key->name) ) {
-                            fprintf(outfile, "require_once '%s.php';\n",
-                                used_classes->key->name);
+                            fprintf(outfile, "require_once '%s.php';\n", used_classes->key->name );
                         }
                     }
                     used_classes = used_classes->next;
@@ -116,7 +144,7 @@ void generate_code_php(batch *b) {
                 fprintf(outfile, "\n");
 
                 fprintf(outfile,"/**\n" );
-                fprintf(outfile," * XXX detailed description\n" );
+                fprintf(outfile," * %s\n", tmplist->key->comment );
                 fprintf(outfile," *\n" );
                 fprintf(outfile," * @author    XXX\n" );
                 fprintf(outfile," * @version   XXX\n" );
@@ -160,8 +188,6 @@ void generate_code_php(batch *b) {
                 }
                 fprintf(outfile, " {\n");
 
-                fprintf(outfile, "%s// Attributes\n", TABS);
-
                 umla = tmplist->key->attributes;
                 while ( umla != NULL) {
                     fprintf(outfile, "%s/**\n", TABS);
@@ -169,18 +195,7 @@ void generate_code_php(batch *b) {
                     fprintf(outfile, "%s *\n", TABS );
                     fprintf(outfile, "%s * @var    %s $%s\n",
                             TABS, umla->key.type, umla->key.name);
-                    fprintf(outfile, "%s * @access ", TABS );
-                    switch (umla->key.visibility) {
-                    case '0':
-                        fprintf (outfile, "public");
-                        break;
-                    case '1':
-                        fprintf (outfile, "private");
-                        break;
-                    case '2':
-                        fprintf (outfile, "protected");
-                        break;
-                    }
+                    fprintf(outfile, "%s * @access %s", TABS, php_visibility(umla->key.visibility));
                     fprintf(outfile,"\n" );
                     if (umla->key.isstatic) {
                         fprintf(outfile, "%s * @static ", TABS);
@@ -197,7 +212,6 @@ void generate_code_php(batch *b) {
                     umla = umla->next;
                 }
 
-                fprintf(outfile, "%s// Associations\n", TABS);
                 associations = tmplist->associations;
                 while ( associations != NULL ) {
                     fprintf(outfile, "%s/**\n", TABS );
@@ -215,55 +229,22 @@ void generate_code_php(batch *b) {
                 }
 
                 umlo = tmplist->key->operations;
-                fprintf(outfile, "%s// Operations\n", TABS);
                 while ( umlo != NULL) {
-
-                    fprintf(outfile,"%s/**\n", TABS );
-                    fprintf(outfile,"%s * XXX\n", TABS );
-                    fprintf(outfile,"%s * \n", TABS );
-
-                    parama = umlo->key.parameters;
-                    /* document parameters */
-                    while (parama != NULL) {
-                        fprintf(outfile,"%s * @param  %s $%s XXX\n",
-                                TABS, parama->key.type, parama->key.name);
-                        parama= parama->next;
-                    }
-
-                    if (strlen(umlo->key.attr.type) > 0) {
-                        fprintf(outfile,"%s * @return %s XXX\n",
-                                TABS, umlo->key.attr.type);
-                    }
-
-                    fprintf(outfile,"%s * @access ", TABS );
-                    switch (umlo->key.attr.visibility) {
-                    case '0':
-                        fprintf (outfile, "public");
-                        break;
-                    case '1':
-                        fprintf (outfile, "private");
-                        break;
-                    case '2':
-                        fprintf (outfile, "protected");
-                        break;
-                    }
-                    fprintf(outfile,"\n" );
-
+                    char *diaoid, *dummycp;
+                    /** comment_helper function that generate the javadoc comment block */
+                    generate_operation_comment( outfile, NULL, &umlo->key );
+                    /* fprintf(outfile,"%s * @access %s \n", TABS, php_visibility(umlo->key.attr.visibility)  );
                     if ( umlo->key.attr.isabstract ) {
                         fprintf(outfile,"%s * @abstract\n", TABS );
                         umlo->key.attr.value[0] = '0';
                     }
-
                     if ( umlo->key.attr.isstatic ) {
                         fprintf(outfile, "%s * @static ", TABS);
-                    }
-
-                    fprintf(outfile,"%s */\n", TABS );
-
-                    fprintf(outfile, TABS);
-                    fprintf(outfile, "function %s%s(",
+                    }*/
+                    //fprintf(outfile,"%s */\n", TABS );
+                    fprintf(outfile, "%sfunction %s%s(", TABS,
                             (umlo->key.attr.visibility != '0') ? "_" : "",
-                            umlo->key.attr.name);
+                            umlo->key.attr.name );
                     tmpa = umlo->key.parameters;
                     while (tmpa != NULL) {
                         fprintf(outfile, "$%s", tmpa->key.name);
@@ -274,17 +255,17 @@ void generate_code_php(batch *b) {
                         if (tmpa != NULL) fprintf(outfile, ", ");
                     }
                     fprintf(outfile, ") ");
-
-                        fprintf(outfile, "{\n");
-                        if ( umlo->key.implementation != NULL ) {
-                            fprintf(outfile, "%s\n", umlo->key.implementation);
-                        } else if (!umlo->key.attr.isabstract) {
-                            fprintf(outfile,
-                                    "%s%strigger_error('Not Implemented!', E_USER_WARNING);\n",
-                                    TABS, TABS);
-                        }
-                        fprintf(outfile, "%s}\n\n", TABS);
-
+                    
+                    if ( umlo->key.implementation != NULL ) {
+                        fprintf(outfile, "%s{%s}\n", TABS, umlo->key.implementation);
+                    } else if (!umlo->key.attr.isabstract) {
+                        fprintf(outfile, "%s{\n", TABS );
+                        fprintf(outfile,
+                                "%s%strigger_error('Not Implemented!', E_USER_WARNING);\n", TABS, TABS);
+                        fprintf(outfile, "%s}\n", TABS);
+                    } else {
+                        fprintf(outfile, "\n%s{\n%s}\n", TABS, TABS);
+                    }
                     umlo = umlo->next;
                 }
                 fprintf(outfile, "}\n\n");
@@ -292,6 +273,7 @@ void generate_code_php(batch *b) {
                 fclose(outfile);
             }
         }
+        /* next class */
         tmplist = tmplist->next;
     }
 }

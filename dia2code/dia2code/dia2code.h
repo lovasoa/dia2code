@@ -24,6 +24,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+/* for mkdir and mode_t */
+#include <sys/types.h>
+#include <sys/stat.h>
 
 /* libxml[2] headers */
 #include <libxml/parser.h>
@@ -40,6 +43,17 @@
 
 #define kind_str(A)   ((A)=='1'?"in":((A)=='2'?"in/out":((A)=='3'?"out":"???")))
 
+/* constants for scope / visibilities */
+#define D2C_PUBLIC      '0'
+#define D2C_PRIVATE     '1'
+#define D2C_PROTECTED   '2'
+
+#define DBG_DIAGRAM    2
+#define DBG_FNCCALL    4
+#define DBG_SOURCE     5
+#define DBG_GENCODE    6
+#define DBG_CORE       8
+
 struct umlattribute {
     char name[80];
     char value[80];
@@ -49,6 +63,7 @@ struct umlattribute {
     char isabstract;
     char isstatic;
     char kind;
+    char diaoid[10];
 };
 typedef struct umlattribute umlattribute;
 
@@ -63,7 +78,7 @@ typedef umlattrnode *umlattrlist;
 struct umloperation{
     umlattribute attr;
     umlattrlist parameters;
-    char *implementation;
+    char *implementation; /* the previous source code of the method - parsed from existing file */
 };
 typedef struct umloperation umloperation;
 
@@ -73,8 +88,8 @@ struct umlopnode {
 };
 
 struct umltemplate{
-	char name[80];
-	char type[80];
+    char name[80];
+    char type[80];
 };
 typedef struct umltemplate umltemplate;
 
@@ -82,8 +97,8 @@ typedef struct umlopnode umlopnode;
 typedef umlopnode *umloplist;
 
 struct umltemplatenode {
-		umltemplate key;
-		struct umltemplatenode *next;
+        umltemplate key;
+        struct umltemplatenode *next;
 };
 
 typedef struct umltemplatenode umltemplatenode;
@@ -102,11 +117,12 @@ struct umlpackage {
     char name[80];
     geometry geom;
     struct umlpackage * parent;
+    char *directory;
 };
 typedef struct umlpackage umlpackage;
 
 struct umlpackagenode {
-    umlpackage * key;
+    umlpackage *key;
     struct umlpackagenode * next;
 };
 typedef struct umlpackagenode umlpackagenode;
@@ -127,10 +143,10 @@ struct umlclass {
 typedef struct umlclass umlclass;
 
 struct umlassocnode {
-	umlclass * key;
-	char name[80];
-	char composite;
-	struct umlassocnode * next;
+    umlclass * key;
+    char name[80];
+    char composite;
+    struct umlassocnode * next;
 };
 
 struct  umlclassnode {
@@ -159,6 +175,8 @@ struct batch {
     umlclasslist classlist;  /* The classes in the diagram */
     char *outdir;      /* Output directory */
     int clobber;       /* Overwrite files in directory */
+    int buildtree;     /* Convert package name to a directory tree */
+    int verbose;       /* Verbose mode */
     namelist classes;  /* Selection of classes to generate code for */
     int mask;          /* Flag that inverts the above selection */
     char *license;     /* License file */
@@ -183,6 +201,8 @@ umlpackagelist make_package_list( umlpackage * package);
 
 umlclasslist list_classes(umlclasslist current_class, batch *b);
 
+char *create_package_dir(const batch *batch, umlpackage *pkg);
+
 extern char *file_ext;       /* Set by switch "-ext". Language specific
                                 default applies when NULL.  */
 extern char *body_file_ext;  /* Set by switch "-bext". Language specific
@@ -193,6 +213,8 @@ void set_number_of_spaces_for_one_indentation(int n);  /* default: 2 spaces */
 char *spc();
 /* Returns a string consisting of (indentlevel *
    number_of_spaces_for_one_indentation) spaces.  */
+void d2c_indentate(FILE *f);
+int d2c_directprintf(FILE *f, char *fmt, ...);
 
 /**
  * Output target files:
@@ -200,6 +222,10 @@ char *spc();
  * Hence not all backends need the {e,p}{body,both} functions below.
 */
 extern FILE *spec, *body;
+
+extern int d2c_indentposition;
+
+void dia2code_initializations();
 
 /* Emitters for file output  */
 void emit  (char *msg, ...);  /* print verbatim to spec */
@@ -227,7 +253,7 @@ FILE * open_outfile (char *filename, batch *b);
 #define d2c_fputs _d2c_fputs
 #define d2c_fputc _d2c_fputc
 #else
-#define d2c_fprintf fprintf
+#define d2c_fprintf d2c_directprintf
 #define d2c_fputs fputs
 #define d2c_fputc fputc
 #endif
@@ -243,8 +269,13 @@ void d2c_close_brace(FILE *outfile, char *suffix);
 void d2c_parse_impl(FILE *f, char *cmt_start, char *cmt_end);
 void d2c_dump_impl(FILE *f, char *section, char *name);
 void d2c_deprecate_impl(FILE *f, char *comment_start, char *comment_end);
-char *d2c_operation_mangle_name(umlopnode *op);
+char *d2c_operation_mangle_name(umloperation *op);
+void d2c_shift_code();
+void d2c_unshift_code();
+
+char *find_diaoid( const char *buf, char **newpos  );
 int d2c_backup(char *filename);
+void d2c_log( int level, char * msg );
 
 #define TAG fprintf(stderr, "%s %d\n", __FILE__, __LINE__);
 #define eq  !strcmp

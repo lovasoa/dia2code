@@ -73,7 +73,9 @@ int main(int argc, char **argv) {
     int clobber = 1;   /*  Overwrite files while generating code*/
     char *infile = NULL;    /* The input file */
     namelist classestogenerate = NULL;
-    int classmask = 0, parameter = 0;
+    int classmask = 0, parameter = 0, buildtree = 0;
+    /* put to 1 in the params loop if the generator accepts buildtree option */
+    int generator_buildtree = 0;
     batch *thisbatch;
     int iniParameterProcessed;
     char inifile[HUGE_BUFFER];
@@ -97,6 +99,7 @@ under certain conditions; read the COPYING file for details.\n";
                          one of: ada,c,cpp,idl,java,php,php5,python,ruby,shp,sql or csharp. \n\
                          Default is C++\n\
     -d <dir>             Output generated files to <dir>, default is \".\" \n\
+    --buildtree          Convert package names to a directory tree. off by default \n\
     -l <license>         License file to prepend to generated files.\n\
     -nc                  Do not overwrite files that already exist\n\
     -cl <classlist>      Generate code only for the classes specified in\n\
@@ -114,8 +117,12 @@ under certain conditions; read the COPYING file for details.\n";
                          Here are the defaults:\n\
                          ada:\"adb\"\n\
     -ini <file>          Can be used instead of command-line parameters\n\
+    --debug <level>     Show debugging messages of this level\n\
     <diagramfile>        The Dia file that holds the diagram to be read\n\n\
     Note: parameters can be specified in any order.";
+
+    /* initialise stuff like global variables to their default values */
+    dia2code_initializations();
 
     generator = NULL;
     generators[0] = generate_code_cpp;
@@ -161,9 +168,13 @@ under certain conditions; read the COPYING file for details.\n";
                 parameter = 7;
             } else if ( eq (argv[i], "-v") ) {
                 classmask = 1 - classmask;
+            } else if ( eq (argv[i], "--debug") ) {
+                parameter = 8;
             } else if ( eq("-h", argv[i]) || eq("--help", argv[i]) ) {
                 printf("%s\nUsage: %s %s\n\n%s\n", notice, argv[0], help, bighelp);
                 exit(0);
+            } else if ( eq (argv[i], "--buildtree") ) {
+                buildtree = 1;
             } else {
                 infile = argv[i];
             }
@@ -174,6 +185,7 @@ under certain conditions; read the COPYING file for details.\n";
                 generator = generators[0];
             } else if ( eq (argv[i], "java") ) {
                 generator = generators[1];
+                generator_buildtree = 1;
             } else if ( eq (argv[i], "c") ) {
                 generator = generators[2];
             } else if ( eq (argv[i], "sql") ) {
@@ -184,6 +196,7 @@ under certain conditions; read the COPYING file for details.\n";
                 generator = generators[5];
             } else if ( eq (argv[i], "php") ) {
                 generator = generators[6];
+                generator_buildtree = 1;
             } else if ( eq (argv[i], "shp") ) {
                 generator = generators[7];
             } else if ( eq (argv[i], "idl") ) {
@@ -232,6 +245,10 @@ parameter = -1;   /* error */
             iniParameterProcessed = 1;
             parameter = 0;
             break;
+        case 8:   /* Debug level */
+            debug_setlevel( atoi( argv[i] ) );
+            parameter = 0;
+            break;
         }
     }
     /* parameter != 0 means the command line was invalid */
@@ -258,7 +275,10 @@ parameter = -1;   /* error */
         }
     }
 
-
+    if (generator_buildtree == 0 && buildtree == 1) {
+        buildtree = 0;
+        fprintf( stderr,"warning: this generator does not support building tree yet. disabled \n" );
+    }
 
     thisbatch = (batch*)my_malloc(sizeof(batch));
 
@@ -273,6 +293,7 @@ parameter = -1;   /* error */
     thisbatch->clobber = clobber;
     thisbatch->classes = classestogenerate;
     thisbatch->mask = classmask;
+    thisbatch->buildtree = buildtree;
 
     /* Code generation */
     if ( !generator ) {

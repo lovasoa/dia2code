@@ -16,31 +16,44 @@
  ***************************************************************************/
 
 #include "dia2code.h"
+#include "comment_helper.h"
+#include "source_parser.h"
 
 /* Other things to be fixed:
  * The code that determines the parent class and implementations needs to go
  * in order from "extends" to "implements".
  */
 
-#define JAVA_EXTENDS 0
-#define JAVA_IMPLEMENTS 1
+#define CLASSTYPE_CLASS      0
+#define CLASSTYPE_ABSTRACT   1
+#define CLASSTYPE_INTERFACE  2
 
-char *dia_visibility_to_string(int visibility)
+#define JAVA_EXTENDS         0
+#define JAVA_IMPLEMENTS      1
+
+/**
+ * get the visibility java keyword from the Dia visibility code
+ * @param int the dia visibility constant
+ * @return the java keyword for visibility 
+ */
+char *java_visibility_to_string(int visibility)
 {
-	switch (visibility)
-	{
-	case '0':
-		return "public";
-	case '1':
-		return "private";
-	case '2':
-		return "protected";
-	default:
-		return "";
+    switch (visibility)
+    {
+    case '0':
+        return "public";
+    case '1':
+        return "private";
+    case '2':
+        return "protected";
+    default:
+        return "";
     }
 }
 
-/* This function dumps out the list of interfaces and extensions, as necessary.
+
+/**
+ * This function dumps out the list of interfaces and extensions, as necessary.
  */
 int java_manage_parents(FILE *f, umlclasslist parents, int stereotype)
 {
@@ -71,11 +84,80 @@ int java_manage_parents(FILE *f, umlclasslist parents, int stereotype)
     return cnt;
 }
 
+/**
+ * generate and output the code for an attribute
+ * @param the output file
+ * @param the attribute struct to generate
+ */
+int java_generate_attribute( FILE * outfile, umlattribute *attr )
+{
+    debug( DBG_GENCODE, "generate attribute %s\n", attr->name );
+    generate_attribute_comment( outfile, NULL, attr );
+    d2c_fprintf(outfile, "%s ", java_visibility_to_string(attr->visibility));
+    if (attr->isstatic)
+        d2c_fprintf(outfile, "static ");
+    d2c_fprintf(outfile, "%s %s", attr->type, attr->name);
+    if ( attr->value[0] != 0 )
+        d2c_fprintf(outfile, " = %s", attr->value);
+    d2c_fprintf(outfile, ";\n");
+    return 0;
+}
+
+/**
+ * generate and output the code for an operation
+ * @param the output file
+ * @param the operation struct to generate
+ */
+int java_generate_operation( FILE * outfile, umloperation *ope, int classtype )
+{
+    umlattrlist tmpa;
+    debug( DBG_GENCODE, "generate method %s\n", ope->attr.name );
+    /** comment_helper function that generate the javadoc comment block */
+    generate_operation_comment( outfile, NULL, ope );
+
+    /* method declaration */
+    if ( ope->attr.isabstract ){
+        d2c_fprintf(outfile, "abstract ");
+        ope->attr.value[0] = '0';
+    }
+    d2c_fprintf(outfile, "%s ", java_visibility_to_string(ope->attr.visibility));
+    if ( ope->attr.isstatic )
+        d2c_fprintf(outfile, "static ");
+    if (strlen(ope->attr.type) > 0)
+        d2c_fprintf(outfile, "%s ", ope->attr.type);
+    d2c_fprintf(outfile, "%s ( ", ope->attr.name);
+    tmpa = ope->parameters;
+    while (tmpa != NULL)
+    {
+        d2c_fprintf(outfile, "%s %s", tmpa->key.type, tmpa->key.name);
+        tmpa = tmpa->next;
+        if (tmpa != NULL)
+            d2c_fprintf(outfile, ", ");
+    }
+    d2c_fprintf(outfile, " )");
+    if ( classtype == CLASSTYPE_ABSTRACT || classtype == CLASSTYPE_INTERFACE) {
+        d2c_fprintf(outfile, ";\n");
+    } 
+    else {
+        if ( ope->implementation != NULL ) {
+            debug( DBG_GENCODE, "implementation found" );
+            d2c_fprintf(outfile, "{%s}", ope->implementation);
+        }
+        else {
+            d2c_fprintf(outfile, "{");
+            d2c_fprintf(outfile, "}");
+        }
+    }
+    d2c_fprintf(outfile, "\n" );
+    return 0;
+}
+
+
 void generate_code_java(batch *b)
 {
-    umlclasslist tmplist, parents;
+    umlclasslist tmplist;
     umlassoclist associations;
-    umlattrlist umla, tmpa;
+    umlattrlist umla;
     umlpackagelist tmppcklist;
     umloplist umlo;
     char *tmpname;
@@ -83,13 +165,10 @@ void generate_code_java(batch *b)
     FILE * outfile, *dummyfile, *licensefile = NULL;
     int file_found = 0;
     umlclasslist used_classes;
-
-    #define CLASSTYPE_CLASS 0
-    #define CLASSTYPE_ABSTRACT 1
-    #define CLASSTYPE_INTERFACE 2
-
+    umlclass *class;
     int classtype;
-
+    char *outdir=NULL;
+    sourcecode *source = NULL;
     int tmpdirlgth, tmpfilelgth;
 
     if (b->outdir == NULL)
@@ -112,235 +191,158 @@ void generate_code_java(batch *b)
 
     while ( tmplist != NULL )
     {
-        if ( ! ( is_present(b->classes, tmplist->key->name) ^ b->mask ) )
+        class = tmplist->key;
+        if ( is_present(b->classes,class->name) ^ b->mask ) {
+            tmplist = tmplist->next;
+            continue;
+        }
+        tmpname = class->name;
+
+        /* This prevents buffer overflows */
+        tmpfilelgth = strlen(tmpname);
+        if (tmpfilelgth + tmpdirlgth > sizeof(*outfilename) - 2)
         {
-            tmpname = tmplist->key->name;
+            fprintf(stderr, "Sorry, name of file too long ...\nTry a smaller dir name\n");
+            exit(4);
+        }
+        
+        tmppcklist = make_package_list(tmplist->key->package);
 
-            /* This prevents buffer overflows */
-            tmpfilelgth = strlen(tmpname);
-            if (tmpfilelgth + tmpdirlgth > sizeof(*outfilename) - 2)
+        /* here we  calculate and create the directory if necessary */
+        outdir = create_package_dir( b, tmppcklist->key );
+
+        sprintf(outfilename, "%s/%s.java", outdir, tmplist->key->name);
+        /* get implementation code from the existing file */
+        source_preserve( b, tmplist->key, outfilename, source );
+        
+        if ( b->clobber )
+        {
+            outfile = fopen(outfilename, "w");
+            if ( outfile == NULL )
             {
-                fprintf(stderr, "Sorry, name of file too long ...\nTry a smaller dir name\n");
-                exit(4);
+                fprintf(stderr, "Can't open file %s for writing\n", outfilename);
+                exit(3);
             }
 
-            sprintf(outfilename, "%s/%s.java", b->outdir, tmplist->key->name);
-
-            dummyfile = fopen(outfilename, "r");
-            file_found = dummyfile != NULL;
-            if (file_found)
+            /* add license to the header */
+            if(b->license != NULL)
             {
-                d2c_parse_impl(dummyfile, "//", "");
-                close(dummyfile);
-                if (d2c_backup(outfilename))
-                    exit(5);
+                char lc;
+                rewind(licensefile);
+                while((lc = fgetc(licensefile)) != EOF)
+                    d2c_fputc(lc, outfile);
             }
 
-            if ( b->clobber || ! file_found )
-            {
-                outfile = fopen(outfilename, "w");
-                if ( outfile == NULL )
+            
+            tmppcklist = make_package_list(class->package);
+            if ( tmppcklist != NULL ){
+                d2c_fprintf(outfile,"package %s",tmppcklist->key->name);
+                tmppcklist=tmppcklist->next;
+                while ( tmppcklist != NULL )
                 {
-                    fprintf(stderr, "Can't open file %s for writing\n", outfilename);
-                    exit(3);
-                }
-
-                d2c_dump_impl(outfile, "opening", "");
-
-                /* add license to the header */
-                if(b->license != NULL)
-                {
-                    char lc;
-                    rewind(licensefile);
-                    while((lc = fgetc(licensefile)) != EOF)
-                        d2c_fputc(lc, outfile);
-                }
-
-                tmppcklist = make_package_list(tmplist->key->package);
-                if ( tmppcklist != NULL ){
-                    d2c_fprintf(outfile,"package %s",tmppcklist->key->name);
+                    d2c_fprintf(outfile,".%s",tmppcklist->key->name);
                     tmppcklist=tmppcklist->next;
-                    while ( tmppcklist != NULL )
-                    {
-                        d2c_fprintf(outfile,".%s",tmppcklist->key->name);
-                        tmppcklist=tmppcklist->next;
-                    }
-                    d2c_fputs(";\n\n", outfile);
                 }
+                d2c_fputs(";\n\n", outfile);
+            }
 
-                /* We generate the import clauses */
-                used_classes = list_classes(tmplist, b);
-                while (used_classes != NULL)
+            /* We generate the import clauses */
+            used_classes = list_classes(tmplist, b);
+            while (used_classes != NULL)
+            {
+                tmppcklist = make_package_list(used_classes->key->package);
+                if ( tmppcklist != NULL )
                 {
-                    tmppcklist = make_package_list(used_classes->key->package);
-                    if ( tmppcklist != NULL )
+                    if ( strcmp(tmppcklist->key->id,class->package->id))
                     {
-                        if ( strcmp(tmppcklist->key->id,tmplist->key->package->id))
+                        /* This class' package and our current class' package are
+                           not the same */
+                        d2c_fprintf(outfile,"import %s",tmppcklist->key->name);
+                        tmppcklist=tmppcklist->next;
+                        while ( tmppcklist != NULL )
                         {
-                            /* This class' package and our current class' package are
-                               not the same */
-                            d2c_fprintf(outfile,"import %s",tmppcklist->key->name);
+                            d2c_fprintf(outfile, ".%s", tmppcklist->key->name);
                             tmppcklist=tmppcklist->next;
-                            while ( tmppcklist != NULL )
-                            {
-                                d2c_fprintf(outfile, ".%s", tmppcklist->key->name);
-                                tmppcklist=tmppcklist->next;
-                            }
-                            d2c_fprintf(outfile,".%s;\n",used_classes->key->name);
                         }
+                        d2c_fprintf(outfile,".%s;\n",used_classes->key->name);
                     }
-                    else
-                    {
-                        /* No info for this class' package, we include it directly */
-                        d2c_fprintf(outfile, "import %s;\n",used_classes->key->name);
-                    }
-                    used_classes = used_classes->next;
                 }
-
-                d2c_dump_impl(outfile, "import", "");
-
-                d2c_fprintf(outfile, "\npublic ");
-
-                tmpname = strtolower(tmplist->key->stereotype);
-                if (eq("interface", tmpname) )
-                    classtype = CLASSTYPE_INTERFACE;
                 else
                 {
-                    if (tmplist->key->isabstract)
-                        classtype = CLASSTYPE_ABSTRACT;
-                    else
-                    	classtype = CLASSTYPE_CLASS;
+                    /* No info for this class' package, we include it directly */
+                    d2c_fprintf(outfile, "import %s;\n",used_classes->key->name);
                 }
-                free(tmpname);
-
-                switch(classtype)
-                {
-                case CLASSTYPE_INTERFACE:   d2c_fprintf(outfile, "interface "); break;
-                case CLASSTYPE_ABSTRACT:    d2c_fprintf(outfile, "abstract class "); break;
-                case CLASSTYPE_CLASS:       d2c_fprintf(outfile, "class "); break;
-                }
-
-                d2c_fprintf(outfile, "%s", tmplist->key->name);
-
-                if (java_manage_parents(outfile, tmplist->parents, JAVA_EXTENDS) == 0)
-                {
-                    d2c_fprintf(outfile, "\n");
-                    d2c_dump_impl(outfile, "extends", "");
-                }
-                java_manage_parents(outfile, tmplist->parents, JAVA_IMPLEMENTS);
-
-                /* At this point we need to make a decision:
-                   If you want to implement flexibility to add "extends", then
-                   the brace must be on the next line. */
-                if (1)  /* if (dumping_implementations) */
-                    d2c_fprintf(outfile, "\n");
-                d2c_dump_impl(outfile, "inheritence", "");
-
-                d2c_open_brace(outfile, "");
-
-                umla = tmplist->key->attributes;
-
-                if( umla != NULL)
-                    d2c_fprintf(outfile, "/** Attributes */\n");
-
-                while ( umla != NULL)
-                {
-					d2c_fprintf(outfile, "%s ", dia_visibility_to_string(umla->key.visibility));
-
-                    if (umla->key.isstatic)
-                        d2c_fprintf(outfile, "static ");
-                    d2c_fprintf(outfile, "%s %s", umla->key.type, umla->key.name);
-                    if ( umla->key.value[0] != 0 )
-                        d2c_fprintf(outfile, " = %s", umla->key.value);
-                    d2c_fprintf(outfile, ";\n");
-                    umla = umla->next;
-                }
-
-                if (classtype != CLASSTYPE_INTERFACE)
-                    d2c_dump_impl(outfile, "attributes", "");
-
-                associations = tmplist->associations;
-	            if (associations != NULL)
-	                d2c_fprintf(outfile, "/** Associations */\n");
-
-                while ( associations != NULL )
-                {
-                    d2c_fprintf(outfile, "private %s %s;\n", associations->key->name, associations->name);
-                    associations = associations->next;
-                }
-
-                d2c_dump_impl(outfile, "associations", "");
-
-                /* Operations */
-                umlo = tmplist->key->operations;
-                while ( umlo != NULL)
-                {
-                    d2c_fprintf(outfile, "/**\n");
-                    d2c_fprintf(outfile, " * Operation\n");
-                    d2c_fprintf(outfile, " *\n");
-                    tmpa = umlo->key.parameters;
-                    while (tmpa != NULL)
-                    {
-                        d2c_fprintf(outfile, " * @param %s\n", tmpa->key.name);
-                        tmpa = tmpa->next;
-                    }
-                    if(strcmp(umlo->key.attr.type, "void"))
-                        d2c_fprintf(outfile, " * @return %s\n", umlo->key.attr.type);
-                    d2c_fprintf(outfile, " */\n");
-                    /*d2c_fprintf(outfile, "  "); */
-
-                    if ( umlo->key.attr.isabstract )
-                    {
-                        d2c_fprintf(outfile, "abstract ");
-                        umlo->key.attr.value[0] = '0';
-                    }
-
-					d2c_fprintf(outfile, "%s ", dia_visibility_to_string(umlo->key.attr.visibility));
-
-                    if ( umlo->key.attr.isstatic )
-                        d2c_fprintf(outfile, "static ");
-
-                    if (strlen(umlo->key.attr.type) > 0)
-                        d2c_fprintf(outfile, "%s ", umlo->key.attr.type);
-
-                    d2c_fprintf(outfile, "%s ( ", umlo->key.attr.name);
-                    tmpa = umlo->key.parameters;
-                    while (tmpa != NULL)
-                    {
-                        d2c_fprintf(outfile, "%s %s", tmpa->key.type, tmpa->key.name);
-                        /*
-                        if ( tmpa->key.value[0] != 0 ){
-                            d2c_fprintf(outfile," = %s",tmpa->key.value);
-                        }  */
-                        tmpa = tmpa->next;
-                        if (tmpa != NULL)
-                            d2c_fprintf(outfile, ", ");
-                    }
-                    d2c_fprintf(outfile, " )");
-                    /* RK - Not sure this is right but I did it. This prevents curly
-                            braces from being applied when CLASSTYPE is interface. */
-                    if ( umlo->key.attr.isabstract || classtype == CLASSTYPE_INTERFACE)
-                        d2c_fprintf(outfile, ";\n");
-                    else
-                    {
-                        d2c_open_brace(outfile, "");
-                        d2c_dump_impl(outfile, "method", d2c_operation_mangle_name(umlo));
-                        if ( umlo->key.implementation != NULL )
-                            d2c_fprintf(outfile, "%s\n", umlo->key.implementation);
-                        d2c_close_brace(outfile, "");
-                    }
-                    umlo = umlo->next;
-                }
-                if (classtype != CLASSTYPE_INTERFACE)
-                    d2c_dump_impl(outfile, "other.operations", "");
-
-                d2c_close_brace(outfile, "\n");
-                d2c_dump_impl(outfile, "closing", "");
-
-                d2c_deprecate_impl(outfile, "//", "");
-
-                fclose(outfile);
+                used_classes = used_classes->next;
             }
+
+            d2c_fprintf(outfile, "\npublic ");
+
+            tmpname = strtolower(class->stereotype);
+            if (eq("interface", tmpname))
+                classtype = CLASSTYPE_INTERFACE;
+            else
+            {
+                if (class->isabstract)
+                    classtype = CLASSTYPE_ABSTRACT;
+                else
+                    classtype = CLASSTYPE_CLASS;
+            }
+            free(tmpname);
+
+            switch(classtype)
+            {
+            case CLASSTYPE_INTERFACE:   d2c_fprintf(outfile, "interface "); break;
+            case CLASSTYPE_ABSTRACT:    d2c_fprintf(outfile, "abstract class "); break;
+            case CLASSTYPE_CLASS:       d2c_fprintf(outfile, "class "); break;
+            }
+
+            d2c_fprintf(outfile, "%s", class->name);
+
+            if (java_manage_parents(outfile, tmplist->parents, JAVA_EXTENDS) == 0)
+            {
+                d2c_fprintf(outfile, "\n");
+            }
+            java_manage_parents(outfile, tmplist->parents, JAVA_IMPLEMENTS);
+
+            /* At this point we need to make a decision:
+               If you want to implement flexibility to add "extends", then
+               the brace must be on the next line. */
+            d2c_open_brace(outfile, "");
+
+            d2c_shift_code();
+            umla = class->attributes;
+
+            if( umla != NULL)
+                d2c_fprintf(outfile, "/** Attributes */\n");
+
+            while ( umla != NULL)
+            {
+                java_generate_attribute(outfile, &umla->key);
+                umla = umla->next;
+            }
+
+            associations = tmplist->associations;
+            if (associations != NULL)
+                d2c_fprintf(outfile, "/** Associations */\n");
+
+            while ( associations != NULL )
+            {
+                d2c_fprintf(outfile, "private %s %s;\n", associations->key->name, associations->name);
+                associations = associations->next;
+            }
+
+            /* Operations */
+            umlo = class->operations;
+            while ( umlo != NULL)
+            {
+                java_generate_operation( outfile, &umlo->key, classtype );
+                umlo = umlo->next;
+            }
+
+            d2c_unshift_code();
+            d2c_close_brace(outfile, "\n");
+
+            fclose(outfile);
         }
         tmplist = tmplist->next;
     }
