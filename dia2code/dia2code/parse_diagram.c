@@ -20,7 +20,7 @@
 umlclasslist find(umlclasslist list, char *id ) {
     if ( id != NULL ) {
         while ( list != NULL ) {
-            if ( ! strcmp(id, list->key->id) ) {
+            if ( eq(id, list->key->id) ) {
                 return list;
             }
             list = list->next;
@@ -45,7 +45,7 @@ int parse_boolean(xmlNodePtr booleannode) {
     int result;
 
     val = xmlGetProp(booleannode, "val");
-    if ( val != NULL && ! strcmp(val, "true")) {
+    if ( val != NULL && eq(val, "true")) {
         result = 1;
     } else {
         result = 0;
@@ -166,35 +166,35 @@ void parse_attribute(xmlNodePtr node, umlattribute *tmp) {
     tmp->kind     = '0';
     while ( node != NULL ) {
         nodename = xmlGetProp(node, "name");
-        if ( ! strcmp("name", nodename) ) {
+        if ( eq("name", nodename) ) {
             parse_dia_string(node->xmlChildrenNode, tmp->name);
-        } else if ( ! strcmp("value", nodename)) {
+        } else if ( eq("value", nodename)) {
             if (node->xmlChildrenNode->xmlChildrenNode != NULL) {
                 parse_dia_string(node->xmlChildrenNode, tmp->value);
             }
-        } else if ( ! strcmp("type", nodename)) {
+        } else if ( eq("type", nodename)) {
             if (node->xmlChildrenNode->xmlChildrenNode != NULL) {
                 parse_dia_string(node->xmlChildrenNode, tmp->type);
             } else {
                 tmp->type[0] = 0;
             }
-        } else if ( ! strcmp("comment", nodename)) {
+        } else if ( eq("comment", nodename)) {
             if (node->xmlChildrenNode->xmlChildrenNode != NULL) {
                parse_dia_string(node->xmlChildrenNode, tmp->comment);
             } else {
                tmp->comment[0] = 0;
           }
-        } else if ( ! strcmp("kind", nodename)) {
+        } else if ( eq("kind", nodename)) {
             attrval = xmlGetProp(node->xmlChildrenNode, "val");
             sscanf(attrval, "%c", &(tmp->kind));
             free(attrval);
-        } else if ( ! strcmp("visibility", nodename)) {
+        } else if ( eq("visibility", nodename)) {
             attrval = xmlGetProp(node->xmlChildrenNode, "val");
             sscanf(attrval, "%c", &(tmp->visibility));
             free(attrval);
-        } else if ( ! strcmp("abstract", nodename)) {
+        } else if ( eq("abstract", nodename)) {
             tmp->isabstract = parse_boolean(node->xmlChildrenNode);
-        } else if ( ! strcmp("class_scope", nodename)) {
+        } else if ( eq("class_scope", nodename)) {
             tmp->isstatic = parse_boolean(node->xmlChildrenNode);
         }
         free(nodename);
@@ -219,7 +219,7 @@ void parse_operation(xmlNodePtr node, umloperation *tmp) {
     parse_attribute(node, &(tmp->attr));
     while ( node != NULL ) {
         nodename = xmlGetProp(node, "name");
-        if ( ! strcmp("parameters", nodename) ) {
+        if ( eq("parameters", nodename) ) {
             tmp->parameters = parse_attributes(node->xmlChildrenNode);
         }
         free(nodename);
@@ -308,7 +308,7 @@ void make_javabean_methods(umlclass *myself) {
             operation = (umloplist) my_malloc (sizeof(umlopnode));
             operation->key.parameters = NULL;
             tmpname = strtoupperfirst(attrlist->key.name);
-            if ( ! strcmp(attrlist->key.type, "boolean") ) {
+            if ( eq(attrlist->key.type, "boolean") ) {
                 sprintf(operation->key.attr.name, "is");
             } else {
                 sprintf(operation->key.attr.name, "get");
@@ -372,6 +372,7 @@ umlpackagelist parse_package(xmlNodePtr package) {
     umlpackagelist listmyself;
     umlpackage *myself;
     xmlChar *attrname;
+    //debug( 4, "parse_package %s", package->name );
 
     listmyself = (umlpackagelist) my_malloc ( sizeof ( umlpackagenode));
     myself = (umlpackage*) my_malloc(sizeof(umlpackage));
@@ -384,14 +385,18 @@ umlpackagelist parse_package(xmlNodePtr package) {
     attribute = package->xmlChildrenNode;
     while ( attribute != NULL ) {
         attrname = xmlGetProp(attribute, "name");
-        if ( ! strcmp("name", attrname) ) {
-            parse_dia_string(attribute->xmlChildrenNode, myself->name);
-        } else if ( ! strcmp ( "obj_pos", attrname ) ) {
-            parse_geom_position(attribute->xmlChildrenNode, &myself->geom );
-        } else if ( ! strcmp ( "elem_width", attrname ) ) {
-            parse_geom_width(attribute->xmlChildrenNode, &myself->geom );
-        } else if ( ! strcmp ( "elem_height", attrname ) ) {
-            parse_geom_height(attribute->xmlChildrenNode, &myself->geom );
+        /* fix a segfault - dia files contains *also* some rare tags without any "name" attribute : <dia:parent  for ex.  */
+        if( attrname != NULL ) {
+            if ( eq("name", attrname) ) {
+                parse_dia_string(attribute->xmlChildrenNode, myself->name);
+                //debug( 4, "name is %s \n", myself->name );
+            } else if ( eq ( "obj_pos", attrname ) ) {
+                parse_geom_position(attribute->xmlChildrenNode, &myself->geom );
+            } else if ( eq ( "elem_width", attrname ) ) {
+                parse_geom_width(attribute->xmlChildrenNode, &myself->geom );
+            } else if ( eq ( "elem_height", attrname ) ) {
+                parse_geom_height(attribute->xmlChildrenNode, &myself->geom );
+            }
         }
         attribute = attribute->next;
     }
@@ -406,7 +411,6 @@ umlclasslist parse_class(xmlNodePtr class) {
 
     listmyself = (umlclasslist) my_malloc (sizeof (umlclassnode));
     myself = (umlclass*) my_malloc (sizeof(umlclass));
-
     myself->package = NULL;
 
     listmyself->key = myself;
@@ -418,38 +422,43 @@ umlclasslist parse_class(xmlNodePtr class) {
     attribute = class->xmlChildrenNode;
     while ( attribute != NULL ) {
         attrname = xmlGetProp(attribute, "name");
-        if ( ! strcmp("name", attrname) ) {
+        /* fix a segfault - dia files contains *also* some rare tags without any "name" attribute : <dia:parent  for ex.  */
+        if( attrname == NULL ) {
+            attribute = attribute->next;
+            continue;
+        }
+        if ( eq("name", attrname) ) {
             parse_dia_string(attribute->xmlChildrenNode, myself->name);
-        } else if ( ! strcmp ( "obj_pos", attrname ) ) {
+        } else if ( eq ( "obj_pos", attrname ) ) {
             parse_geom_position(attribute->xmlChildrenNode, &myself->geom );
-        } else if ( ! strcmp ( "elem_width", attrname ) ) {
+        } else if ( eq ( "elem_width", attrname ) ) {
             parse_geom_width(attribute->xmlChildrenNode, &myself->geom );
-        } else if ( ! strcmp ( "elem_height", attrname ) ) {
+        } else if ( eq ( "elem_height", attrname ) ) {
             parse_geom_height(attribute->xmlChildrenNode, &myself->geom );
-        } else if ( ! strcmp("comment", attrname))  {
+        } else if ( eq("comment", attrname))  {
             if (attribute->xmlChildrenNode->xmlChildrenNode != NULL) {
                parse_dia_string(attribute->xmlChildrenNode, myself->comment);
             }  else {
                myself->comment[0] = 0;
             }
-        } else if ( ! strcmp("stereotype", attrname) ) {
+        } else if ( eq("stereotype", attrname) ) {
             if ( attribute->xmlChildrenNode->xmlChildrenNode != NULL ) {
                 parse_dia_string(attribute->xmlChildrenNode, myself->stereotype);
             } else {
                 myself->stereotype[0] = 0;
             }
-        } else if ( ! strcmp("abstract", attrname) ) {
+        } else if ( eq("abstract", attrname) ) {
             myself->isabstract = parse_boolean(attribute->xmlChildrenNode);
-        } else if ( ! strcmp("attributes", attrname) ) {
+        } else if ( eq("attributes", attrname) ) {
             myself->attributes = parse_attributes(attribute->xmlChildrenNode);
-        } else if ( ! strcmp("operations", attrname) ) {
+        } else if ( eq("operations", attrname) ) {
             myself->operations = parse_operations(attribute->xmlChildrenNode);
-            if ( ! strcmp(myself->stereotype, "JavaBean")) {
+            if ( eq(myself->stereotype, "JavaBean")) {
                 /* Javabean: we should now add a get() and set() methods
                 for each attribute */
                 make_javabean_methods(myself);
             }
-        } else if ( ! strcmp("templates", attrname) ) {
+        } else if ( eq("templates", attrname) ) {
             myself->templates = parse_templates(attribute->xmlChildrenNode);
         }
         free(attrname);
@@ -474,11 +483,11 @@ void lolipop_implementation(umlclasslist classlist, xmlNodePtr object) {
 
     attribute = object->xmlChildrenNode;
     while ( attribute != NULL ) {
-        if ( ! strcmp("connections", attribute->name) ) {
+        if ( eq("connections", attribute->name) ) {
             id = xmlGetProp(attribute->xmlChildrenNode, "to");
         } else {
             attrname = xmlGetProp(attribute, "name");
-            if ( ! strcmp("text", attrname) && attribute->xmlChildrenNode != NULL &&
+            if ( attrname != NULL && eq("text", attrname) && attribute->xmlChildrenNode != NULL &&
                     attribute->xmlChildrenNode->xmlChildrenNode != NULL ){
                 name = attribute->xmlChildrenNode->xmlChildrenNode->content;
             } else {
@@ -512,7 +521,7 @@ void ricursive_search(xmlNodePtr node, xmlNodePtr * object) {
         return;
     }
     if ( node != NULL ) {
-        if ( ! strcmp(node->name,"object") ){
+        if ( eq(node->name,"object") ){
             *object = node;
             return;
         }
@@ -531,9 +540,9 @@ xmlNodePtr getNextObject(xmlNodePtr from) {
     xmlNodePtr next = NULL;
     if ( from->next != NULL ){
         next = from->next;
-        if ( ! strcmp(next->name,"group") ){
+        if ( eq(next->name,"group") ){
             next = next->xmlChildrenNode;
-            while ( ! strcmp(next->name,"group") ){
+            while ( eq(next->name,"group") ){
                 next=next->xmlChildrenNode;
             }
         }
@@ -541,14 +550,14 @@ xmlNodePtr getNextObject(xmlNodePtr from) {
     }
     next = from->parent->next;
     if ( next != NULL ){
-        if ( ! strcmp(next->name,"group") ){
+        if ( eq(next->name,"group") ){
             next = next->xmlChildrenNode;
-            while ( ! strcmp(next->name,"group") ){
+            while ( eq(next->name,"group") ){
                 next=next->xmlChildrenNode;
             }
             return next;
         }
-        if ( ! strcmp(next->name,"layer") ){
+        if ( eq(next->name,"layer") ){
             return next->xmlChildrenNode;
         }
         return next;
@@ -583,7 +592,7 @@ umlclasslist parse_diagram(char *diafile) {
     while (object != NULL) {
         objtype = xmlGetProp(object, "type");
         /* Here we have a Dia object */
-        if ( !strcmp("UML - Class", objtype) ) {
+        if ( eq("UML - Class", objtype) ) {
             /* Here we have a class definition */
             tmplist = parse_class(object);
             if (tmplist != NULL) {
@@ -600,7 +609,7 @@ umlclasslist parse_diagram(char *diafile) {
                     endlist = tmplist;
                 }
             }
-        } else if ( ! strcmp("UML - LargePackage",objtype) || ! strcmp("UML - SmallPackage",objtype)) {
+        } else if ( eq("UML - LargePackage",objtype) || eq("UML - SmallPackage",objtype)) {
             tmppcklist = parse_package(object);
             if ( tmppcklist != NULL ) {
                 /* We get the ID of the object here*/
@@ -633,7 +642,7 @@ umlclasslist parse_diagram(char *diafile) {
 
     while ( object != NULL ) {
         objtype = xmlGetProp(object, "type");
-        if ( ! strcmp("UML - Association", objtype) ) {
+        if ( eq("UML - Association", objtype) ) {
             char * name = NULL;
             char direction = 0;
             char composite = 0;
@@ -641,15 +650,15 @@ umlclasslist parse_diagram(char *diafile) {
 
             while ( attribute != NULL) {
                 attrtype = xmlGetProp(attribute, "name");
-                if ( attrtype != NULL && ! strcmp("ends", attrtype) ) {
+                if ( attrtype != NULL && eq("ends", attrtype) ) {
                     tmptype = xmlGetProp(attribute->xmlChildrenNode->xmlChildrenNode->next->next->next->xmlChildrenNode, "val");
-                    if ( ! strcmp("0", tmptype) ) {
+                    if ( eq("0", tmptype) ) {
                         direction = 1;
                         if (attribute->xmlChildrenNode->xmlChildrenNode->xmlChildrenNode->xmlChildrenNode != NULL) {
                             name = attribute->xmlChildrenNode->xmlChildrenNode->xmlChildrenNode->xmlChildrenNode->content;
                         }
                         tmptype2 = xmlGetProp(attribute->xmlChildrenNode->next->xmlChildrenNode->next->next->next->xmlChildrenNode, "val");
-                        if (!strcmp("1", tmptype2)) {
+                        if (eq("1", tmptype2)) {
                             composite = 1;
                         } else {
                             composite = 0;
@@ -661,7 +670,7 @@ umlclasslist parse_diagram(char *diafile) {
                             name = attribute->xmlChildrenNode->next->xmlChildrenNode->xmlChildrenNode->xmlChildrenNode->content;
                         }
                         tmptype2 = xmlGetProp(attribute->xmlChildrenNode->xmlChildrenNode->next->next->next->xmlChildrenNode, "val");
-                        if (!strcmp("1", tmptype2)) {
+                        if (eq("1", tmptype2)) {
                             composite = 1;
                         } else {
                             composite = 0;
@@ -675,7 +684,7 @@ umlclasslist parse_diagram(char *diafile) {
             }
             attribute = object->xmlChildrenNode;
             while ( attribute != NULL ) {
-                if ( ! strcmp("connections", attribute->name) ) {
+                if ( eq("connections", attribute->name) ) {
                     end1 = xmlGetProp(attribute->xmlChildrenNode, "to");
                     end2 = xmlGetProp(attribute->xmlChildrenNode->next, "to");
                     if (direction == 1) {
@@ -688,10 +697,10 @@ umlclasslist parse_diagram(char *diafile) {
                 }
                 attribute = attribute->next;
             }
-        } else if ( ! strcmp("UML - Dependency", objtype) ) {
+        } else if ( eq("UML - Dependency", objtype) ) {
             attribute = object->xmlChildrenNode;
             while ( attribute != NULL ) {
-                if ( ! strcmp("connections", attribute->name) ) {
+                if ( eq("connections", attribute->name) ) {
                     end1 = xmlGetProp(attribute->xmlChildrenNode, "to");
                     end2 = xmlGetProp(attribute->xmlChildrenNode->next, "to");
                     make_depend(classlist, end1, end2);
@@ -700,10 +709,10 @@ umlclasslist parse_diagram(char *diafile) {
                 }
                 attribute = attribute->next;
             }
-        } else if ( ! strcmp("UML - Realizes", objtype) ) {
+        } else if ( eq("UML - Realizes", objtype) ) {
             attribute = object->xmlChildrenNode;
             while ( attribute != NULL ) {
-                if ( ! strcmp("connections", attribute->name) ) {
+                if ( eq("connections", attribute->name) ) {
                     end1 = xmlGetProp(attribute->xmlChildrenNode, "to");
                     end2 = xmlGetProp(attribute->xmlChildrenNode->next, "to");
                     inherit_realize(classlist, end1, end2);
@@ -712,7 +721,7 @@ umlclasslist parse_diagram(char *diafile) {
                 }
                 attribute = attribute->next;
             }
-        } else if ( ! strcmp("UML - Implements", objtype) ) {
+        } else if ( eq("UML - Implements", objtype) ) {
             lolipop_implementation(classlist, object);
         }
         free(objtype);
@@ -725,10 +734,10 @@ umlclasslist parse_diagram(char *diafile) {
     ricursive_search( ptr->xmlRootNode->xmlChildrenNode->next, &object );
     while ( object != NULL ) {
         objtype = xmlGetProp(object, "type");
-        if ( ! strcmp("UML - Generalization", objtype) ) {
+        if ( eq("UML - Generalization", objtype) ) {
             attribute = object->xmlChildrenNode;
             while ( attribute != NULL ) {
-                if ( ! strcmp("connections", attribute->name) ) {
+                if ( eq("connections", attribute->name) ) {
                     end1 = xmlGetProp(attribute->xmlChildrenNode, "to");
                     end2 = xmlGetProp(attribute->xmlChildrenNode->next, "to");
                     inherit_realize(classlist, end1, end2);
