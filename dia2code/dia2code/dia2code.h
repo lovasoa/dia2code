@@ -156,12 +156,12 @@ typedef namenode * namelist;
 
 
 struct batch {
-    umlclasslist classlist;  // The classes in the diagram
-    char *outdir;  // Output directory
-    int clobber;  // Overwrite files in directory
-    namelist classes;  // Selection of classes to generate code for
-    int mask;  // Flag that inverts the above selection
-    char *license; // License file
+    umlclasslist classlist;  /* The classes in the diagram */
+    char *outdir;      /* Output directory */
+    int clobber;       /* Overwrite files in directory */
+    namelist classes;  /* Selection of classes to generate code for */
+    int mask;          /* Flag that inverts the above selection */
+    char *license;     /* License file */
 };
 typedef struct batch batch;
 
@@ -215,7 +215,7 @@ void pboth (char *msg, ...);  /* print with leading indentation to both */
 */
 FILE * open_outfile (char *filename, batch *b);
 
-// Added by RK 2003-02-20
+/* Added by RK 2003-02-20 */
 #define HUGE_BUFFER 8192
 #define LARGE_BUFFER 1024
 #define BIG_BUFFER 255
@@ -237,7 +237,7 @@ void d2c_outdent();
 int _d2c_fputs(const char *s, FILE *f);
 int _d2c_fputc(int c, FILE *f);
 int _d2c_fprintf(FILE *f, char *fmt, ...);
-//void d2c_set_braces(char *open, char *close);
+/* void d2c_set_braces(char *open, char *close); */
 void d2c_open_brace(FILE *outfile, char *suffix);
 void d2c_close_brace(FILE *outfile, char *suffix);
 void d2c_parse_impl(FILE *f, char *cmt_start, char *cmt_end);

@@ -257,10 +257,10 @@ void generate_code_ruby(batch *b) {
                     }
 
                     fprintf(outfile, TABS);
-                    if (umla->key.visibility == '0') { // make it public
+                    if (umla->key.visibility == '0') { /* make it public */
                         fprintf(outfile, "attr_acessor :%s\n", umla->key.name);
                         fprintf(outfile, "%spublic :%s\n\n",TABS, umla->key.name);
-                    } else if (umla->key.visibility == '1') { // make it private
+                    } else if (umla->key.visibility == '1') { /* make it private */
                         fprintf(outfile, "attr :%s\n", umla->key.name);
                         fprintf(outfile, "%sprivate :%s\n\n", TABS, umla->key.name);
                     } else {

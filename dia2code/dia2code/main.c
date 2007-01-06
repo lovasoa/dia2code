@@ -64,8 +64,8 @@ find_dia2code_module(const char *lang) {
 
 char *outdir = NULL;   /* Output directory */
 
-int INDENT_CNT = 4; // This should be a parameter in the command line
-int bOpenBraceOnNewline = 1; // This should also be a command-line parameter
+int INDENT_CNT = 4; /* This should be a parameter in the command line */
+int bOpenBraceOnNewline = 1; /* This should also be a command-line parameter */
 
 int main(int argc, char **argv) {
     int i;

@@ -60,7 +60,7 @@ char *d2c_php_visibility(char vis)
  */
 int d2c_php_show_arg(char *arg)
 {
-// convert to lower case ?
+/* convert to lower case ? */
     char *tmp = strtolower(arg);
     int result = 1;    
     if (eq("int", tmp)||
@@ -85,13 +85,13 @@ int d2c_php_print_func_comments(FILE *outfile, umloplist umlo)
     
     umlattrlist parama;
     char *tmpname;
-    // begin function comments
+    /* begin function comments */
     fprintf(outfile, "%s/**\n", TABS );
     fprintf(outfile, "%s * XXX\n", TABS );
     fprintf(outfile, "%s * \n", TABS );
 
     parama = umlo->key.parameters;
-    // document parameters
+    /* document parameters */
     while (parama != NULL) {
         fprintf(outfile, "%s * @param  %s $%s XXX\n",
                 TABS, parama->key.type, parama->key.name);
@@ -159,7 +159,7 @@ int d2c_php_print_func_code(FILE *outfile, umloplist umlo)
         fprintf(outfile, "%s}\n\n", TABS);
     }
     else {
-        // don't print an empty body for abstract methods
+        /* don't print an empty body for abstract methods */
         fprintf(outfile, ";\n\n");
     }
     return 0;
@@ -209,7 +209,7 @@ int d2c_php_print_attributes(FILE *outfile, umlclasslist tmplist)
             fprintf(outfile, "%s * @static", TABS);
         }
         fprintf(outfile, "%s */\n", TABS);
-        // print the actual variable declaration
+        /* print the actual variable declaration */
         fprintf(outfile, "%s%s %s$%s", TABS, tmpname,
                         (umla->key.isstatic) ? "static " : "",
                     umla->key.name);
@@ -230,7 +230,7 @@ int d2c_php_print_operations(FILE *outfile, umlclasslist tmplist)
     umloplist umlo = tmplist->key->operations;
     fprintf(outfile, "%s// Operations\n", TABS);
     while (umlo != NULL) {
-        // print each function
+        /* print each function */
         int result = d2c_php_print_func_comments(outfile, umlo);
         int r2 = d2c_php_print_func_code(outfile, umlo);
         umlo = umlo->next;
@@ -331,7 +331,7 @@ int d2c_php_print_class_decl(FILE *outfile, umlclasslist tmplist)
     char *tmpname;
     umlclasslist parents;
     tmpname = d2c_php_class_type(tmplist);
-    // print class 'type' and name
+    /* print class 'type' and name */
     fprintf(outfile, "%s %s", tmpname, tmplist->key->name);
     
     parents = tmplist->parents;
@@ -398,7 +398,7 @@ void generate_code_php_five(batch *b)
             exit(2); 
         }
     }
-    // for each class
+    /* for each class */
     while ( tmplist != NULL ) {
         if ( ! ( is_present(b->classes, tmplist->key->name) ^ b->mask ) ) {
             tmpname = tmplist->key->name;
@@ -430,7 +430,7 @@ void generate_code_php_five(batch *b)
                 d2c_php_print_attributes(outfile, tmplist);
                 d2c_php_print_associations(outfile, tmplist);
                 d2c_php_print_operations(outfile, tmplist);
-                // end class declaration
+                /* end class declaration */
                 fprintf(outfile, "}\n\n");
                 fprintf(outfile, "?>\n" );
                 fclose(outfile);

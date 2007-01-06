@@ -223,7 +223,7 @@ void generate_code_php(batch *b) {
                     fprintf(outfile,"%s * \n", TABS );
 
                     parama = umlo->key.parameters;
-// document parameters
+                    /* document parameters */
                     while (parama != NULL) {
                         fprintf(outfile,"%s * @param  %s $%s XXX\n",
                                 TABS, parama->key.type, parama->key.name);

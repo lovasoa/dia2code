@@ -17,8 +17,10 @@
 
 #include "dia2code.h"
 
-// Other things to be fixed:
-// The code that determines the parent class and implementations needs to go in order from "extends" to "implements".
+/* Other things to be fixed:
+ * The code that determines the parent class and implementations needs to go
+ * in order from "extends" to "implements".
+ */
 
 #define JAVA_EXTENDS 0
 #define JAVA_IMPLEMENTS 1
@@ -38,8 +40,8 @@ char *dia_visibility_to_string(int visibility)
     }
 }
 
-// This function dumps out the list of interfaces and extensions, as necessary.
-//
+/* This function dumps out the list of interfaces and extensions, as necessary.
+ */
 int java_manage_parents(FILE *f, umlclasslist parents, int stereotype)
 {
     char *tmpname;
@@ -227,9 +229,10 @@ void generate_code_java(batch *b)
                 }
                 java_manage_parents(outfile, tmplist->parents, JAVA_IMPLEMENTS);
 
-                // At this point we need to make a decision:
-                // If you want to implement flexibility to add "extends", then the brace must be on the next line.
-                if (1) // if (dumping_implementations)
+                /* At this point we need to make a decision:
+                   If you want to implement flexibility to add "extends", then
+                   the brace must be on the next line. */
+                if (1)  /* if (dumping_implementations) */
                     d2c_fprintf(outfile, "\n");
                 d2c_dump_impl(outfile, "inheritence", "");
 
@@ -268,8 +271,7 @@ void generate_code_java(batch *b)
 
                 d2c_dump_impl(outfile, "associations", "");
 
-				// Operations here
-				//
+                /* Operations */
                 umlo = tmplist->key->operations;
                 while ( umlo != NULL)
                 {
@@ -285,7 +287,7 @@ void generate_code_java(batch *b)
                     if(strcmp(umlo->key.attr.type, "void"))
                         d2c_fprintf(outfile, " * @return %s\n", umlo->key.attr.type);
                     d2c_fprintf(outfile, " */\n");
-                    //d2c_fprintf(outfile, "  ");
+                    /*d2c_fprintf(outfile, "  "); */
 
                     if ( umlo->key.attr.isabstract )
                     {
@@ -315,8 +317,8 @@ void generate_code_java(batch *b)
                             d2c_fprintf(outfile, ", ");
                     }
                     d2c_fprintf(outfile, " )");
-                    // RK - Not sure this is right but I did it. This
-                    //      prevents curly braces from being applied when CLASSTYPE is interface.
+                    /* RK - Not sure this is right but I did it. This prevents curly
+                            braces from being applied when CLASSTYPE is interface. */
                     if ( umlo->key.attr.isabstract || classtype == CLASSTYPE_INTERFACE)
                         d2c_fprintf(outfile, ";\n");
                     else

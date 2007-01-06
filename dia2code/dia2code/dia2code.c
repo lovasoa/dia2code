@@ -300,8 +300,8 @@ is_enum_stereo (char *stereo)
             !strcmp (stereo, "enumeration"));
 }
 
-// Added by RK 2003-02-20
-// This should become part of the uml_class object.
+/* Added by RK 2003-02-20
+   This should become part of the uml_class object. */
 
 struct endless_string_buf
 {
@@ -322,7 +322,7 @@ void dump_endless_string(FILE *f, endless_string *es)
     endless_string_buf *esb = es->start;
     while (esb != NULL)
     {
-        fprintf(f, "%s", esb->buf); // We do not d2c_fprintf the buffer, cause it's read in indented.
+        fprintf(f, "%s", esb->buf); /* We do not d2c_fprintf the buffer, cause it's read in indented. */
         esb = esb->next;
     }
 }
@@ -466,7 +466,7 @@ void d2c_deprecate_impl(FILE *f, char *comment_start, char *comment_end)
             esb = p->impl->start;
             while (esb != NULL)
             {
-                 // We do not d2c_fprintf the buffer, cause it's read in indented.
+                 /* We do not d2c_fprintf the buffer, cause it's read in indented. */
                 fprintf(f, "// %s", esb->buf);
                 esb = esb->next;
             }
@@ -553,10 +553,10 @@ void d2c_parse_impl(FILE *f, char *cmt_start, char *cmt_end)
         STATE_WARNING("found start implementation comment without end comment")
 }
 
-// This function takes a UML Operation and mangles it for implementation comments.
-// Because it uses an internal buffer to store and return, repeated calls to this
-// function will overwrite previous values.
-//
+/* This function takes a UML Operation and mangles it for implementation comments.
+   Because it uses an internal buffer to store and return, repeated calls to this
+   function will overwrite previous values.
+*/
 char *d2c_operation_mangle_name(umlopnode *op)
 {
     static char d2c_mangle_name[LARGE_BUFFER];
@@ -571,7 +571,7 @@ char *d2c_operation_mangle_name(umlopnode *op)
         params = params->next;
     }
 
-    // Convert whitespace to underbars
+    /* Convert whitespace to underbars */
     for (p = d2c_mangle_name; *p != '\0'; p++)
     {
         if (*p == ' ' || *p == '\t') *p = '_';
@@ -581,10 +581,10 @@ char *d2c_operation_mangle_name(umlopnode *op)
 
 int d2c_backup(char *filename)
 {
-    // This is not necessarily portable. (requires ability to just
-    // tag-on four more characters - not DOS-friendly)
-    // But I'll admit to being a bit out-of-the loop here.
-    //
+    /* This is not necessarily portable. (requires ability to just
+     * tag-on four more characters - not DOS-friendly)
+     * But I'll admit to being a bit out-of-the loop here.
+     */
     char *backup_filename = my_malloc(strlen(filename) + 4);
     strcpy(backup_filename, filename);
     strcat(backup_filename, ".bak");
@@ -611,9 +611,9 @@ int d2c_backup(char *filename)
     return 0;
 }
 
-// Todo on auto-indentation:
-// 1. Define meta-characters that are converted to braces
-
+/* Todo on auto-indentation:
+   1. Define meta-characters that are converted to braces
+*/
 int indent_count = 4;
 int indent_open_brace_on_newline = 1;
 
@@ -685,12 +685,12 @@ int _d2c_fputc(int c, FILE *f)
 int _d2c_fputs(const char *s, FILE *f)
 {
     const char *buf = s;
-    //int len = 0;
+    /* int len = 0; */
     while (*buf != '\0')
     {
         if (fputc(*buf, f) == EOF)
             return EOF;
-        //len++;
+        /* len++; */
     }
     return 1;
 }
