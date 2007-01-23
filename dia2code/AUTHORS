@@ -18,5 +18,6 @@ Contributors: (in alphabetical order, by last name)
 - Martin Vidner <mvidner@users.sourceforge.net> Porting to libxml2.
 - Thomas Hansen <thomas.hansen@adramatch.com> C# code generation.
 - Oliver Kellogg <okellogg@users.sourceforge.net> Fixes for scan_tree.c and idl generation.
+- Tim Rodger <tim.rodger@gmail.com> PHP5 code generation.
 - Dmitry V. Sabanin <sdmitry@lrn.ru> Ruby code generation.
 
