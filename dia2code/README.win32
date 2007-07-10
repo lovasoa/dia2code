@@ -7,7 +7,7 @@ The installer will add context menu entries for .dia files.
 These entries are accessible through right-mouse-clicks in
 the Windows Explorer. The following options are available in
 version 0.8.3:
-* Create ADA code
+* Create Ada code
 * Create C code
 * Create C++ code
 * Create C# code
@@ -37,3 +37,4 @@ Linking dia2code:
 gcc -mno-cygwin -fnative-struct -o dia2code.exe *.o -L PATH_TO_LIBXML2_DLL -lxml2
 --
 Steffen Macke <sdteffen@gmail.com>
+
