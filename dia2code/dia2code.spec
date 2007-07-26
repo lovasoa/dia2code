@@ -8,7 +8,7 @@ Summary: Dia2Code generates code from a Dia diagram
 Name: %name
 Version: %ver
 Release: %rel
-Copyright: GPL
+License: GPL
 Distribution: N/A
 Vendor: N/A
 Group: Development/Tools
