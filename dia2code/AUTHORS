@@ -20,4 +20,5 @@ Contributors: (in alphabetical order, by last name)
 - Oliver Kellogg <okellogg@users.sourceforge.net> Fixes for scan_tree.c and idl generation.
 - Tim Rodger <tim.rodger@gmail.com> PHP5 code generation.
 - Dmitry V. Sabanin <sdmitry@lrn.ru> Ruby code generation.
+- Charles Schaefer <charlesschaefer@gmail.com> Improvements to PHP5 generator.
 

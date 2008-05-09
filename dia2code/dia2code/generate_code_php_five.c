@@ -6,6 +6,7 @@ generate_code_php5.c  -  Function that generates Php 5 code
     email                : fielker@softsolutions.de
     modified by          : Leandro Lucarella <luca@lugmen.org.ar>
     modified by          : tim rodger <tim.rodger@gmail.com>
+    modified by          : Charles Schaefer <charlesschaefer@gmail.com>
  ***************************************************************************/
 
 /***************************************************************************
@@ -86,15 +87,22 @@ int d2c_php_print_func_comments(FILE *outfile, umloplist umlo)
     umlattrlist parama;
     char *tmpname;
     /* begin function comments */
-    fprintf(outfile, "%s/**\n", TABS );
-    fprintf(outfile, "%s * XXX\n", TABS );
-    fprintf(outfile, "%s * \n", TABS );
+    fprintf(outfile, "%s/**\n", TABS);
+    if (strlen(umlo->key.attr.comment) > 0)
+        fprintf(outfile, "%s * %s\n", TABS, umlo->key.attr.comment);
+    else
+        fprintf(outfile, "%s * XXX\n", TABS);
+    fprintf(outfile, "%s * \n", TABS);
 
     parama = umlo->key.parameters;
     /* document parameters */
     while (parama != NULL) {
-        fprintf(outfile, "%s * @param  %s $%s XXX\n",
+        fprintf(outfile, "%s * @param  %s $%s ",
                 TABS, parama->key.type, parama->key.name);
+        if (strlen(parama->key.comment) > 0)
+          fprintf(outfile, "%s\n", parama->key.comment);
+        else
+            fprintf(outfile, "XXX\n");
         parama= parama->next;
     }
     
@@ -103,9 +111,9 @@ int d2c_php_print_func_comments(FILE *outfile, umloplist umlo)
                 TABS, umlo->key.attr.type);
     }
     
-    fprintf(outfile, "%s * @access ", TABS );
+    /*fprintf(outfile, "%s * @access ", TABS );
     tmpname = d2c_php_visibility(umlo->key.attr.visibility);
-    fprintf(outfile, "%s\n", tmpname);
+    fprintf(outfile, "%s\n", tmpname);*/
     
     if (umlo->key.attr.isabstract) {
         fprintf(outfile, "%s * @abstract\n", TABS );
@@ -171,8 +179,10 @@ int d2c_php_print_func_code(FILE *outfile, umloplist umlo)
 
 int d2c_php_print_associations(FILE *outfile, umlclasslist tmplist)
 {
-    fprintf(outfile, "%s// Associations\n", TABS);
     umlassoclist associations = tmplist->associations;
+    if (associations != NULL)
+        fprintf(outfile, "%s// Associations\n", TABS);
+
     while ( associations != NULL ) {
         fprintf(outfile, "%s/**\n", TABS );
         fprintf(outfile, "%s * XXX\n", TABS );
@@ -194,17 +204,22 @@ int d2c_php_print_associations(FILE *outfile, umlclasslist tmplist)
  */
 int d2c_php_print_attributes(FILE *outfile, umlclasslist tmplist)
 {
-    fprintf(outfile, "%s// Attributes\n", TABS);
     umlattrlist umla = tmplist->key->attributes;
+    if (umla != NULL)
+        fprintf(outfile, "%s// Attributes\n", TABS);
+
     while (umla != NULL) {
         fprintf(outfile, "%s/**\n", TABS);
-        fprintf(outfile, "%s * XXX\n", TABS );
+        if (strlen(umla->key.comment) > 0)
+            fprintf(outfile, "%s * %s\n", TABS, umla->key.comment);
+        else
+            fprintf(outfile, "%s * XXX\n", TABS );
         fprintf(outfile, "%s *\n", TABS );
         fprintf(outfile, "%s * @var    %s\n", TABS, umla->key.type);
-        fprintf(outfile, "%s * @access ", TABS); 
+        //fprintf(outfile, "%s * @access ", TABS); 
     
         char *tmpname = d2c_php_visibility(umla->key.visibility);
-        fprintf(outfile, "%s\n", tmpname);
+        //fprintf(outfile, "%s\n", tmpname);*/
         if (umla->key.isstatic) {
             fprintf(outfile, "%s * @static", TABS);
         }
@@ -228,7 +243,9 @@ int d2c_php_print_attributes(FILE *outfile, umlclasslist tmplist)
 int d2c_php_print_operations(FILE *outfile, umlclasslist tmplist)
 {
     umloplist umlo = tmplist->key->operations;
-    fprintf(outfile, "%s// Operations\n", TABS);
+    if (umlo != NULL)
+        fprintf(outfile, "%s// Operations\n", TABS);
+
     while (umlo != NULL) {
         /* print each function */
         int result = d2c_php_print_func_comments(outfile, umlo);
@@ -290,7 +307,10 @@ int d2c_php_print_class_desc(FILE *outfile, umlclasslist tmplist)
     umlpackagelist tmppcklist;
     fprintf(outfile, "/**\n" );
     
-    fprintf(outfile, " * XXX detailed description\n" );
+    if (strlen(tmplist->key->comment) > 0)
+        fprintf(outfile, " * %s\n", tmplist->key->comment);
+    else
+        fprintf(outfile, " * XXX detailed description\n" );
     fprintf(outfile, " *\n" );
     fprintf(outfile, " * @author    XXX\n" );
     fprintf(outfile, " * @version   XXX\n" );
