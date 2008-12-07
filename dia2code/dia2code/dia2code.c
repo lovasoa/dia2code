@@ -770,6 +770,7 @@ int _d2c_fputs(const char *s, FILE *f)
         if (fputc(*buf, f) == EOF)
             return EOF;
         /* len++; */
+        buf++;
     }
     return 1;
 }
