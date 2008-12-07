@@ -135,7 +135,10 @@ push (umlclassnode *node, batch *b)
     /* Make sure all classes that this one depends on are already pushed. */
     tmpnode = used_classes;
     while (tmpnode != NULL) {
-        push (tmpnode, b);
+        /* don't push this class !*/
+        if (!eq(node->key->name, tmpnode->key->name)){
+            push (tmpnode, b);
+        }
         tmpnode = tmpnode->next;
     }
 
