@@ -569,8 +569,8 @@ umlclasslist parse_diagram(char *diafile) {
     xmlDocPtr ptr;
     xmlChar *objtype, *attrtype, *tmptype, *tmptype2;
     xmlChar *objid;
-    xmlChar *end1;
-    xmlChar *end2;
+    xmlChar *end1 = NULL;
+    xmlChar *end2 = NULL;
 
     xmlNodePtr  object = NULL, attribute;
     umlclasslist classlist, tmplist, endlist = NULL;
@@ -650,53 +650,54 @@ umlclasslist parse_diagram(char *diafile) {
 
             while ( attribute != NULL) {
                 attrtype = xmlGetProp(attribute, "name");
-                if ( attrtype != NULL && eq("ends", attrtype) ) {
-                    tmptype = xmlGetProp(attribute->xmlChildrenNode->xmlChildrenNode->next->next->next->xmlChildrenNode, "val");
-                    if ( eq("0", tmptype) ) {
-                        direction = 1;
-                        if (attribute->xmlChildrenNode->xmlChildrenNode->xmlChildrenNode->xmlChildrenNode != NULL) {
-                            name = attribute->xmlChildrenNode->xmlChildrenNode->xmlChildrenNode->xmlChildrenNode->content;
-                        }
-                        tmptype2 = xmlGetProp(attribute->xmlChildrenNode->next->xmlChildrenNode->next->next->next->xmlChildrenNode, "val");
-                        if (eq("1", tmptype2)) {
-                            composite = 1;
-                        } else {
-                            composite = 0;
-                        }
-                        free(tmptype2);
-                    } else {
-                        direction = 0;
-                        if (attribute->xmlChildrenNode->next->xmlChildrenNode->xmlChildrenNode->xmlChildrenNode != NULL) {
-                            name = attribute->xmlChildrenNode->next->xmlChildrenNode->xmlChildrenNode->xmlChildrenNode->content;
-                        }
-                        tmptype2 = xmlGetProp(attribute->xmlChildrenNode->xmlChildrenNode->next->next->next->xmlChildrenNode, "val");
-                        if (eq("1", tmptype2)) {
-                            composite = 1;
-                        } else {
-                            composite = 0;
-                        }
-                        free(tmptype2);
+
+                if (attrtype != NULL) {
+                    if ( ! strcmp("name", attrtype) ) {
+                        name = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
                     }
-                    free(tmptype);
+
+                    else if ( ! strcmp("direction", attrtype) ) {
+                        tmptype = xmlGetProp(attribute -> xmlChildrenNode, "val");
+                        if ( !strcmp("0", tmptype) ) {
+                            direction = 1;
+                        }
+                        else {
+                            direction = 0;
+                        }
+                        free(tmptype);
+                    }
+
+                    else if ( ! strcmp("assoc_type", attrtype) ) {
+                        tmptype = xmlGetProp(attribute -> xmlChildrenNode, "val");
+                        if ( !strcmp("1", tmptype) ) {
+                            composite = 0;
+                        }
+                        else {
+                            composite = 1;
+                        }
+                        free(tmptype);
+                    }
                 }
+
+                if ( ! strcmp("connections", attribute -> name) ) {
+                    end1 = xmlGetProp(attribute->xmlChildrenNode, "to");
+                    end2 = xmlGetProp(attribute->xmlChildrenNode->next, "to");
+                }
+
                 free(attrtype);
                 attribute = attribute->next;
             }
-            attribute = object->xmlChildrenNode;
-            while ( attribute != NULL ) {
-                if ( eq("connections", attribute->name) ) {
-                    end1 = xmlGetProp(attribute->xmlChildrenNode, "to");
-                    end2 = xmlGetProp(attribute->xmlChildrenNode->next, "to");
-                    if (direction == 1) {
-                        associate(classlist, name, composite, end1, end2);
-                    } else {
-                        associate(classlist, name, composite, end2, end1);
-                    }
-                    free(end1);
-                    free(end2);
+
+            if (end1 != NULL && end2 != NULL) {
+                if (direction == 1) {
+                    associate(classlist, name, composite, end1, end2);
+                } else {
+                    associate(classlist, name, composite, end2, end1);
                 }
-                attribute = attribute->next;
+                free(end1);
+                free(end2);
             }
+
         } else if ( eq("UML - Dependency", objtype) ) {
             attribute = object->xmlChildrenNode;
             while ( attribute != NULL ) {
