@@ -141,13 +141,36 @@ void generate_code_sql(batch *b) {
     	umlassocnode* temp = tmplist->associations;
         while( temp != NULL )
         {
+            /*
+              AI: Just a small hack to follow a very popular
+              convention in almost all ORMs which is to determine the
+              FK based on the underscore id like so "xxx_id" where xxx
+              is the FK table name and it should always point to the
+              surrogate id of the FK table (i.e. the "id" field). For
+              more info on surrogate keys:
+
+              http://en.wikipedia.org/wiki/Surrogate_key
+
+              TODO: I wonder if char* correctly works with multibyte (UTF-8)
+            */
+            char tail[4];
+            const char *fk_col =  temp->name;
+            strncpy(tail, fk_col + strlen(fk_col) - 2, 3);
+            if (!strcmp("_id", tail)) {
+                fk_col = "id";
+            } else {
+                printf("warning: association name %s does not end in _id but rather %s,\n");
+                printf("make sure FK cols have the same name on both tables\n", temp->name, tail);
+                fk_col = temp->name;
+            }
+
             fprintf( outfilesql, "\n\nALTER TABLE %s ADD\n", temp->key->name );
             fprintf( outfilesql, "    CONSTRAINT  FK_%s_%s  FOREIGN KEY(%s) REFERENCES %s (%s);\n", 
                 temp->key->name, 
                 tmplist->key->name, 
                 temp->name, 
                 tmplist->key->name, 
-                temp->name );
+                fk_col );
             temp = temp->next;
         }
         tmplist = tmplist->next;
