@@ -361,6 +361,7 @@ gen_class (umlclassnode *node)
                 emit ("%s ", cppname (umlo->key.attr.type));
             }
             emit ("%s (", umlo->key.attr.name);
+            tmpa = umlo->key.parameters;
             while (tmpa != NULL) {
                 emit ("%s %s", tmpa->key.type, tmpa->key.name);
                 if (tmpa->key.value[0] != 0) {
