@@ -13,7 +13,7 @@
 ; ***************************************************************************
 
 
-Name "dia2code 0.8.3"
+Name "dia2code 0.8.4"
 LicenseText "Please read and agree to this license before continuiung."
 LicenseData COPYING
 ComponentText "This will install dia2code 0.8.3 on your system. Select which options you want set up."
