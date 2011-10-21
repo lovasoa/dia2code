@@ -16,7 +16,7 @@
  ***************************************************************************/
 
 #include "dia2code.h"
-#include "errno.h"
+#include <errno.h>
 
 char * d2c_indentstring = "   ";
 int d2c_indentposition = 0;
