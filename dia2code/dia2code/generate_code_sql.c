@@ -159,8 +159,9 @@ void generate_code_sql(batch *b) {
             if (!strcmp("_id", tail)) {
                 fk_col = "id";
             } else {
-                printf("warning: association name %s does not end in _id but rather %s,\n");
-                printf("make sure FK cols have the same name on both tables\n", temp->name, tail);
+                printf("warning: association name %s does not end in _id but rather %s,\n",
+                       temp->name, tail);
+                printf("make sure FK cols have the same name on both tables\n");
                 fk_col = temp->name;
             }
 
