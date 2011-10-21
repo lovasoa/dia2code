@@ -196,6 +196,8 @@ void parse_attribute(xmlNodePtr node, umlattribute *tmp) {
             tmp->isabstract = parse_boolean(node->xmlChildrenNode);
         } else if ( eq("class_scope", nodename)) {
             tmp->isstatic = parse_boolean(node->xmlChildrenNode);
+        } else if ( eq("query", nodename)) {
+            tmp->isconstant = parse_boolean(node->xmlChildrenNode);
         }
         free(nodename);
         node = node->next;
@@ -281,6 +283,7 @@ void make_javabean_methods(umlclass *myself) {
             strncpy(parameter->key.type, attrlist->key.type, 79);
             parameter->key.value[0] = 0;
             parameter->key.isstatic = 0;
+            parameter->key.isconstant = 0;
             parameter->key.isabstract = 0;
             parameter->key.visibility = '0';
             parameter->next = NULL;
@@ -297,6 +300,7 @@ void make_javabean_methods(umlclass *myself) {
             free(tmpname);
             operation->key.attr.isabstract = 0;
             operation->key.attr.isstatic = 0;
+            operation->key.attr.isconstant = 0;
             operation->key.attr.visibility = '0';
             operation->key.attr.value[0] = 0;
             sprintf(operation->key.attr.type, "void");
@@ -323,6 +327,7 @@ void make_javabean_methods(umlclass *myself) {
 
             operation->key.attr.isabstract = 0;
             operation->key.attr.isstatic = 0;
+            operation->key.attr.isconstant = 0;
             operation->key.attr.visibility = '0';
             operation->key.attr.value[0] = 0;
             strncpy(operation->key.attr.type, attrlist->key.type, 79);

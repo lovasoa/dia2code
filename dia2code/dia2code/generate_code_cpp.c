@@ -376,6 +376,9 @@ gen_class (umlclassnode *node)
                 }
             }
             emit (")");
+            if (umlo->key.attr.isconstant) {
+                emit (" const");
+            }
             if (umlo->key.attr.value[0]) {
                 emit (" = %s", umlo->key.attr.value);
             }

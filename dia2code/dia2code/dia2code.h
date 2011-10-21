@@ -32,7 +32,7 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
-#define VERSION "0.8.3"
+#define VERSION "0.8.4"
 
 #ifdef DSO
 #include <dlfcn.h>
@@ -62,6 +62,7 @@ struct umlattribute {
     char visibility;
     char isabstract;
     char isstatic;
+    char isconstant;
     char kind;
     char diaoid[10];
 };
