@@ -15,7 +15,8 @@ Code generators:
 - Custom extension for C++ files: .c++, .C, etc.
 - Custom visibility for Java classes: by default, all are
   public now.
-- Code generation for more languages. (CORBA IDL)
+- Code generation for more languages, see
+  http://sourceforge.net/tracker/?group_id=15307&atid=365307
 
 Compilation, Installation and Distribution
 - Modify autoconf/automake files to install dia2code.1 and dia2code.kaptn
