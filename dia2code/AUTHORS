@@ -6,19 +6,18 @@ Contributors: (in alphabetical order, by last name)
 - Cyrille Chepelov <chepelov@calixo.net> Pyhton code generation, Debian package management,
   Hurd conformance
 - Harald Fielker <hfielker@softsolutions.de> PHP code generation.
+- Thomas Hansen <thomas.hansen@adramatch.com> C# code generation.
+- Alejandro Imass <aimass@yabarana.com> Improved foreign keys in SQL generation
+- Oliver Kellogg <okellogg@users.sourceforge.net> Fixes for scan_tree.c and IDL generation
 - Ruben Lopez <ryu@gpul.org>, C code generation
-- Steffen Macke <sdteffen@yahoo.com> batch shapefile generation, win32
-  installer
-- Chris McGee <sirnewton_01@yahoo.ca> Dependencies, Associations, C++ Templates, SQL
-  IDL code generation.
+- Steffen Macke <sdteffen@yahoo.com> batch shapefile generation, win32 installer
+- Chris McGee <sirnewton_01@yahoo.ca> Dependencies, Associations, C++ Templates, SQL, IDL
 - Takashi Okamoto <toraneko@kun.ne.jp> License inclusion mechanism.
 - Thomas Preymesser <tp@odn.de> Ada code generation
-- Jérôme Slangen <jeromes@mail.be> Wildcard class list mechanism.
-- Takaaki Tateishi <> Dynamic Shared Objects for dynamic code generator modules.
-- Martin Vidner <mvidner@users.sourceforge.net> Porting to libxml2.
-- Thomas Hansen <thomas.hansen@adramatch.com> C# code generation.
-- Oliver Kellogg <okellogg@users.sourceforge.net> Fixes for scan_tree.c and idl generation.
 - Tim Rodger <tim.rodger@gmail.com> PHP5 code generation.
 - Dmitry V. Sabanin <sdmitry@lrn.ru> Ruby code generation.
 - Charles Schaefer <charlesschaefer@gmail.com> Improvements to PHP5 generator.
+- Jérôme Slangen <jeromes@mail.be> Wildcard class list mechanism.
+- Takaaki Tateishi <> Dynamic Shared Objects for dynamic code generator modules.
+- Martin Vidner <mvidner@users.sourceforge.net> Porting to libxml2.
 
