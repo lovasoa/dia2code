@@ -139,7 +139,7 @@ void generate_code_csharp (batch *b) {
         if (tmplist->key->attributes != NULL) {
             umlattrlist umla = tmplist->key->attributes;
 
-            print ("// Attributes\n");
+            print ("// Attributes and properties\n");
 
             while (umla != NULL) {
                 switch (umla->key.visibility) {
@@ -161,7 +161,25 @@ void generate_code_csharp (batch *b) {
                 if (umla->key.value[0] != 0) {
                     emit (" = %s", umla->key.value);
                 }
-                emit (";\n");
+                int wp = 0, rp = 0;
+                if (eq (umla->key.comment, "rproperty"))
+                    rp = 1;
+                else if (eq (umla->key.comment, "wproperty"))
+                    wp = 1;
+                else if (eq (umla->key.comment, "rwproperty"))
+                    rp = wp = 1;
+                if (wp || rp) {
+                    emit (" {\n");
+                    indentlevel++;
+                    if (rp)
+                        print ("get;\n");
+                    if (wp)
+                        print ("set;\n");
+                    indentlevel--;
+                    print ("}\n");
+                }
+                else
+                    emit (";\n");
                 umla = umla->next;
             }
             emit ("\n");
