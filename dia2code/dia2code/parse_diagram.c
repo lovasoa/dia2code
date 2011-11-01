@@ -17,6 +17,10 @@
 
 #include "parse_diagram.h"
 
+/* In case of unnamed associations, the attribute will get the name
+   "unnamed_" followed by the anon_cnt converted to string:  */
+static unsigned anon_cnt = 0;
+
 umlclasslist find(umlclasslist list, char *id ) {
     if ( id != NULL ) {
         while ( list != NULL ) {
@@ -76,6 +80,10 @@ void addaggregate(char * name, char composite, umlclasslist base, umlclasslist a
     tmp = (umlassoclist) my_malloc ( sizeof(umlassocnode) );
     if (name != NULL) {
         sscanf(name, "#%79[^#]#", tmp->name);
+        if (tmp->name[0] == '\0') {
+            ++anon_cnt;
+            sprintf (tmp->name, "unnamed_%d", anon_cnt);
+        }
     } else {
         printf("warning: unnamed association between %s and %s\n", base->key->name, associate->key->name);
         strcpy(tmp->name, "unnamed");
