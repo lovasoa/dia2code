@@ -68,7 +68,7 @@ void source_preserve( batch *b, umlclass *class, const char *filename, sourcecod
  * constructor for a new sourceblock structure address
  * @return an initialized sourceblock address
  */
-sourceblock *sourceblock_new( char *spos, ulong len, char *oid, int type )
+sourceblock *sourceblock_new( char *spos, size_t len, char *oid, int type )
 {
     debug( DBG_GENCODE, "sourceblock_new( spos=%p, len=%ld, oid=%s, type=%d )", spos,len,oid,type );
     // TODO : safety checks
@@ -176,7 +176,7 @@ char *source_loadfromfile(const char *filename )
 {
     struct stat info;
     int fi; // file descriptor
-    unsigned long sz;
+    size_t sz;
     char *buf = NULL;
     
     if( stat( filename, &info ) ) {
@@ -255,7 +255,7 @@ sourceblock *find_matching_char( const char *buf, char *oid, char openc, char cl
             depth --;
             /* we found the closing char */
             if( depth == 0 ) {
-                ulong bklen = cp - buf +1;
+                size_t bklen = cp - buf +1;
                 srcbk = sourceblock_new( startpos, bklen, oid,  SP_OP_IMPL );
                 debug( 7, "sourceblock returned: spos=%p len=%ld oid=%s", srcbk->spos, srcbk->len, srcbk->oid );
                 break;

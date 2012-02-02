@@ -15,12 +15,12 @@
  *                                                                         *
  ***************************************************************************/
 
- #ifndef DIA2CODE_H
- #define DIA2CODE_H
+#ifndef DIA2CODE_H
+#define DIA2CODE_H
 
+#define  _GNU_SOURCE
 #include <string.h>
 #include <ctype.h>
-#include <malloc.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>

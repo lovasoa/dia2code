@@ -12,7 +12,7 @@
 */
 struct sourceblock {
     char * spos; /* starting position - file buffer offset */
-    unsigned long len; /* length in char */
+    size_t len; /* length in char */
     int type;
     char *oid;
 };
@@ -49,7 +49,7 @@ sourceblock *sourceblock_find( sourceblocknode *list, const char *oid );
 
 sourceblocknode *source_parse( const char *sourcebuffer );
 
-sourceblock *sourceblock_new( char *spos, ulong len, char *oid, int type );
+sourceblock *sourceblock_new( char *spos, size_t len, char *oid, int type );
 
 char *source_loadfromfile(const char *filename );
 
