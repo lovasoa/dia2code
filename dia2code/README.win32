@@ -6,7 +6,7 @@ USAGE
 The installer will add context menu entries for .dia files.
 These entries are accessible through right-mouse-clicks in
 the Windows Explorer. The following options are available in
-version 0.8.4:
+version 0.8.5:
 * Create Ada code
 * Create C code
 * Create C++ code

@@ -1,6 +1,11 @@
-UNRELEASED : Version 0.8.5
+07 Jul 2012: Version 0.8.5
 - Support for properties in C# code by Jedrek P <smaug@smaug.int.pl>, see
   https://bugs.launchpad.net/ubuntu/+source/dia2code/+bug/173628
+- Support unnamed associations (artificial name "unnamed_" followed by a
+  counter value will be generated)
+- Generating Java or PHP code no longer crashes on files containing only
+  classes (without UML packages)
+- Minor portability issues fixed (thanks to the FreeBSD ports team)
 
 22 Oct 2011: Version 0.8.4
 - Added support for C++ "const" qualifier on operations

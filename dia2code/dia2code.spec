@@ -1,5 +1,5 @@
 %define name dia2code
-%define ver 0.8.4
+%define ver 0.8.5
 %define prefix /usr
 %define rel 1
 
@@ -15,7 +15,7 @@ Group: Development/Tools
 Requires: libxml2
 Buildroot: /var/tmp/%{name}-%{ver}-root
 Source: http://download.sourceforge.net/dia2code/dia2code-%{ver}.tar.gz
-Packager: Richard Torkar <ds98rito@thn.htu.se>
+Packager: Oliver Kellogg <okellogg@users.souceforge.net>
 URL: http://dia2code.sourceforge.net/
 ######################################################################
 %description
