@@ -140,6 +140,11 @@ namelist parse_class_names(const char *s) {
     return list;
 }
 
+namelist parse_sql_options(const char *s) {
+  /* AI: same thing for now but it could change in the future */
+  return parse_class_names(s);
+}
+
 int is_present(namelist list, const char *name) {
     while (list != NULL) {
         int len;

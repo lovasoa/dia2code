@@ -6,6 +6,9 @@
 - Generating Java or PHP code no longer crashes on files containing only
   classes (without UML packages)
 - Minor portability issues fixed (thanks to the FreeBSD ports team)
+- Patch by Alejandro Imass fixes matching against _id instead of id for
+  surrogate fk convention in popular ORMs, and adds an -sqlx command line
+  parameter for future enhancements to the sql module
 
 22 Oct 2011: Version 0.8.4
 - Added support for C++ "const" qualifier on operations
