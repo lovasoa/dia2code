@@ -171,7 +171,7 @@ void * my_malloc( size_t size ) {
         exit(1);
     }
     /* safer zone */
-    //memset( tmp, 0, size );
+    memset (tmp, 0, size);
     return tmp;
 }
 
