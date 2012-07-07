@@ -81,82 +81,82 @@ void generate_code_shp(batch *b) {
 
                 tmpv = -1;
   
-		if(tmplist->key->isabstract == 0) {
+                if(tmplist->key->isabstract == 0) {
 
-		    /* create attribute table */
-		    umla = tmplist->key->attributes;
-		    parentlist = tmplist;
-		    fprintf(outfileshp, "dbfcreate %s", tmplist->key->name);
+                    /* create attribute table */
+                    umla = tmplist->key->attributes;
+                    parentlist = tmplist;
+                    fprintf(outfileshp, "dbfcreate %s", tmplist->key->name);
 
-		    while ( umla != NULL) {
-			if((strcmp(umla->key.name,"Shape") != 0)&&
-			   (umla->key.visibility != 1)) {
-			    if(strcmp(umla->key.type,"String") == 0) {
-				fprintf(outfileshp, " -s %s 255", 
-					umla->key.name);
-			    }
-			    else if((strcmp(umla->key.type, 
-					   "CodedValue") == 0)||
-				strcmp(umla->key.type, "Integer") ==0 ) {
-				fprintf(outfileshp, " -n %s 16 0",
-					 umla->key.name);
-			    }
-			    else if(strcmp(umla->key.type, "Float") == 0) {
-				fprintf(outfileshp, " -n %s 16 3",
-					umla->key.name);
-			    }
-			}		
-			umla = umla->next;
+                    while ( umla != NULL) {
+                        if((strcmp(umla->key.name,"Shape") != 0)&&
+                           (umla->key.visibility != 1)) {
+                            if(strcmp(umla->key.type,"String") == 0) {
+                                fprintf(outfileshp, " -s %s 255", 
+                                        umla->key.name);
+                            }
+                            else if((strcmp(umla->key.type, 
+                                           "CodedValue") == 0)||
+                                strcmp(umla->key.type, "Integer") ==0 ) {
+                                fprintf(outfileshp, " -n %s 16 0",
+                                         umla->key.name);
+                            }
+                            else if(strcmp(umla->key.type, "Float") == 0) {
+                                fprintf(outfileshp, " -n %s 16 3",
+                                        umla->key.name);
+                            }
+                        }                
+                        umla = umla->next;
 
-			if((umla == NULL)&&(parentlist != NULL)) {
-			    parentlist = parentlist->parents;
-			    if(parentlist != NULL) {
-				umla = parentlist->key->attributes;
-				parentlist2 = b->classlist;
-				while((strcmp(parentlist->key->name, 
-					      parentlist2->key->name) != 0)&&
-				      (parentlist2 != NULL))
-				    parentlist2 = parentlist2->next;
-				parentlist = parentlist2;
-			    }
-			}
+                        if((umla == NULL)&&(parentlist != NULL)) {
+                            parentlist = parentlist->parents;
+                            if(parentlist != NULL) {
+                                umla = parentlist->key->attributes;
+                                parentlist2 = b->classlist;
+                                while((strcmp(parentlist->key->name, 
+                                              parentlist2->key->name) != 0)&&
+                                      (parentlist2 != NULL))
+                                    parentlist2 = parentlist2->next;
+                                parentlist = parentlist2;
+                            }
+                        }
 
-		    }
-		    fprintf(outfileshp, "\n");
-		    
-		    /* create shp file */
-		    umla = tmplist->key->attributes;
-   		    parentlist = tmplist;
-		    while ( umla != NULL) {
-			if(strcmp(umla->key.name,"Shape") == 0) {
-			    if(strcmp(strtolower(umla->key.type), 
-				      "polyline") == 0) {
-				strcpy(umla->key.type, "arc");
-			    }
-			    fprintf(outfileshp, "shpcreate %s %s\n\n", 
-				    tmplist->key->name, 
-				    strtolower(umla->key.type));
-			    break;
-			}
-			umla = umla->next;
+                    }
+                    fprintf(outfileshp, "\n");
+                    
+                    /* create shp file */
+                    umla = tmplist->key->attributes;
+                       parentlist = tmplist;
+                    while ( umla != NULL) {
+                        if(strcmp(umla->key.name,"Shape") == 0) {
+                            if(strcmp(strtolower(umla->key.type), 
+                                      "polyline") == 0) {
+                                strcpy(umla->key.type, "arc");
+                            }
+                            fprintf(outfileshp, "shpcreate %s %s\n\n", 
+                                    tmplist->key->name, 
+                                    strtolower(umla->key.type));
+                            break;
+                        }
+                        umla = umla->next;
 
-			if((umla == NULL)&&(parentlist != NULL)) {
-			    parentlist = parentlist->parents;
-			    if(parentlist != NULL) {
-				umla = parentlist->key->attributes;
-				parentlist2 = b->classlist;
-				while((strcmp(parentlist->key->name, 
-					      parentlist2->key->name) != 0)&&
-				      (parentlist2 != NULL))
-				    parentlist2 = parentlist2->next;
-				parentlist = parentlist2;
-			    }
-			}
+                        if((umla == NULL)&&(parentlist != NULL)) {
+                            parentlist = parentlist->parents;
+                            if(parentlist != NULL) {
+                                umla = parentlist->key->attributes;
+                                parentlist2 = b->classlist;
+                                while((strcmp(parentlist->key->name, 
+                                              parentlist2->key->name) != 0)&&
+                                      (parentlist2 != NULL))
+                                    parentlist2 = parentlist2->next;
+                                parentlist = parentlist2;
+                            }
+                        }
 
-		    }
-		}
-	    }	    
-	    fclose(outfileshp);
+                    }
+                }
+            }            
+            fclose(outfileshp);
         }
         tmplist = tmplist->next;
     }

@@ -90,7 +90,7 @@ void generate_code_sql(batch *b) {
 
             if (tmplist->key->isabstract) {
                 tmplist = tmplist->next;
-	        continue;
+                continue;
             }
 
             /* Class (table) */
@@ -115,9 +115,9 @@ void generate_code_sql(batch *b) {
             while ( umla != NULL) {
                 if( umla->key.isstatic ) {
                     if( !seenFirst ) {
-                	    seenFirst = 1;
-                	    fprintf(outfilesql, "ALTER TABLE  %s ADD\n", tmplist->key->name);
-                	    fprintf(outfilesql, "    CONSTRAINT  PK_%s  PRIMARY KEY\n    (\n", tmplist->key->name);
+                            seenFirst = 1;
+                            fprintf(outfilesql, "ALTER TABLE  %s ADD\n", tmplist->key->name);
+                            fprintf(outfilesql, "    CONSTRAINT  PK_%s  PRIMARY KEY\n    (\n", tmplist->key->name);
                     }
                     fprintf(outfilesql, "        %s", umla->key.name);
                     if (umla->next != NULL && umla->next->key.isstatic) {
@@ -138,7 +138,7 @@ void generate_code_sql(batch *b) {
     tmplist = b->classlist;
     while( tmplist != NULL )
     {
-    	umlassocnode* temp = tmplist->associations;
+        umlassocnode* temp = tmplist->associations;
         while( temp != NULL )
         {
             /*
@@ -167,11 +167,11 @@ void generate_code_sql(batch *b) {
 
             fprintf( outfilesql, "\n\nALTER TABLE %s ADD\n", temp->key->name );
             fprintf( outfilesql, "    CONSTRAINT  FK_%s_%s  FOREIGN KEY(%s) REFERENCES %s (%s);\n", 
-                temp->key->name, 
-                tmplist->key->name, 
-                temp->name, 
-                tmplist->key->name, 
-                fk_col );
+                     temp->key->name, 
+                     tmplist->key->name, 
+                     temp->name, 
+                     tmplist->key->name, 
+                     fk_col );
             temp = temp->next;
         }
         tmplist = tmplist->next;
