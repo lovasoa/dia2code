@@ -167,7 +167,6 @@ void generate_code_java(batch *b)
     umlclasslist used_classes;
     umlclass *class;
     int classtype;
-    char *outdir=NULL;
     sourcecode *source = NULL;
     int tmpdirlgth, tmpfilelgth;
 
@@ -208,10 +207,14 @@ void generate_code_java(batch *b)
         
         tmppcklist = make_package_list(tmplist->key->package);
 
-        /* here we  calculate and create the directory if necessary */
-        outdir = create_package_dir( b, tmppcklist->key );
+        if (tmppcklist) {
+            /* here we  calculate and create the directory if necessary */
+            char *outdir = create_package_dir( b, tmppcklist->key );
+            sprintf(outfilename, "%s/%s.java", outdir, tmplist->key->name);
+        } else {
+            sprintf(outfilename, "%s.java", tmplist->key->name);
+        }
 
-        sprintf(outfilename, "%s/%s.java", outdir, tmplist->key->name);
         /* get implementation code from the existing file */
         source_preserve( b, tmplist->key, outfilename, source );
         

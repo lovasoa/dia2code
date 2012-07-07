@@ -93,10 +93,16 @@ void generate_code_php(batch *b)
 
             tmppcklist = make_package_list(tmplist->key->package);
 
-            /* here we  calculate and create the directory if necessary */
-            outdir = create_package_dir( b, tmppcklist->key );
-            /* create the destination filename */
-            sprintf( outfilename, "%s/%s.php", outdir, tmplist->key->name );
+            if (tmppcklist) {
+                /* here we calculate and create the directory if necessary */
+                outdir = create_package_dir( b, tmppcklist->key );
+                /* create the destination filename */
+                sprintf(outfilename, "%s/%s.php", outdir, tmplist->key->name);
+            } else {
+                /* create the destination filename */
+                sprintf(outfilename, "%s.php", tmplist->key->name);
+            }
+
             /* get implementation code from the existing file */
             source_preserve( b, tmplist->key, outfilename, source );
             
