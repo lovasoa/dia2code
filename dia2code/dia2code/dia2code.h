@@ -32,7 +32,7 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
-#define VERSION "0.8.4"
+#define VERSION "0.8.5"
 
 #ifdef DSO
 #include <dlfcn.h>
