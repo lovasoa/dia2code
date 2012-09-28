@@ -152,7 +152,8 @@ int is_present(namelist list, const char *name) {
         if ( ! strcmp(list->name, name) ) {
             return 1;
         }
-        if ( (len = strlen(list->name)) && (2 <= len <= strlen(name))
+        len = strlen(list->name);
+        if (len >= 2 && len <= strlen(name)
                 && (mask = strchr(list->name, '*')) != NULL
                 && mask == strrchr(list->name, '*') ) {
             len--;
@@ -410,6 +411,7 @@ endless_string * new_endless_string()
     endless_string *es = my_malloc(sizeof(endless_string));
     es->start = NULL;
     es->end = NULL;
+    return es;
 }
 
 void destroy_endless_string(endless_string * es)
