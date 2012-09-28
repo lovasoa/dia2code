@@ -14,15 +14,13 @@
 
 @SET_MAKE@
 
-####### kdevelop will overwrite this part!!! (begin)##########
-
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
-top_builddir = .
+top_builddir = ..
 
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 INSTALL = @INSTALL@
@@ -109,65 +107,194 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 
-SUBDIRS = dia2code 
+####### kdevelop will overwrite this part!!! (begin)##########
+noinst_LIBRARIES = libdia2code.a
 
-EXTRA_DIST = AUTHORS COPYING ChangeLog INSTALL README TODO dia2code.lsm Makefile.am aclocal.m4 configure.in dia2code.kaptn dia2code.spec dia2code.1 dia.ico dia1.bmp dia2.bmp dia2code.nsi README.win32 Report_a_Bug.url dia2code_Homepage.url
+libdia2code_a_SOURCES = decls.c includes.c generate_code_idl.c generate_code_php.c generate_code_php_five.c generate_code_shp.c generate_code_python.c generate_code_ada.c generate_code_sql.c scan_tree.c generate_code_c.c parse_diagram.c dia2code.c generate_code_java.c generate_code_cpp.c generate_code_csharp.c generate_code_ruby.c source_parser.c comment_helper.c main.c 
+
+SUBDIRS = docs 
+
+EXTRA_DIST = main.c generate_code_cpp.c generate_code_java.c code_generators.h dia2code.h dia2code.c parse_diagram.c parse_diagram.h generate_code_c.c scan_tree.c generate_code_sql.c generate_code_ada.c generate_code_python.c Makefile.am generate_code_shp.c generate_code_php.c generate_code_php_five.c makefile.mingw generate_code_idl.c generate_code_csharp.c generate_code_ruby.c decls.c includes.c source_parser.c source_parser.h comment_helper.h comment_helper.c
 
 ####### kdevelop will overwrite this part!!! (end)############
-AUTOMAKE_OPTIONS = foreign
-subdir = .
-ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+bin_PROGRAMS = dia2code
+INCLUDES = @XML_INCLUDES@
+dia2code_SOURCES = dia2code.c main.c parse_diagram.c scan_tree.c generate_code_c.c \
+generate_code_java.c generate_code_cpp.c generate_code_ada.c generate_code_sql.c \
+generate_code_python.c generate_code_php.c generate_code_shp.c generate_code_idl.c \
+generate_code_csharp.c generate_code_php_five.c generate_code_ruby.c decls.c includes.c \
+source_parser.c comment_helper.c
+
+subdir = dia2code
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
-CONFIG_HEADER = config.h
+CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
-DIST_SOURCES =
+LIBRARIES = $(noinst_LIBRARIES)
+
+libdia2code_a_AR = $(AR) cru
+libdia2code_a_LIBADD =
+am_libdia2code_a_OBJECTS = decls.$(OBJEXT) includes.$(OBJEXT) \
+	generate_code_idl.$(OBJEXT) generate_code_php.$(OBJEXT) \
+	generate_code_php_five.$(OBJEXT) generate_code_shp.$(OBJEXT) \
+	generate_code_python.$(OBJEXT) generate_code_ada.$(OBJEXT) \
+	generate_code_sql.$(OBJEXT) scan_tree.$(OBJEXT) \
+	generate_code_c.$(OBJEXT) parse_diagram.$(OBJEXT) \
+	dia2code.$(OBJEXT) generate_code_java.$(OBJEXT) \
+	generate_code_cpp.$(OBJEXT) generate_code_csharp.$(OBJEXT) \
+	generate_code_ruby.$(OBJEXT) source_parser.$(OBJEXT) \
+	comment_helper.$(OBJEXT) main.$(OBJEXT)
+libdia2code_a_OBJECTS = $(am_libdia2code_a_OBJECTS)
+bin_PROGRAMS = dia2code$(EXEEXT)
+PROGRAMS = $(bin_PROGRAMS)
+
+am_dia2code_OBJECTS = dia2code.$(OBJEXT) main.$(OBJEXT) \
+	parse_diagram.$(OBJEXT) scan_tree.$(OBJEXT) \
+	generate_code_c.$(OBJEXT) generate_code_java.$(OBJEXT) \
+	generate_code_cpp.$(OBJEXT) generate_code_ada.$(OBJEXT) \
+	generate_code_sql.$(OBJEXT) generate_code_python.$(OBJEXT) \
+	generate_code_php.$(OBJEXT) generate_code_shp.$(OBJEXT) \
+	generate_code_idl.$(OBJEXT) generate_code_csharp.$(OBJEXT) \
+	generate_code_php_five.$(OBJEXT) generate_code_ruby.$(OBJEXT) \
+	decls.$(OBJEXT) includes.$(OBJEXT) source_parser.$(OBJEXT) \
+	comment_helper.$(OBJEXT)
+dia2code_OBJECTS = $(am_dia2code_OBJECTS)
+dia2code_LDADD = $(LDADD)
+dia2code_DEPENDENCIES =
+dia2code_LDFLAGS =
+
+DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
+depcomp = $(SHELL) $(top_srcdir)/depcomp
+am__depfiles_maybe = depfiles
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/comment_helper.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/decls.Po ./$(DEPDIR)/dia2code.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/generate_code_ada.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/generate_code_c.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/generate_code_cpp.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/generate_code_csharp.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/generate_code_idl.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/generate_code_java.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/generate_code_php.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/generate_code_php_five.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/generate_code_python.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/generate_code_ruby.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/generate_code_shp.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/generate_code_sql.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/includes.Po ./$(DEPDIR)/main.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/parse_diagram.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/scan_tree.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/source_parser.Po
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+DIST_SOURCES = $(libdia2code_a_SOURCES) $(dia2code_SOURCES)
 
 RECURSIVE_TARGETS = info-recursive dvi-recursive pdf-recursive \
 	ps-recursive install-info-recursive uninstall-info-recursive \
 	all-recursive install-data-recursive install-exec-recursive \
 	installdirs-recursive install-recursive uninstall-recursive \
 	check-recursive installcheck-recursive
-DIST_COMMON = README AUTHORS COPYING ChangeLog INSTALL Makefile.am \
-	Makefile.in TODO acconfig.h aclocal.m4 config.h.in configure \
-	configure.in depcomp install-sh missing mkinstalldirs
+DIST_COMMON = Makefile.am Makefile.in
 DIST_SUBDIRS = $(SUBDIRS)
-all: config.h
-	$(MAKE) $(AM_MAKEFLAGS) all-recursive
+SOURCES = $(libdia2code_a_SOURCES) $(dia2code_SOURCES)
+
+all: all-recursive
 
 .SUFFIXES:
-
-am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
- configure.lineno
+.SUFFIXES: .c .o .obj
 $(srcdir)/Makefile.in:  Makefile.am  $(top_srcdir)/configure.in $(ACLOCAL_M4)
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign  Makefile
+	  $(AUTOMAKE) --gnu  dia2code/Makefile
 Makefile:  $(srcdir)/Makefile.in  $(top_builddir)/config.status
-	cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)
 
-$(top_builddir)/config.status: $(srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
-	$(SHELL) ./config.status --recheck
-$(srcdir)/configure:  $(srcdir)/configure.in $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
-	cd $(srcdir) && $(AUTOCONF)
+AR = ar
 
-$(ACLOCAL_M4):  configure.in 
-	cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
+clean-noinstLIBRARIES:
+	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+libdia2code.a: $(libdia2code_a_OBJECTS) $(libdia2code_a_DEPENDENCIES) 
+	-rm -f libdia2code.a
+	$(libdia2code_a_AR) libdia2code.a $(libdia2code_a_OBJECTS) $(libdia2code_a_LIBADD)
+	$(RANLIB) libdia2code.a
+binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  p1=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
+	  if test -f $$p \
+	  ; then \
+	    f=`echo "$$p1" | sed 's,^.*/,,;$(transform);s/$$/$(EXEEXT)/'`; \
+	   echo " $(INSTALL_PROGRAM_ENV) $(binPROGRAMS_INSTALL) $$p $(DESTDIR)$(bindir)/$$f"; \
+	   $(INSTALL_PROGRAM_ENV) $(binPROGRAMS_INSTALL) $$p $(DESTDIR)$(bindir)/$$f || exit 1; \
+	  else :; fi; \
+	done
 
-config.h: stamp-h1
-	@if test ! -f $@; then \
-	  rm -f stamp-h1; \
-	  $(MAKE) stamp-h1; \
-	else :; fi
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  f=`echo "$$p" | sed 's,^.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/'`; \
+	  echo " rm -f $(DESTDIR)$(bindir)/$$f"; \
+	  rm -f $(DESTDIR)$(bindir)/$$f; \
+	done
 
-stamp-h1: $(srcdir)/config.h.in $(top_builddir)/config.status
-	@rm -f stamp-h1
-	cd $(top_builddir) && $(SHELL) ./config.status config.h
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+dia2code$(EXEEXT): $(dia2code_OBJECTS) $(dia2code_DEPENDENCIES) 
+	@rm -f dia2code$(EXEEXT)
+	$(LINK) $(dia2code_LDFLAGS) $(dia2code_OBJECTS) $(dia2code_LDADD) $(LIBS)
 
-$(srcdir)/config.h.in:  $(top_srcdir)/configure.in $(ACLOCAL_M4) $(top_srcdir)/acconfig.h
-	cd $(top_srcdir) && $(AUTOHEADER)
-	touch $(srcdir)/config.h.in
+mostlyclean-compile:
+	-rm -f *.$(OBJEXT) core *.core
 
-distclean-hdr:
-	-rm -f config.h stamp-h1
+distclean-compile:
+	-rm -f *.tab.c
+
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/comment_helper.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decls.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dia2code.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_ada.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_c.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_cpp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_csharp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_idl.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_java.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_php.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_php_five.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_python.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_ruby.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_shp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_sql.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/includes.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse_diagram.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scan_tree.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/source_parser.Po@am__quote@
+
+distclean-depend:
+	-rm -rf ./$(DEPDIR)
+
+.c.o:
+@am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<; \
+@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(COMPILE) -c `test -f '$<' || echo '$(srcdir)/'`$<
+
+.c.obj:
+@am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o $@ `if test -f '$<'; then $(CYGPATH_W) '$<'; else $(CYGPATH_W) '$(srcdir)/$<'; fi`; \
+@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(COMPILE) -c `if test -f '$<'; then $(CYGPATH_W) '$<'; else $(CYGPATH_W) '$(srcdir)/$<'; fi`
 uninstall-info-am:
 
 # This directory's subdirectories are mostly independent; you can cd
@@ -246,7 +373,7 @@ ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	       END { for (i in files) print i; }'`; \
 	mkid -fID $$unique
 
-TAGS: tags-recursive $(HEADERS) $(SOURCES) config.h.in $(TAGS_DEPENDENCIES) \
+TAGS: tags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
 		$(TAGS_FILES) $(LISP)
 	tags=; \
 	here=`pwd`; \
@@ -255,7 +382,7 @@ TAGS: tags-recursive $(HEADERS) $(SOURCES) config.h.in $(TAGS_DEPENDENCIES) \
 	    test -f $$subdir/TAGS && tags="$$tags -i $$here/$$subdir/TAGS"; \
 	  fi; \
 	done; \
-	list='$(SOURCES) $(HEADERS) config.h.in $(LISP) $(TAGS_FILES)'; \
+	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
 	unique=`for i in $$list; do \
 	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
 	  done | \
@@ -266,11 +393,11 @@ TAGS: tags-recursive $(HEADERS) $(SOURCES) config.h.in $(TAGS_DEPENDENCIES) \
 	     $$tags $$unique
 
 ctags: CTAGS
-CTAGS: ctags-recursive $(HEADERS) $(SOURCES) config.h.in $(TAGS_DEPENDENCIES) \
+CTAGS: ctags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
 		$(TAGS_FILES) $(LISP)
 	tags=; \
 	here=`pwd`; \
-	list='$(SOURCES) $(HEADERS) config.h.in $(LISP) $(TAGS_FILES)'; \
+	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
 	unique=`for i in $$list; do \
 	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
 	  done | \
@@ -289,21 +416,10 @@ distclean-tags:
 	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 
-top_distdir = .
-distdir = $(PACKAGE)-$(VERSION)
-
-am__remove_distdir = \
-  { test ! -d $(distdir) \
-    || { find $(distdir) -type d ! -perm -200 -exec chmod u+w {} ';' \
-         && rm -fr $(distdir); }; }
-
-GZIP_ENV = --best
-distuninstallcheck_listfiles = find . -type f -print
-distcleancheck_listfiles = find . -type f -print
+top_distdir = ..
+distdir = $(top_distdir)/$(PACKAGE)-$(VERSION)
 
 distdir: $(DISTFILES)
-	$(am__remove_distdir)
-	mkdir $(distdir)
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -343,80 +459,12 @@ distdir: $(DISTFILES)
 	      || exit 1; \
 	  fi; \
 	done
-	-find $(distdir) -type d ! -perm -777 -exec chmod a+rwx {} \; -o \
-	  ! -type d ! -perm -444 -links 1 -exec chmod a+r {} \; -o \
-	  ! -type d ! -perm -400 -exec chmod a+r {} \; -o \
-	  ! -type d ! -perm -444 -exec $(SHELL) $(install_sh) -c -m a+r {} {} \; \
-	|| chmod -R a+r $(distdir)
-dist-gzip: distdir
-	$(AMTAR) chof - $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
-	$(am__remove_distdir)
-
-dist dist-all: distdir
-	$(AMTAR) chof - $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
-	$(am__remove_distdir)
-
-# This target untars the dist file and tries a VPATH configuration.  Then
-# it guarantees that the distribution is self-contained by making another
-# tarfile.
-distcheck: dist
-	$(am__remove_distdir)
-	GZIP=$(GZIP_ENV) gunzip -c $(distdir).tar.gz | $(AMTAR) xf -
-	chmod -R a-w $(distdir); chmod a+w $(distdir)
-	mkdir $(distdir)/=build
-	mkdir $(distdir)/=inst
-	chmod a-w $(distdir)
-	dc_install_base=`$(am__cd) $(distdir)/=inst && pwd` \
-	  && dc_destdir="$${TMPDIR-/tmp}/am-dc-$$$$/" \
-	  && cd $(distdir)/=build \
-	  && ../configure --srcdir=.. --prefix="$$dc_install_base" \
-	    $(DISTCHECK_CONFIGURE_FLAGS) \
-	  && $(MAKE) $(AM_MAKEFLAGS) \
-	  && $(MAKE) $(AM_MAKEFLAGS) dvi \
-	  && $(MAKE) $(AM_MAKEFLAGS) check \
-	  && $(MAKE) $(AM_MAKEFLAGS) install \
-	  && $(MAKE) $(AM_MAKEFLAGS) installcheck \
-	  && $(MAKE) $(AM_MAKEFLAGS) uninstall \
-	  && $(MAKE) $(AM_MAKEFLAGS) distuninstallcheck_dir="$$dc_install_base" \
-	        distuninstallcheck \
-	  && chmod -R a-w "$$dc_install_base" \
-	  && ({ \
-	       (cd ../.. && $(mkinstalldirs) "$$dc_destdir") \
-	       && $(MAKE) $(AM_MAKEFLAGS) DESTDIR="$$dc_destdir" install \
-	       && $(MAKE) $(AM_MAKEFLAGS) DESTDIR="$$dc_destdir" uninstall \
-	       && $(MAKE) $(AM_MAKEFLAGS) DESTDIR="$$dc_destdir" \
-	            distuninstallcheck_dir="$$dc_destdir" distuninstallcheck; \
-	      } || { rm -rf "$$dc_destdir"; exit 1; }) \
-	  && rm -rf "$$dc_destdir" \
-	  && $(MAKE) $(AM_MAKEFLAGS) dist-gzip \
-	  && rm -f $(distdir).tar.gz \
-	  && $(MAKE) $(AM_MAKEFLAGS) distcleancheck
-	$(am__remove_distdir)
-	@echo "$(distdir).tar.gz is ready for distribution" | \
-	  sed 'h;s/./=/g;p;x;p;x'
-distuninstallcheck:
-	cd $(distuninstallcheck_dir) \
-	&& test `$(distuninstallcheck_listfiles) | wc -l` -le 1 \
-	   || { echo "ERROR: files left after uninstall:" ; \
-	        if test -n "$(DESTDIR)"; then \
-	          echo "  (check DESTDIR support)"; \
-	        fi ; \
-	        $(distuninstallcheck_listfiles) ; \
-	        exit 1; } >&2
-distcleancheck: distclean
-	if test '$(srcdir)' = . ; then \
-	  echo "ERROR: distcleancheck can only run from a VPATH build" ; \
-	  exit 1 ; \
-	fi
-	test `$(distcleancheck_listfiles) | wc -l` -eq 0 \
-	  || { echo "ERROR: files left in build directory after distclean:" ; \
-	       $(distcleancheck_listfiles) ; \
-	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
-all-am: Makefile config.h
+all-am: Makefile $(LIBRARIES) $(PROGRAMS)
 installdirs: installdirs-recursive
 installdirs-am:
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
 
 install: install-recursive
 install-exec: install-exec-recursive
@@ -444,11 +492,13 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-recursive
 
-clean-am: clean-generic mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-noinstLIBRARIES \
+	mostlyclean-am
 
 distclean: distclean-recursive
-	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-distclean-am: clean-am distclean-generic distclean-hdr distclean-tags
+
+distclean-am: clean-am distclean-compile distclean-depend \
+	distclean-generic distclean-tags
 
 dvi: dvi-recursive
 
@@ -460,7 +510,7 @@ info-am:
 
 install-data-am:
 
-install-exec-am:
+install-exec-am: install-binPROGRAMS
 
 install-info: install-info-recursive
 
@@ -469,13 +519,12 @@ install-man:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
-	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf autom4te.cache
+
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
 mostlyclean: mostlyclean-recursive
 
-mostlyclean-am: mostlyclean-generic
+mostlyclean-am: mostlyclean-compile mostlyclean-generic
 
 pdf: pdf-recursive
 
@@ -485,25 +534,26 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-info-am
+uninstall-am: uninstall-binPROGRAMS uninstall-info-am
 
 uninstall-info: uninstall-info-recursive
 
 .PHONY: $(RECURSIVE_TARGETS) CTAGS GTAGS all all-am check check-am clean \
-	clean-generic clean-recursive ctags ctags-recursive dist \
-	dist-all dist-gzip distcheck distclean distclean-generic \
-	distclean-hdr distclean-recursive distclean-tags distcleancheck \
-	distdir distuninstallcheck dvi dvi-am dvi-recursive info \
-	info-am info-recursive install install-am install-data \
-	install-data-am install-data-recursive install-exec \
-	install-exec-am install-exec-recursive install-info \
-	install-info-am install-info-recursive install-man \
-	install-recursive install-strip installcheck installcheck-am \
-	installdirs installdirs-am installdirs-recursive \
-	maintainer-clean maintainer-clean-generic \
-	maintainer-clean-recursive mostlyclean mostlyclean-generic \
-	mostlyclean-recursive pdf pdf-am pdf-recursive ps ps-am \
-	ps-recursive tags tags-recursive uninstall uninstall-am \
+	clean-binPROGRAMS clean-generic clean-noinstLIBRARIES \
+	clean-recursive ctags ctags-recursive distclean \
+	distclean-compile distclean-depend distclean-generic \
+	distclean-recursive distclean-tags distdir dvi dvi-am \
+	dvi-recursive info info-am info-recursive install install-am \
+	install-binPROGRAMS install-data install-data-am \
+	install-data-recursive install-exec install-exec-am \
+	install-exec-recursive install-info install-info-am \
+	install-info-recursive install-man install-recursive \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am installdirs-recursive maintainer-clean \
+	maintainer-clean-generic maintainer-clean-recursive mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-recursive \
+	pdf pdf-am pdf-recursive ps ps-am ps-recursive tags \
+	tags-recursive uninstall uninstall-am uninstall-binPROGRAMS \
 	uninstall-info-am uninstall-info-recursive uninstall-recursive
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
