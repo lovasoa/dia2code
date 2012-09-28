@@ -10,7 +10,7 @@ Contributors: (in alphabetical order, by last name)
 - Alejandro Imass <aimass@yabarana.com> Improved foreign keys in SQL generation
 - Oliver Kellogg <okellogg@users.sourceforge.net> Fixes for scan_tree.c and IDL generation
 - Ruben Lopez <ryu@gpul.org>, C code generation
-- Steffen Macke <sdteffen@yahoo.com> batch shapefile generation, win32 installer
+- Steffen Macke <sdteffen@gmail.com> batch shapefile generation, win32 installer
 - Chris McGee <sirnewton_01@yahoo.ca> Dependencies, Associations, C++ Templates, SQL, IDL
 - Takashi Okamoto <toraneko@kun.ne.jp> License inclusion mechanism.
 - Thomas Preymesser <tp@odn.de> Ada code generation
