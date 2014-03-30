@@ -91,13 +91,13 @@ This is free software, and you are welcome to redistribute it\n\
 under certain conditions; read the COPYING file for details.\n";
 
     char *help = "[-h|--help] [-d <dir>] [-nc] [-cl <classlist>]\n\
-       [-t (ada|c|cpp|csharp|idl|java|php|php5|python|ruby|shp|sql)] [-v]\n\
+       [-t (ada|c|cpp|csharp|idl|java|php|php5|python|ruby|shp|sql|as3)] [-v]\n\
        [-l <license file>] [-ini <initialization file>]<diagramfile>";
 
     char *bighelp = "\
     -h --help            Print this help and exit\n\
     -t <target>          Selects the output language. <target> can be\n\
-                         one of: ada,c,cpp,idl,java,php,php5,python,ruby,shp,sql or csharp. \n\
+                         one of: ada,c,cpp,idl,java,php,php5,python,ruby,shp,sql,as3 or csharp. \n\
                          Default is C++\n\
     -d <dir>             Output generated files to <dir>, default is \".\" \n\
     --buildtree          Convert package names to a directory tree. off by default \n\
@@ -142,6 +142,7 @@ under certain conditions; read the COPYING file for details.\n";
     generators[9] = generate_code_csharp;
     generators[10] = generate_code_php_five;
     generators[11] = generate_code_ruby;
+    generators[12] = generate_code_as3;
 
 
     if (argc < 2) {
@@ -214,6 +215,8 @@ under certain conditions; read the COPYING file for details.\n";
                 generator = generators[10];
             } else if ( eq(argv[i], "ruby") ) {
                 generator = generators[11];
+            } else if ( eq(argv[i], "as3") ) {
+                generator = generators[12];
             } else {
 #ifdef DSO
                 generator = find_dia2code_module(argv[i]);

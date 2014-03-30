@@ -17,7 +17,7 @@
 
 #include "dia2code.h"
 
-#define NO_GENERATORS 12
+#define NO_GENERATORS 13
 
 void generate_code_c(batch *b);
 void generate_code_cpp(batch *b);
@@ -31,5 +31,6 @@ void generate_code_idl(batch *b);
 void generate_code_csharp(batch *b);
 void generate_code_php_five(batch *b);
 void generate_code_ruby(batch *b);
+void generate_code_as3(batch *b);
 
 void inherit_attributes(umlclasslist, umlattrlist);

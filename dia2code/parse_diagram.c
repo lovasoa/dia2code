@@ -75,7 +75,8 @@ void adddependency(umlclasslist dependent, umlclasslist dependee) {
     dependee->dependencies = tmp;
 }
 
-void addaggregate(char * name, char composite, umlclasslist base, umlclasslist associate) {
+void addaggregate(char *name, char composite, umlclasslist base,
+                  umlclasslist associate, char *multiplicity) {
     umlassoclist tmp;
     tmp = (umlassoclist) my_malloc ( sizeof(umlassocnode) );
     if (name != NULL) {
@@ -88,6 +89,9 @@ void addaggregate(char * name, char composite, umlclasslist base, umlclasslist a
         printf("warning: unnamed association between %s and %s\n", base->key->name, associate->key->name);
         strcpy(tmp->name, "unnamed");
     }
+    if(NULL != multiplicity)
+      sscanf(multiplicity, "#%79[^#]#", tmp->multiplicity);
+    else sprintf(tmp->multiplicity, "1");
     tmp->key = base->key;
     tmp->composite = composite;
     tmp->next = associate->associations;
@@ -103,12 +107,13 @@ void inherit_realize ( umlclasslist classlist, char * base, char * derived ) {
     }
 }
 
-void associate ( umlclasslist classlist, char * name, char composite, char * base, char * aggregate) {
+void associate ( umlclasslist classlist, char * name, char composite,
+                 char * base, char * aggregate, char *multiplicity) {
     umlclasslist umlbase, umlaggregate;
     umlbase = find(classlist, base);
     umlaggregate = find(classlist, aggregate);
     if ( umlbase != NULL && umlaggregate != NULL) {
-        addaggregate(name, composite, umlbase, umlaggregate);
+      addaggregate(name, composite, umlbase, umlaggregate, multiplicity);
     }
 }
 
@@ -656,7 +661,8 @@ umlclasslist parse_diagram(char *diafile) {
     while ( object != NULL ) {
         objtype = xmlGetProp(object, "type");
         if ( eq("UML - Association", objtype) ) {
-            char * name = NULL;
+          char *name = NULL, *name_a = NULL, *name_b = NULL;
+          char *multiplicity_a = NULL, *multiplicity_b = NULL;
             char direction = 0;
             char composite = 0;
             attribute = object->xmlChildrenNode;
@@ -667,6 +673,18 @@ umlclasslist parse_diagram(char *diafile) {
                 if (attrtype != NULL) {
                     if ( ! strcmp("name", attrtype) ) {
                         name = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
+                    }
+                    else if ( ! strcmp("role_a", attrtype) ) {
+                        name_a = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
+                    }
+                    else if ( ! strcmp("role_b", attrtype) ) {
+                        name_b = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
+                    }
+                    else if ( ! strcmp("multipicity_a", attrtype) ) {
+                        multiplicity_a = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
+                    }
+                    else if ( ! strcmp("multipicity_b", attrtype) ) {
+                        multiplicity_b = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
                     }
 
                     else if ( ! strcmp("direction", attrtype) ) {
@@ -702,13 +720,18 @@ umlclasslist parse_diagram(char *diafile) {
             }
 
             if (end1 != NULL && end2 != NULL) {
-                if (direction == 1) {
-                    associate(classlist, name, composite, end1, end2);
-                } else {
-                    associate(classlist, name, composite, end2, end1);
-                }
-                free(end1);
-                free(end2);
+              char *thisname = name;
+              if (direction == 1) {
+                if(0 == strcmp("##", thisname))
+                /* thisname = name_a; */
+                associate(classlist, thisname, composite, end1, end2, multiplicity_a);
+              } else {
+                if(0 == strcmp("##", thisname))
+                /* thisname = name_b; */
+                associate(classlist, thisname, composite, end2, end1, multiplicity_b);
+              }
+              free(end1);
+              free(end2);
             }
 
         } else if ( eq("UML - Dependency", objtype) ) {

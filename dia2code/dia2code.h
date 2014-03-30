@@ -144,10 +144,11 @@ struct umlclass {
 typedef struct umlclass umlclass;
 
 struct umlassocnode {
-    umlclass * key;
-    char name[80];
-    char composite;
-    struct umlassocnode * next;
+  umlclass * key;
+  char name[80];
+  char composite;
+  char multiplicity[10]; /* association can declare multiplicity */
+  struct umlassocnode * next;
 };
 
 struct  umlclassnode {

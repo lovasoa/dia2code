@@ -55,7 +55,7 @@ am_libdia2code_a_OBJECTS = decls.$(OBJEXT) includes.$(OBJEXT) \
 	generate_code_python.$(OBJEXT) generate_code_ada.$(OBJEXT) \
 	generate_code_sql.$(OBJEXT) scan_tree.$(OBJEXT) \
 	generate_code_c.$(OBJEXT) parse_diagram.$(OBJEXT) \
-	dia2code.$(OBJEXT) generate_code_java.$(OBJEXT) \
+	dia2code.$(OBJEXT) generate_code_java.$(OBJEXT) generate_code_as3.$(OBJEXT) \
 	generate_code_cpp.$(OBJEXT) generate_code_csharp.$(OBJEXT) \
 	generate_code_ruby.$(OBJEXT) source_parser.$(OBJEXT) \
 	comment_helper.$(OBJEXT) main.$(OBJEXT)
@@ -64,7 +64,7 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_dia2code_OBJECTS = dia2code.$(OBJEXT) main.$(OBJEXT) \
 	parse_diagram.$(OBJEXT) scan_tree.$(OBJEXT) \
-	generate_code_c.$(OBJEXT) generate_code_java.$(OBJEXT) \
+	generate_code_c.$(OBJEXT) generate_code_java.$(OBJEXT) generate_code_as3.$(OBJEXT) \
 	generate_code_cpp.$(OBJEXT) generate_code_ada.$(OBJEXT) \
 	generate_code_sql.$(OBJEXT) generate_code_python.$(OBJEXT) \
 	generate_code_php.$(OBJEXT) generate_code_shp.$(OBJEXT) \
@@ -217,12 +217,12 @@ top_srcdir = @top_srcdir@
 
 ####### kdevelop will overwrite this part!!! (begin)##########
 noinst_LIBRARIES = libdia2code.a
-libdia2code_a_SOURCES = decls.c includes.c generate_code_idl.c generate_code_php.c generate_code_php_five.c generate_code_shp.c generate_code_python.c generate_code_ada.c generate_code_sql.c scan_tree.c generate_code_c.c parse_diagram.c dia2code.c generate_code_java.c generate_code_cpp.c generate_code_csharp.c generate_code_ruby.c source_parser.c comment_helper.c main.c 
+libdia2code_a_SOURCES = decls.c includes.c generate_code_idl.c generate_code_php.c generate_code_php_five.c generate_code_shp.c generate_code_python.c generate_code_ada.c generate_code_sql.c scan_tree.c generate_code_c.c parse_diagram.c dia2code.c generate_code_as3.c generate_code_java.c generate_code_cpp.c generate_code_csharp.c generate_code_ruby.c source_parser.c comment_helper.c main.c 
 SUBDIRS = docs 
-EXTRA_DIST = main.c generate_code_cpp.c generate_code_java.c code_generators.h dia2code.h dia2code.c parse_diagram.c parse_diagram.h generate_code_c.c scan_tree.c generate_code_sql.c generate_code_ada.c generate_code_python.c Makefile.am generate_code_shp.c generate_code_php.c generate_code_php_five.c makefile.mingw generate_code_idl.c generate_code_csharp.c generate_code_ruby.c decls.c decls.h includes.c includes.h source_parser.c source_parser.h comment_helper.h comment_helper.c
+EXTRA_DIST = main.c generate_code_cpp.c generate_code_as3.c generate_code_java.c code_generators.h dia2code.h dia2code.c parse_diagram.c parse_diagram.h generate_code_c.c scan_tree.c generate_code_sql.c generate_code_ada.c generate_code_python.c Makefile.am generate_code_shp.c generate_code_php.c generate_code_php_five.c makefile.mingw generate_code_idl.c generate_code_csharp.c generate_code_ruby.c decls.c decls.h includes.c includes.h source_parser.c source_parser.h comment_helper.h comment_helper.c
 INCLUDES = @XML_INCLUDES@
 dia2code_SOURCES = dia2code.c main.c parse_diagram.c scan_tree.c generate_code_c.c \
-generate_code_java.c generate_code_cpp.c generate_code_ada.c generate_code_sql.c \
+generate_code_as3.c generate_code_java.c generate_code_cpp.c generate_code_ada.c generate_code_sql.c \
 generate_code_python.c generate_code_php.c generate_code_shp.c generate_code_idl.c \
 generate_code_csharp.c generate_code_php_five.c generate_code_ruby.c decls.c includes.c \
 source_parser.c comment_helper.c
@@ -324,6 +324,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_csharp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_idl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_java.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_as3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_php.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_php_five.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code_python.Po@am__quote@

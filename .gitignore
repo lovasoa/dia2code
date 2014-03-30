@@ -1,0 +1,5 @@
+*.o
+Makefile
+dia2code/dia2code
+dia2code/libdia2code.a
+config.*
