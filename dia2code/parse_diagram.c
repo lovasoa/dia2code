@@ -723,11 +723,11 @@ umlclasslist parse_diagram(char *diafile) {
               char *thisname = name;
               if (direction == 1) {
                 if(0 == strcmp("##", thisname))
-                /* thisname = name_a; */
+                  thisname = name_a;
                 associate(classlist, thisname, composite, end1, end2, multiplicity_a);
               } else {
                 if(0 == strcmp("##", thisname))
-                /* thisname = name_b; */
+                  thisname = name_b;
                 associate(classlist, thisname, composite, end2, end1, multiplicity_b);
               }
               free(end1);

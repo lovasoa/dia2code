@@ -67,7 +67,7 @@ int as3_manage_parents(FILE *f, umlclasslist parents, int stereotype)
     while ( parents != NULL )
     {
         tmpname = strtolower(parents->key->stereotype);
-        if (eq(tmpname, "interface"))
+        if (0 == strcmp("interface", tmpname))
         {
             if (stereotype == JAVA_IMPLEMENTS)
             {
@@ -159,7 +159,6 @@ int as3_generate_operation( FILE * outfile, umloperation *ope, int classtype )
     d2c_fprintf(outfile, "\n" );
     return 0;
 }
-
 
 void generate_code_as3(batch *b)
 {
@@ -294,7 +293,7 @@ void generate_code_as3(batch *b)
             d2c_fprintf(outfile, "\npublic ");
 
             tmpname = strtolower(class->stereotype);
-            if (eq("interface", tmpname))
+            if (0 == strcmp("interface", tmpname))
               classtype = CLASSTYPE_INTERFACE;
             else
             {

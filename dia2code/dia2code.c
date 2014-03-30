@@ -237,7 +237,7 @@ umlattrlist copy_attributes(umlattrlist src)
  */
 char *create_package_dir( const batch *batch, umlpackage *pkg )
 {
-    char * fulldirname, *dirname;
+  char *fulldirname, *dirname, *fulldirnamedup;
     int ret;
     /* created directories permissions */
     mode_t dir_mask = S_IRUSR | S_IWUSR | S_IXUSR |S_IRGRP | S_IXGRP;
@@ -247,11 +247,14 @@ char *create_package_dir( const batch *batch, umlpackage *pkg )
     if( (batch->buildtree == 0) || (pkg->name == NULL )) {
         pkg->directory = batch->outdir;
     } else {
-        fulldirname = strdup( batch->outdir );
+      fulldirname = (char*)my_malloc(90);
+      fulldirnamedup = (char*)my_malloc(90);
+      sprintf( fulldirname, "%s", batch->outdir );
         dirname = strdup(pkg->name);
         dirname = strtok( dirname, "." );
         while( dirname != NULL ) {
-            sprintf( fulldirname, "%s/%s", fulldirname, dirname );
+            sprintf( fulldirnamedup, "%s/%s", fulldirname, dirname );
+            sprintf( fulldirname, "%s", fulldirnamedup );
             /* TODO : should create only if not existant */
             ret = mkdir( fulldirname, dir_mask );
             dirname = strtok( NULL, "." );
@@ -259,6 +262,7 @@ char *create_package_dir( const batch *batch, umlpackage *pkg )
         /* set the package directory used later for source file creation */
         pkg->directory = fulldirname;
     }
+    free(fulldirnamedup);
     return pkg->directory;
 }
 

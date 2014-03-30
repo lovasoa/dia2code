@@ -217,6 +217,7 @@ under certain conditions; read the COPYING file for details.\n";
                 generator = generators[11];
             } else if ( eq(argv[i], "as3") ) {
                 generator = generators[12];
+                generator_buildtree = 1;
             } else {
 #ifdef DSO
                 generator = find_dia2code_module(argv[i]);
