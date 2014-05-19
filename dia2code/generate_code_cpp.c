@@ -583,7 +583,7 @@ generate_code_cpp (batch *b)
     /* Generate a file for each outer declaration.  */
     d = decls;
     while (d != NULL) {
-        char *name;
+        char *name, *tmpname;
         char filename[256];
 
         if (d->decl_kind == dk_module) {
@@ -598,6 +598,10 @@ generate_code_cpp (batch *b)
             d = d->next;
             continue;
         }
+
+        tmpname = strtoupper(name);
+        print("#ifndef %s__H\n", tmpname);
+        print("#define %s__H\n\n", tmpname);
 
         /* add license to the header */
         if (b->license != NULL) {
@@ -624,6 +628,8 @@ generate_code_cpp (batch *b)
 
         gen_decl (d);
 
+        indentlevel = 0;  /* just for safety (should be 0 already) */
+        print("#endif\n");
         fclose (spec);
 
         d = d->next;
