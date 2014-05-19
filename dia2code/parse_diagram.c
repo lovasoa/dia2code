@@ -528,7 +528,7 @@ void lolipop_implementation(umlclasslist classlist, xmlNodePtr object) {
     }
 }
 
-void ricursive_search(xmlNodePtr node, xmlNodePtr * object) {
+void recursive_search(xmlNodePtr node, xmlNodePtr * object) {
     xmlNodePtr child;
     if ( *object != NULL ) {
         return;
@@ -540,7 +540,7 @@ void ricursive_search(xmlNodePtr node, xmlNodePtr * object) {
         }
         child = node->xmlChildrenNode;
         while ( child != NULL ) {
-            ricursive_search(child,object);
+            recursive_search(child,object);
             child=child->next;
         }
     }
@@ -597,7 +597,7 @@ umlclasslist parse_diagram(char *diafile) {
     }
 
     /* we search for the first "object" node */
-    ricursive_search( ptr->xmlRootNode->xmlChildrenNode->next, &object );
+    recursive_search( ptr->xmlRootNode->xmlChildrenNode->next, &object );
 
     classlist = NULL;
     packagelist = NULL;
@@ -651,7 +651,7 @@ umlclasslist parse_diagram(char *diafile) {
          THIS STILL SUCKS !!! How soon is now? */
 
     /* we search for the first "object" node */
-    ricursive_search( ptr->xmlRootNode->xmlChildrenNode->next, &object );
+    recursive_search( ptr->xmlRootNode->xmlChildrenNode->next, &object );
 
     while ( object != NULL ) {
         objtype = xmlGetProp(object, "type");
@@ -665,7 +665,7 @@ umlclasslist parse_diagram(char *diafile) {
                 attrtype = xmlGetProp(attribute, "name");
 
                 if (attrtype != NULL) {
-                    if ( ! strcmp("name", attrtype) ) {
+                    if ( eq("name", attrtype) && attribute->xmlChildrenNode->xmlChildrenNode ) {
                         name = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
                     }
 
@@ -745,7 +745,7 @@ umlclasslist parse_diagram(char *diafile) {
 
     /* Generalizations: we must put this AFTER all the interface
        implementations. generate_code_java relies on this. */
-    ricursive_search( ptr->xmlRootNode->xmlChildrenNode->next, &object );
+    recursive_search( ptr->xmlRootNode->xmlChildrenNode->next, &object );
     while ( object != NULL ) {
         objtype = xmlGetProp(object, "type");
         if ( eq("UML - Generalization", objtype) ) {
