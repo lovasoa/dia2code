@@ -381,7 +381,12 @@ gen_class (umlclassnode *node)
                 emit (" const");
             }
             if (umlo->key.attr.value[0]) {
-                emit (" = %s", umlo->key.attr.value);
+                // virtual
+                if ((umlo->key.attr.isabstract || is_valuetype) &&
+                    (umlo->key.attr.name[0] == '~'))
+                    emit (" {}");
+                else
+                    emit (" = %s", umlo->key.attr.value);
             }
             emit (";\n");
             umlo = umlo->next;
