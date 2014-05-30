@@ -473,6 +473,8 @@ gen_decl (declaration *d)
             if (strlen (umla->key.type) > 0)
                 fprintf (stderr, "%s/%s: ignoring type\n", name, literal);
             print ("%s", literal);
+            if (strlen (umla->key.value) > 0)
+                print (" = %s", umla->key.value);
             if (umla->next)
                 emit (",");
             emit ("\n");
