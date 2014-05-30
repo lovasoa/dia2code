@@ -39,7 +39,7 @@ void debug_setlevel( int newlevel )
  */
 void debug( int level, char *fmt, ... )
 {
-    static char debug_buffer[4200];
+    static char debug_buffer[HUGE_BUFFER];
     va_list argptr;
     int cnt;
     //printf( "debug call\n" );
@@ -269,7 +269,7 @@ void set_number_of_spaces_for_one_indentation(int n)
 
 char *spc()
 {
-   static char spcbuf[132];
+   static char spcbuf[BIG_BUFFER];
    int n_spaces = number_of_spaces_for_one_indentation * indentlevel;
    if (n_spaces >= sizeof(spcbuf)) {
        fprintf (stderr, "spc(): spaces buffer overflow\n");
@@ -285,9 +285,9 @@ FILE *spec = NULL, *body = NULL;
 /* Auxiliary define for the emit/print functions  */
 #define var_arg_to_str(first_arg) \
     va_list vargu; \
-    char str[4096]; \
+    char str[LARGE_BUFFER]; \
     va_start (vargu, first_arg); \
-    vsnprintf (str, 4096, first_arg, vargu); \
+    vsnprintf (str, LARGE_BUFFER, first_arg, vargu); \
     va_end (vargu)
 
 void emit (char *msg, ...)
@@ -338,7 +338,7 @@ char *body_file_ext = NULL;
 
 FILE * open_outfile (char *filename, batch *b)
 {
-    static char outfilename[512];
+    static char outfilename[BIG_BUFFER];
     FILE *o;
     int tmpdirlgth, tmpfilelgth;
 
@@ -442,7 +442,7 @@ void append_endless_string(endless_string * es, char *s)
 }
 
 struct d2c_impl{
-    char name[128];
+    char name[SMALL_BUFFER];
     endless_string *impl;
     int impl_len;
     int in_source;
@@ -566,6 +566,13 @@ void d2c_deprecate_impl(FILE *f, char *comment_start, char *comment_end)
         fprintf(stderr, "Warning: %d implementation blocks have been deprecated; examime source files.\n", cnt);
 }
 
+static char *sscanfmt(int size)
+{
+    static char buf[10];
+    sprintf (buf, " %%%ds", size - 1);
+    return buf;
+}
+
 void d2c_parse_impl(FILE *f, char *cmt_start, char *cmt_end)
 {
 #define IN_SOURCE 0
@@ -576,7 +583,7 @@ void d2c_parse_impl(FILE *f, char *cmt_start, char *cmt_end)
 #define STATE_WARNING(s) fprintf(stderr, "Warning: line %ld %s, state=%d, %p, %s\n", line, (s), state, d2ci, ((d2ci != NULL) ? d2ci->name : "<no section>"));
 
     char s[HUGE_BUFFER];
-    char s_comment[SMALL_BUFFER], s_dbl_hash[SMALL_BUFFER], s_implementation[SMALL_BUFFER],
+    char s_comment[LARGE_BUFFER], s_dbl_hash[SMALL_BUFFER], s_implementation[BIG_BUFFER],
          s_preserve[SMALL_BUFFER], s_marker[SMALL_BUFFER], s_class[LARGE_BUFFER], s_name[LARGE_BUFFER];
     int state = IN_SOURCE;
     int count;
@@ -584,6 +591,8 @@ void d2c_parse_impl(FILE *f, char *cmt_start, char *cmt_end)
     endless_string *es=NULL;
     long line = 0;
     int preserve=0;
+    char fmtbuf[SMALL_BUFFER];
+
     d2c_impl_list_destroy();
 
     while (fgets(s, HUGE_BUFFER - 1, f) != NULL)
@@ -591,25 +600,33 @@ void d2c_parse_impl(FILE *f, char *cmt_start, char *cmt_end)
         line++;
         if (state == START_IMPL) state = IN_IMPL;
         if (state == END_IMPL) state = IN_SOURCE;
-        count = sscanf(s, " %80s %80s %80s %80s %80s %8192s %8192s",
+	fmtbuf[0] = '\0';
+	strcat (fmtbuf, sscanfmt (sizeof(s_comment)));
+	strcat (fmtbuf, sscanfmt (sizeof(s_dbl_hash)));
+	strcat (fmtbuf, sscanfmt (sizeof(s_implementation)));
+	strcat (fmtbuf, sscanfmt (sizeof(s_preserve)));
+	strcat (fmtbuf, sscanfmt (sizeof(s_marker)));
+	strcat (fmtbuf, sscanfmt (sizeof(s_class)));
+	strcat (fmtbuf, sscanfmt (sizeof(s_name)));
+        count = sscanf(s, fmtbuf,
                        s_comment, s_dbl_hash, s_implementation, s_preserve, s_marker, s_class, s_name);
         if (count == 7 &&
-            (strncmp(s_comment, cmt_start, SMALL_BUFFER) == 0) &&
-            (strncmp(s_dbl_hash, "##", SMALL_BUFFER) == 0) &&
-            (strncmp(s_implementation, IMPLEMENTATION, SMALL_BUFFER) == 0))
+            (strncmp(s_comment, cmt_start, sizeof(s_comment)) == 0) &&
+            (strncmp(s_dbl_hash, "##", sizeof(s_dbl_hash)) == 0) &&
+            (strncmp(s_implementation, IMPLEMENTATION, sizeof(s_implementation)) == 0))
         {
-            if (strncmp(s_marker, "start", SMALL_BUFFER) == 0)
+            if (strncmp(s_marker, "start", sizeof(s_marker)) == 0)
             {
                 if (state != IN_SOURCE)
                 {
                     STATE_WARNING("found a nested implementation comment")
                 }
-                preserve = strcmp(s_preserve, "preserve")?0:1;
+                preserve = strcmp(s_preserve, "preserve") ? 0 : 1;
                 state = START_IMPL;
                 d2ci = d2c_impl_find_or_add(s_name);
                 es = d2ci->impl;
             }
-            else if (strncmp(s_marker, "end", SMALL_BUFFER) == 0)
+            else if (strncmp(s_marker, "end", sizeof(s_marker)) == 0)
             {
                 if (state != IN_IMPL)
                 {
@@ -710,7 +727,7 @@ typedef struct
     int indentation;
 } D2C_INDENT_STRUCT;
 
-D2C_INDENT_STRUCT d2c_files[10];
+D2C_INDENT_STRUCT d2c_files[32];
 int d2c_num_files = 0;
 
 int d2c_indent_offset(FILE *f)

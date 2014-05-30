@@ -399,7 +399,7 @@ void generate_code_php_five(batch *b)
 {
     umlclasslist tmplist; 
     char *tmpname;
-    char outfilename[90];
+    char outfilename[BIG_BUFFER];
     FILE * outfile, *dummyfile, *licensefile = NULL;
     int tmpdirlgth, tmpfilelgth;
 

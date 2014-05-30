@@ -32,7 +32,7 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
-#define VERSION "0.8.5"
+#define VERSION "0.8.6"
 
 #ifdef DSO
 #include <dlfcn.h>
@@ -54,11 +54,16 @@
 #define DBG_GENCODE    6
 #define DBG_CORE       8
 
+#define SMALL_BUFFER    80
+#define BIG_BUFFER     512
+#define LARGE_BUFFER  4096
+#define HUGE_BUFFER  16384
+
 struct umlattribute {
-    char name[80];
-    char value[80];
-    char type [80];
-    char comment [80];
+    char name[SMALL_BUFFER];
+    char value[SMALL_BUFFER];
+    char type [SMALL_BUFFER];
+    char comment [LARGE_BUFFER];
     char visibility;
     char isabstract;
     char isstatic;
@@ -89,8 +94,8 @@ struct umlopnode {
 };
 
 struct umltemplate{
-    char name[80];
-    char type[80];
+    char name[SMALL_BUFFER];
+    char type[SMALL_BUFFER];
 };
 typedef struct umltemplate umltemplate;
 
@@ -114,8 +119,8 @@ struct geometry {
 typedef struct geometry geometry;
 
 struct umlpackage {
-    char id[80];
-    char name[80];
+    char id[SMALL_BUFFER];
+    char name[SMALL_BUFFER];
     geometry geom;
     struct umlpackage * parent;
     char *directory;
@@ -130,10 +135,10 @@ typedef struct umlpackagenode umlpackagenode;
 typedef umlpackagenode * umlpackagelist;
 
 struct umlclass {
-    char id[80];
-    char name[80];
-    char stereotype[80];
-    char comment[80];
+    char id[SMALL_BUFFER];
+    char name[SMALL_BUFFER];
+    char stereotype[SMALL_BUFFER];
+    char comment[SMALL_BUFFER];
     int isabstract;
     umlattrlist attributes;
     umloplist operations;
@@ -145,7 +150,7 @@ typedef struct umlclass umlclass;
 
 struct umlassocnode {
     umlclass * key;
-    char name[80];
+    char name[SMALL_BUFFER];
     char composite;
     struct umlassocnode * next;
 };
@@ -243,12 +248,6 @@ void pboth (char *msg, ...);  /* print with leading indentation to both */
  * due to a clobber prohibition. Does an exit(1) if serious problems happen.
 */
 FILE * open_outfile (char *filename, batch *b);
-
-/* Added by RK 2003-02-20 */
-#define HUGE_BUFFER 8192
-#define LARGE_BUFFER 1024
-#define BIG_BUFFER 255
-#define SMALL_BUFFER 80
 
 #define NEW_AUTO_INDENT 1
 #ifdef NEW_AUTO_INDENT

@@ -24,7 +24,7 @@ void generate_code_c(batch *b) {
     umlattrlist umla, tmpa;
     umloplist umlo;
     char *tmpname;
-    char outfilename[256];
+    char outfilename[BIG_BUFFER];
     FILE * outfileh, *outfilecpp, *dummyfile, *licensefile = NULL;
     namelist classes_used, tmpclass;
 

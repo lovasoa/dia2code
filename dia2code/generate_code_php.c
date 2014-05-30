@@ -50,7 +50,7 @@ void generate_code_php(batch *b)
     umlpackagelist tmppcklist;
     umloplist umlo;
     char *tmpname, *outdir;
-    char outfilename[90];
+    char outfilename[BIG_BUFFER];
     FILE * outfile, *licensefile = NULL;
     umlclasslist used_classes;
     sourceblocknode *sbklist = NULL;

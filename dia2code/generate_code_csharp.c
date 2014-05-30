@@ -24,7 +24,7 @@
 static char *
 pkgname (umlpackagelist pkg)
 {
-    static char buf[512];
+    static char buf[BIG_BUFFER];
 
     buf[0] = '\0';
     while (pkg != NULL) {
@@ -51,7 +51,7 @@ void generate_code_csharp (batch *b) {
 
     while (tmplist != NULL) {
         char *tmpname;
-        char outfilename[90];
+        char outfilename[SMALL_BUFFER];
         umlclasslist used_classes;
 
         if (is_present (b->classes, tmplist->key->name) ^ b->mask) {

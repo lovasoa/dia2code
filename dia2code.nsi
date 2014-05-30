@@ -1,7 +1,7 @@
 ; dia2code
 ; Win32 Installer Source Code for NSIS 2.0
 
-; (c) 2001,2007Steffen Macke <sdteffen@gmail.com>
+; (c) 2001,2007 Steffen Macke <sdteffen@gmail.com>
 
 ; ***************************************************************************
 ; *                                                                         *
@@ -13,13 +13,13 @@
 ; ***************************************************************************
 
 
-Name "dia2code 0.8.5"
+Name "dia2code 0.8.6"
 LicenseText "Please read and agree to this license before continuiung."
 LicenseData COPYING
-ComponentText "This will install dia2code 0.8.5 on your system. Select which options you want set up."
+ComponentText "This will install dia2code 0.8.6 on your system. Select which options you want set up."
 DirText "Select a directory to install the program in."
-UninstallText "This will uninstall dia2code 0.8.5. Hit Next to uninstall, or Cancel to cancel."
-OutFile dia2code-0.8.5-setup.exe
+UninstallText "This will uninstall dia2code 0.8.6. Hit Next to uninstall, or Cancel to cancel."
+OutFile dia2code-0.8.6-setup.exe
 InstallDir $PROGRAMFILES\dia2code
 #Icon dia.ico
 
@@ -28,7 +28,7 @@ InstType Typical
 InstallDirRegKey HKEY_LOCAL_MACHINE "Software\dia2code" "instpath"
 SetOverwrite on
 
-Section "dia2code 0.8.5"
+Section "dia2code 0.8.6"
 SectionIn 1
 SetOutPath $INSTDIR
 File COPYING
@@ -38,8 +38,8 @@ SetOutPath $INSTDIR\bin
 File dia2code\dia2code.exe
 File dia2code\libxml2.dll
 
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\dia2code" "DisplayName" "dia2code 0.8.5 (remove only)"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\dia2code" "UninstallString" '"$INSTDIR\uninstall-dia2code-0.8.5.exe"'
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\dia2code" "DisplayName" "dia2code 0.8.6 (remove only)"
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\dia2code" "UninstallString" '"$INSTDIR\uninstall-dia2code-0.8.6.exe"'
 
 WriteRegStr HKEY_CLASSES_ROOT "diaFile\Shell\DefaultIcon" "" "$INSTDIR\bin\dia.exe"
 WriteRegStr HKEY_LOCAL_MACHINE "Software\dia2code" "instpath" $INSTDIR
@@ -91,7 +91,7 @@ WriteRegStr HKEY_CLASSES_ROOT "diaFile\Shell\createshp\command" "" '"$INSTDIR\bi
 WriteRegStr HKEY_CLASSES_ROOT "diaFile\Shell\createsql" "" "Create SQL definition"
 WriteRegStr HKEY_CLASSES_ROOT "diaFile\Shell\createsql\command" "" '"$INSTDIR\bin\dia2code.exe" -t sql "%1"'
 
-WriteUninstaller uninstall-dia2code-0.8.5.exe
+WriteUninstaller uninstall-dia2code-0.8.6.exe
 
 SectionEnd
 
@@ -103,7 +103,7 @@ File "Report_a_Bug.url"
 File /oname=README.txt README
 File /oname=README.win32.txt README.win32
 SetOutPath $INSTDIR\bin
-CreateShortCut "$SMPROGRAMS\dia2code\Uninstall dia2code 0.8.5.lnk" "$INSTDIR\uninstall-dia2code-0.8.5.exe" ""  "" 0
+CreateShortCut "$SMPROGRAMS\dia2code\Uninstall dia2code 0.8.6.lnk" "$INSTDIR\uninstall-dia2code-0.8.6.exe" ""  "" 0
 
 SectionEnd
 
@@ -114,7 +114,7 @@ RMDir  $INSTDIR\bin
 Delete $INSTDIR\COPYING
 Delete $INSTDIR\README
 Delete $INSTDIR\README.win32
-Delete $INSTDIR\uninstall-dia2code-0.8.5.exe
+Delete $INSTDIR\uninstall-dia2code-0.8.6.exe
 RMDir  $INSTDIR
 Delete "$SMPROGRAMS\dia2code\*.*"
 RMDir "$SMPROGRAMS\dia2code"

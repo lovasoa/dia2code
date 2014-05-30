@@ -21,6 +21,13 @@
    "unnamed_" followed by the anon_cnt converted to string:  */
 static unsigned anon_cnt = 0;
 
+static char *sscanfmt()
+{
+    static char buf[16];
+    sprintf (buf, "#%%%d[^#]#", SMALL_BUFFER - 1);
+    return buf;
+}
+
 umlclasslist find(umlclasslist list, char *id ) {
     if ( id != NULL ) {
         while ( list != NULL ) {
@@ -33,12 +40,25 @@ umlclasslist find(umlclasslist list, char *id ) {
     return NULL;
 }
 
-/* the buffer must have room for 79 characters and a \0 */
+/* the buffer must have room for SMALL_BUFFER characters */
 void parse_dia_string(xmlNodePtr stringnode, char *buffer) {
     xmlChar *content;
 
     content = xmlNodeGetContent(stringnode);
-    if ( sscanf(content, "#%79[^#]#", buffer) == 0) {
+    if ( sscanf(content, sscanfmt(), buffer) == 0) {
+        buffer[0] = 0;
+    }
+    free(content);
+}
+
+/* the buffer must have room for LARGE_BUFFER characters */
+void parse_dia_string_large(xmlNodePtr stringnode, char *buffer) {
+    xmlChar *content;
+    char fmt[16];
+
+    content = xmlNodeGetContent(stringnode);
+    sprintf (fmt, "#%%%d[^#]#", LARGE_BUFFER - 1);
+    if ( sscanf(content, fmt, buffer) == 0) {
         buffer[0] = 0;
     }
     free(content);
@@ -79,7 +99,7 @@ void addaggregate(char * name, char composite, umlclasslist base, umlclasslist a
     umlassoclist tmp;
     tmp = (umlassoclist) my_malloc ( sizeof(umlassocnode) );
     if (name != NULL) {
-        sscanf(name, "#%79[^#]#", tmp->name);
+        sscanf(name, sscanfmt(), tmp->name);
         if (tmp->name[0] == '\0') {
             ++anon_cnt;
             sprintf (tmp->name, "unnamed_%d", anon_cnt);
@@ -188,7 +208,7 @@ void parse_attribute(xmlNodePtr node, umlattribute *tmp) {
             }
         } else if ( eq("comment", nodename)) {
             if (node->xmlChildrenNode->xmlChildrenNode != NULL) {
-               parse_dia_string(node->xmlChildrenNode, tmp->comment);
+               parse_dia_string_large(node->xmlChildrenNode, tmp->comment);
             } else {
                tmp->comment[0] = 0;
           }
@@ -251,8 +271,8 @@ umloplist parse_operations(xmlNodePtr node) {
 }
 
 void parse_template(xmlNodePtr node, umltemplate *tmp) {
-    sscanf(node->xmlChildrenNode->xmlChildrenNode->content, "#%79[^#]#", tmp->name);
-    sscanf(node->next->xmlChildrenNode->xmlChildrenNode->content, "#%79[^#]#", tmp->type);
+    sscanf(node->xmlChildrenNode->xmlChildrenNode->content, sscanfmt(), tmp->name);
+    sscanf(node->next->xmlChildrenNode->xmlChildrenNode->content, sscanfmt(), tmp->type);
 }
 
 umltemplatelist parse_templates(xmlNodePtr node) {
@@ -288,7 +308,7 @@ void make_javabean_methods(umlclass *myself) {
             parameter = (umlattrlist) my_malloc (sizeof(umlattrnode));
 
             sprintf(parameter->key.name, "value");
-            strncpy(parameter->key.type, attrlist->key.type, 79);
+            strncpy(parameter->key.type, attrlist->key.type, SMALL_BUFFER);
             parameter->key.value[0] = 0;
             parameter->key.isstatic = 0;
             parameter->key.isconstant = 0;
@@ -338,7 +358,7 @@ void make_javabean_methods(umlclass *myself) {
             operation->key.attr.isconstant = 0;
             operation->key.attr.visibility = '0';
             operation->key.attr.value[0] = 0;
-            strncpy(operation->key.attr.type, attrlist->key.type, 79);
+            strncpy(operation->key.attr.type, attrlist->key.type, SMALL_BUFFER);
             operation->next = NULL;
 
             myself->operations = insert_operation(operation, myself->operations);
@@ -450,7 +470,7 @@ umlclasslist parse_class(xmlNodePtr class) {
             parse_geom_height(attribute->xmlChildrenNode, &myself->geom );
         } else if ( eq("comment", attrname))  {
             if (attribute->xmlChildrenNode->xmlChildrenNode != NULL) {
-               parse_dia_string(attribute->xmlChildrenNode, myself->comment);
+               parse_dia_string_large(attribute->xmlChildrenNode, myself->comment);
             }  else {
                myself->comment[0] = 0;
             }
@@ -518,7 +538,7 @@ void lolipop_implementation(umlclasslist classlist, xmlNodePtr object) {
         interface->parents = NULL;
         interface->next = NULL;
         sprintf(interface->key->id, "00");
-        sscanf(name, "#%79[^#]#", interface->key->name);
+        sscanf(name, sscanfmt(), interface->key->name);
         sprintf(interface->key->stereotype, "Interface");
         interface->key->isabstract = 1;
         interface->key->attributes = NULL;

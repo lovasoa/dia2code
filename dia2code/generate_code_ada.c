@@ -94,7 +94,7 @@ has_oo_class (declaration *d)
 static char *
 adaname (char *name)
 {
-    static char buf[80];
+    static char buf[SMALL_BUFFER];
     if (use_corba &&
         (eq (name, "boolean") ||
          eq (name, "char") ||
@@ -180,7 +180,7 @@ do_operations (char *typename, umloplist umlo, int in_valuetype)
 static char *
 fqname (umlclassnode *node, int use_ref_type)
 {
-    static char buf[256];
+    static char buf[BIG_BUFFER];
 
     buf[0] = '\0';
     if (node == NULL)
@@ -264,7 +264,7 @@ static void
 gen_class (umlclassnode *node, int do_valuetype)
 {
     char *name = node->key->name;
-    char parentname[80];
+    char parentname[SMALL_BUFFER];
     int n_static_attrs;
 
     pboth ("package ");
@@ -506,7 +506,7 @@ gen_decl (declaration *d)
 
     } else if (eq (stype, "CORBAUnion")) {
         umlattrnode *sw = umla;
-        char swname[80];
+        char swname[SMALL_BUFFER];
         if (sw == NULL) {
             fprintf (stderr, "Error: attributes not set at union %s\n", name);
             exit (1);
@@ -535,7 +535,7 @@ gen_decl (declaration *d)
         emit ("\n");
 
     } else if (eq (stype, "CORBATypedef")) {
-        char dim[80];
+        char dim[SMALL_BUFFER];
 
         /* Conventions for CORBATypedef:
            The first (and only) attribute contains the following:
@@ -590,7 +590,7 @@ gen_decl (declaration *d)
 static char *
 make_filename (char *name, int do_body)
 {
-    static char outfname[256];
+    static char outfname[BIG_BUFFER];
     char *filebase = strtolower (name);
 
     subst (filebase, '.', '-');
@@ -637,7 +637,7 @@ generate_code_ada (batch *b)
     /* Generate a file for each outer declaration.  */
     d = decls;
     while (d != NULL) {
-        char *name, basename[256];
+        char *name, basename[BIG_BUFFER];
         int synthesize_package = 0;
         int need_body = 0;
 

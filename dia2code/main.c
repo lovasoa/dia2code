@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
     int generator_buildtree = 0;
     batch *thisbatch;
     int iniParameterProcessed;
-    char inifile[HUGE_BUFFER];
+    char inifile[BIG_BUFFER];
 
     void (*generator)(batch *);
     void (*generators[NO_GENERATORS])(batch *);
@@ -412,7 +412,7 @@ int process_initialization_file(char *filename, int exit_if_not_found)
     FILE *f = fopen(filename, "r");
     int line = 0;
     int slen;
-    char s[HUGE_BUFFER];
+    char s[LARGE_BUFFER];
     
     if (f == NULL)
     if (exit_if_not_found)
@@ -423,7 +423,7 @@ int process_initialization_file(char *filename, int exit_if_not_found)
     else
         return 0;
 
-    while (fgets(s, HUGE_BUFFER - 1, f) != NULL)
+    while (fgets(s, LARGE_BUFFER - 1, f) != NULL)
     {
         char *name = s;
         char *param = strchr(s, '=');

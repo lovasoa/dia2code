@@ -23,7 +23,7 @@ void generate_code_python(batch *b) {
     umlattrlist umla, tmpa;
     umloplist umlo;
     char *tmpname;
-    char outfilename[90];
+    char outfilename[BIG_BUFFER];
     FILE * outfile, *dummyfile, *licensefile = NULL;
     namelist used_classes, tmpnamelist;
 

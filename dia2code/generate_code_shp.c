@@ -34,7 +34,7 @@ void generate_code_shp(batch *b) {
     umlattrlist umla;
     int tmpv;
     char *tmpname;
-    char outfilename[256];
+    char outfilename[BIG_BUFFER];
     FILE * outfileshp, *dummyfile;
 
     int tmpdirlgth, tmpfilelgth;

@@ -34,7 +34,7 @@ void generate_code_ruby(batch *b) {
     umlpackagelist tmppcklist;
     umloplist umlo;
     char *tmpname;
-    char outfilename[90];
+    char outfilename[BIG_BUFFER];
     FILE * outfile, *dummyfile, *licensefile = NULL;
     umlclasslist used_classes;
 

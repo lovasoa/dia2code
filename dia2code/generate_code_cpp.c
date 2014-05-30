@@ -114,7 +114,7 @@ has_oo_class (declaration *d)
 static char *
 cppname (char *name)
 {
-    static char buf[80];
+    static char buf[SMALL_BUFFER];
     if (use_corba) {
         if (eq (name, "boolean") ||
             eq (name, "char") ||
@@ -147,7 +147,7 @@ cppname (char *name)
 static char *
 fqname (umlclassnode *node, int use_ref_type)
 {
-    static char buf[256];
+    static char buf[BIG_BUFFER];
 
     buf[0] = '\0';
     if (node == NULL)
@@ -584,7 +584,7 @@ generate_code_cpp (batch *b)
     d = decls;
     while (d != NULL) {
         char *name, *tmpname;
-        char filename[256];
+        char filename[BIG_BUFFER];
 
         if (d->decl_kind == dk_module) {
             name = d->u.this_module->pkg->name;

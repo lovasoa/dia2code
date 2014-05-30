@@ -161,7 +161,7 @@ void generate_code_java(batch *b)
     umlpackagelist tmppcklist;
     umloplist umlo;
     char *tmpname;
-    char outfilename[90];
+    char outfilename[BIG_BUFFER];
     FILE * outfile, *dummyfile, *licensefile = NULL;
     int file_found = 0;
     umlclasslist used_classes;

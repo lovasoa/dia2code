@@ -1,3 +1,11 @@
+Unreleased:  Version 0.8.6
+- Added generation of header guard for C++ (-t cpp)
+- Fixed null pointer dereference crash in handling of UML - Association
+  observed on loading files example2.dia and example3.dia from
+  http://dia2code.sourceforge.net/diagrams/
+- Applied modified patch for increasing maximum permissible size of comment,
+  http://sourceforge.net/p/dia2code/patches/17/
+
 07 Jul 2012: Version 0.8.5
 - Support for properties in C# code by Jedrek P <smaug@smaug.int.pl>, see
   https://bugs.launchpad.net/ubuntu/+source/dia2code/+bug/173628

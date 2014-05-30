@@ -41,7 +41,7 @@ void generate_code_sql(batch *b) {
     umlattrlist umla;
     int tmpv;
     char *tmpname;
-    char outfilename[256];
+    char outfilename[BIG_BUFFER];
     FILE * outfilesql, *dummyfile;
 
     int tmpdirlgth, tmpfilelgth;

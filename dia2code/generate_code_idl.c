@@ -355,7 +355,7 @@ generate_code_idl (batch *b)
     d = decls;
     while (d != NULL) {
         char *name;
-        char filename[256];
+        char filename[BIG_BUFFER];
 
         if (d->decl_kind == dk_module) {
             name = d->u.this_module->pkg->name;
