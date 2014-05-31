@@ -222,7 +222,7 @@ gen_class (umlclassnode *node)
         umlclasslist parent = node->parents;
         emit (" : ");
         while (parent != NULL) {
-            emit ("public %s", parent->key->name);
+            emit ("public %s", fqname (parent, 0));
             parent = parent->next;
             if (parent != NULL)
                 emit (", ");
