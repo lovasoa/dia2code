@@ -5,6 +5,19 @@ Unreleased:  Version 0.8.6
   http://dia2code.sourceforge.net/diagrams/
 - Applied modified patch for increasing maximum permissible size of comment,
   http://sourceforge.net/p/dia2code/patches/17/
+- Applied patch for fixing insufficient generated #include dependencies,
+  http://sourceforge.net/p/dia2code/patches/19/
+- Applied patch for printing numeric value associated to enum value in C++,
+  http://sourceforge.net/p/dia2code/patches/20/
+- Applied patch for removing inappropriate abstractness from generated
+  C++ destructor, http://sourceforge.net/p/dia2code/patches/21/
+- Fixed missing full qualification of parent name in C++ generalizations,
+  see http://sourceforge.net/p/dia2code/patches/22/
+- Added support for non CORBA variants of CORBA stereotypes,
+  <<struct>> or <<structure>> (synonyms for CORBAStruct),
+  <<typedef>>                 (synonym  for CORBATypedef),
+  <<const>> or <<constant>>   (synonyms for CORBAConstant), see
+  http://sourceforge.net/p/dia2code/discussion/48621/thread/9013af8d
 
 07 Jul 2012: Version 0.8.5
 - Support for properties in C# code by Jedrek P <smaug@smaug.int.pl>, see
