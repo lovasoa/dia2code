@@ -374,9 +374,32 @@ FILE * open_outfile (char *filename, batch *b)
 int
 is_enum_stereo (char *stereo)
 {
-    return (!strcmp (stereo, "CORBAEnum") ||
-            !strcmp (stereo, "Enumeration") ||
-            !strcmp (stereo, "enumeration"));
+    return (!strcasecmp(stereo, "enum") ||
+            !strcasecmp (stereo, "enumeration") ||
+            !strcmp (stereo, "CORBAEnum"));
+}
+
+int
+is_struct_stereo (char *stereo)
+{
+    return (!strcasecmp(stereo, "struct") ||
+            !strcasecmp (stereo, "structure") ||
+            !strcmp (stereo, "CORBAStruct"));
+}
+
+int
+is_typedef_stereo (char *stereo)
+{
+    return (!strcasecmp(stereo, "typedef") ||
+            !strcmp (stereo, "CORBATypedef"));
+}
+
+int
+is_const_stereo (char *stereo)
+{
+    return (!strcasecmp(stereo, "const") ||
+            !strcasecmp (stereo, "constant") ||
+            !strcmp (stereo, "CORBAConstant"));
 }
 
 /* Added by RK 2003-02-20

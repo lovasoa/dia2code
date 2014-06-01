@@ -67,10 +67,10 @@ is_oo_class (umlclass *cl)
     st = cl->stereotype;
     if (strlen (st) == 0)
         return 1;
-    return (!eq (st, "CORBAConstant") &&
-            !eq (st, "CORBATypedef") &&
+    return (!is_const_stereo (st) &&
+            !is_typedef_stereo (st) &&
             !is_enum_stereo (st) &&
-            !eq (st, "CORBAStruct") &&
+            !is_struct_stereo (st) &&
             !eq (st, "CORBAUnion") &&
             !eq (st, "CORBAException"));
 }
@@ -444,7 +444,7 @@ gen_decl (declaration *d)
     if (eq (stype, "CORBANative")) {
         print ("-- CORBANative: %s\n\n", name);
 
-    } else if (eq (stype, "CORBAConstant")) {
+    } else if (is_const_stereo (stype)) {
         if (umla == NULL) {
             fprintf (stderr, "Error: first attribute not set at %s\n", name);
             exit (1);
@@ -473,7 +473,7 @@ gen_decl (declaration *d)
         convention_c (name);
         emit ("\n");
 
-    } else if (eq (stype, "CORBAStruct")) {
+    } else if (is_struct_stereo (stype)) {
         print ("type %s is record\n", name);
         indentlevel++;
         while (umla != NULL) {
@@ -534,7 +534,7 @@ gen_decl (declaration *d)
         convention_c (name);
         emit ("\n");
 
-    } else if (eq (stype, "CORBATypedef")) {
+    } else if (is_typedef_stereo (stype)) {
         char dim[SMALL_BUFFER];
 
         /* Conventions for CORBATypedef:

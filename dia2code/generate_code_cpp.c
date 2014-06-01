@@ -67,14 +67,14 @@ pass_by_reference (umlclass *cl)
     st = cl->stereotype;
     if (strlen (st) == 0)
         return 1;
-    if (eq (st, "CORBATypedef")) {
+    if (is_typedef_stereo (st)) {
         umlattrlist umla = cl->attributes;
         umlclassnode *ref = find_by_name (gb->classlist, cl->name);
         if (ref == NULL)
             return 0;
         return pass_by_reference (ref->key);
     }
-    return (!eq (st, "CORBAConstant") &&
+    return (!is_const_stereo (st) &&
             !is_enum_stereo (st));
 }
 
@@ -87,10 +87,10 @@ is_oo_class (umlclass *cl)
     st = cl->stereotype;
     if (strlen (st) == 0)
         return 1;
-    return (!eq (st, "CORBAConstant") &&
-            !eq (st, "CORBATypedef") &&
+    return (!is_const_stereo (st) &&
+            !is_typedef_stereo (st) &&
             !is_enum_stereo (st) &&
-            !eq (st, "CORBAStruct") &&
+            !is_struct_stereo (st) &&
             !eq (st, "CORBAUnion") &&
             !eq (st, "CORBAException"));
 }
@@ -458,7 +458,7 @@ gen_decl (declaration *d)
     if (eq (stype, "CORBANative")) {
         print ("// CORBANative: %s \n\n", name);
 
-    } else if (eq (stype, "CORBAConstant")) {
+    } else if (is_const_stereo (stype)) {
         if (umla == NULL) {
             fprintf (stderr, "Error: first attribute not set at %s\n", name);
             exit (1);
@@ -488,7 +488,7 @@ gen_decl (declaration *d)
         indentlevel--;
         print ("};\n\n");
 
-    } else if (eq (stype, "CORBAStruct")) {
+    } else if (is_struct_stereo (stype)) {
         print ("struct %s {\n", name);
         indentlevel++;
         while (umla != NULL) {
@@ -529,7 +529,7 @@ gen_decl (declaration *d)
         indentlevel--;
         print ("};\n\n");
 
-    } else if (eq (stype, "CORBATypedef")) {
+    } else if (is_typedef_stereo (stype)) {
         /* Conventions for CORBATypedef:
            The first (and only) attribute contains the following:
            Name:   Empty - the name is taken from the class.

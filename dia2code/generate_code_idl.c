@@ -172,7 +172,7 @@ gen_decl (declaration *d)
     if (eq (stype, "CORBANative")) {
         print ("native %s;\n\n", name);
 
-    } else if (eq (stype, "CORBAConstant")) {
+    } else if (is_const_stereo (stype)) {
         if (umla == NULL) {
             fprintf (stderr, "Error: first attribute not set at const %s\n", name);
             exit (1);
@@ -198,10 +198,11 @@ gen_decl (declaration *d)
         }
         close_scope ();
 
-    } else if (eq (stype, "CORBAStruct") ||
+    } else if (is_struct_stereo (stype) ||
                eq (stype, "CORBAException")) {
-        char *idlkeyword = strtolower (stype + 5);
-        print ("%s %s {\n", idlkeyword, name);
+        int corba_ofst = strncmp (stype, "CORBA", 5) == 0 ? 5 : 0;
+        char *keyword = strtolower (stype + corba_ofst);
+        print ("%s %s {\n", keyword, name);
         indentlevel++;
         while (umla != NULL) {
             char *member = umla->key.name;
@@ -232,7 +233,7 @@ gen_decl (declaration *d)
         }
         close_scope ();
 
-    } else if (eq (stype, "CORBATypedef")) {
+    } else if (is_typedef_stereo (stype)) {
         /* Conventions for CORBATypedef:
            The first (and only) attribute contains the following:
            Name:   Empty - the name is taken from the class.
