@@ -10,7 +10,7 @@
    For each top level declaration, a separate file is generated.
    Nested packages are generated into the same file as nested modules.
    `struct declaration' is a buffer that gathers together classes and
-   packages ordered by their dependencies, going from least dependendcies
+   packages ordered by their dependencies, going from least dependencies
    to most.  We cannot handle circular dependencies yet.  */
 
 struct declaration;
@@ -44,7 +44,7 @@ typedef struct declaration declaration;
 extern declaration *decls;
 
 #ifndef NEW
-#define NEW(c) ((c*)malloc(sizeof(c)))
+#define NEW(c) ((c*)my_malloc(sizeof(c)))
 #endif
 
 /* Utilities for building the global `decls' from umlclassnodes and

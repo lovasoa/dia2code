@@ -16,6 +16,7 @@
  ***************************************************************************/
 
 #include "dia2code.h"
+#include "decls.h"
 #include <errno.h>
 
 char * d2c_indentstring = "   ";
@@ -113,7 +114,7 @@ char *strtoupperfirst(char *s) {
 namelist parse_class_names(const char *s) {
     char *cp, *token;
     const char *delim = ",";
-    namelist list = NULL, tmp;
+    namelist list = NULL;
 
     cp = strdup(s);
     if (cp == NULL) {
@@ -122,11 +123,7 @@ namelist parse_class_names(const char *s) {
     }
     token = strtok (cp, delim);
     while ( token != NULL ) {
-        tmp = (namelist) malloc (sizeof(namenode));
-        if (tmp == NULL) {
-            fprintf(stderr, "Out of memory\n");
-            exit(1);
-        }
+        namenode *tmp = NEW (namenode);
         tmp->name = strdup(token);
         if (tmp->name == NULL) {
             fprintf(stderr, "Out of memory\n");
@@ -191,7 +188,7 @@ umlpackagelist make_package_list(umlpackage * package){
     umlpackagelist dummylist, tmplist=NULL;
 
     while ( package != NULL ){
-        dummylist = (umlpackagelist) my_malloc(sizeof(umlpackagenode));
+        dummylist = NEW (umlpackagenode);
         dummylist->next = tmplist;
         tmplist = dummylist;
         tmplist->key = package;
@@ -206,7 +203,7 @@ umlattrlist copy_attributes(umlattrlist src)
 
     while (src != NULL)
     {
-        umlattrlist tmp = (umlattrlist) my_malloc(sizeof(umlattrnode));
+        umlattrlist tmp = NEW (umlattrnode);
         tmp->key = src->key;
         if (cpy == NULL) {
             cpy = tmp;
@@ -431,7 +428,7 @@ void dump_endless_string(FILE *f, endless_string *es)
 
 endless_string * new_endless_string()
 {
-    endless_string *es = my_malloc(sizeof(endless_string));
+    endless_string *es = NEW (endless_string);
     es->start = NULL;
     es->end = NULL;
     return es;
@@ -454,7 +451,7 @@ void destroy_endless_string(endless_string * es)
 
 void append_endless_string(endless_string * es, char *s)
 {
-    endless_string_buf *esb = my_malloc(sizeof(endless_string_buf));
+    endless_string_buf *esb = NEW (endless_string_buf);
     esb->buf = strdup(s);
     esb->next = NULL;
     if (es->start == NULL)
@@ -491,8 +488,7 @@ void d2c_impl_list_destroy()
 
 d2c_impl * d2c_impl_add(char *name)
 {
-    d2c_impl *d2ci;
-    d2ci = malloc(sizeof(d2c_impl));
+    d2c_impl *d2ci = NEW (d2c_impl);
     strcpy(d2ci->name, name);
     d2ci->impl = new_endless_string();
     d2ci->impl_len = 0;
@@ -896,8 +892,7 @@ void param_list_destroy()
 
 param_list * d2c_parameter_add(char *name, char *value)
 {
-    param_list *entry;
-    entry = malloc(sizeof(d2c_parameters));
+    param_list *entry = my_malloc (sizeof(d2c_parameters));
     entry->name = strdup(name);
     entry->value = value ? strdup(value) : NULL;
     entry->next = d2c_parameters;
