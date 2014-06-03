@@ -1,6 +1,7 @@
 #include "decls.h"
 
 declaration *decls = NULL;
+static namelist tmp_classes = NULL;
 
 int use_corba = 0;
 
@@ -126,17 +127,24 @@ push (umlclassnode *node, batch *b)
     umlclasslist used_classes, tmpnode;
     module *m;
     declaration *d;
+    namelist l_tmp;
 
     if (node == NULL || find_class (node) != NULL) {
         return;
     }
 
+    l_tmp = NEW (namenode);
+    l_tmp->name = strdup (node->key->name);
+    l_tmp->next = tmp_classes;
+    tmp_classes = l_tmp;
+    
     used_classes = list_classes (node, b);
     /* Make sure all classes that this one depends on are already pushed. */
     tmpnode = used_classes;
     while (tmpnode != NULL) {
         /* don't push this class !*/
-        if (!eq(node->key->name, tmpnode->key->name)){
+        if (! eq (node->key->name, tmpnode->key->name) &&
+            ! (is_present (tmp_classes, tmpnode->key->name) ^ b->mask)) {
             push (tmpnode, b);
         }
         tmpnode = tmpnode->next;
