@@ -18,6 +18,9 @@ Unreleased:  Version 0.8.6
   <<typedef>>                 (synonym  for CORBATypedef),
   <<const>> or <<constant>>   (synonyms for CORBAConstant), see
   http://sourceforge.net/p/dia2code/discussion/48621/thread/9013af8d
+- Applied patch for preventing infinite loop on generating code for classes
+  with circular dependency, see http://sourceforge.net/p/dia2code/patches/23/
+
 
 07 Jul 2012: Version 0.8.5
 - Support for properties in C# code by Jedrek P <smaug@smaug.int.pl>, see
