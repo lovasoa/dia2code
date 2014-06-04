@@ -138,7 +138,7 @@ struct umlclass {
     char id[SMALL_BUFFER];
     char name[SMALL_BUFFER];
     char stereotype[SMALL_BUFFER];
-    char comment[SMALL_BUFFER];
+    char comment[LARGE_BUFFER];
     int isabstract;
     umlattrlist attributes;
     umloplist operations;
