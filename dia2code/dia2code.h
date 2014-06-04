@@ -208,6 +208,8 @@ umlattrlist copy_attributes(umlattrlist src);
 
 void * my_malloc( size_t size );
 
+#define NEW(c) ((c*)my_malloc(sizeof(c)))
+
 umlpackagelist make_package_list( umlpackage * package);
 
 umlclasslist list_classes(umlclasslist current_class, batch *b);

@@ -43,10 +43,6 @@ typedef struct declaration declaration;
 
 extern declaration *decls;
 
-#ifndef NEW
-#define NEW(c) ((c*)my_malloc(sizeof(c)))
-#endif
-
 /* Utilities for building the global `decls' from umlclassnodes and
    their parents.  (`decls' contains everything in ascending order of
    interdependence.)  */
