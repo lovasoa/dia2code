@@ -1,13 +1,17 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(Makefile.am)
 
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 
 AM_INIT_AUTOMAKE(dia2code,0.8.6)
 
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_RANLIB
+AN_MAKEVAR([AR], [AC_PROG_AR])
+AN_PROGRAM([ar], [AC_PROG_AR])
+AC_DEFUN([AC_PROG_AR], [AC_CHECK_TOOL(AR, ar, :)])
+AC_PROG_AR
 dnl Checks for libraries.
 
 AC_PATH_PROG(XML_CONFIG, xml2-config, no)
