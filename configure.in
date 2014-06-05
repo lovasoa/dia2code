@@ -3,7 +3,7 @@ AC_INIT(Makefile.am)
 
 AM_CONFIG_HEADER(config.h)
 
-AM_INIT_AUTOMAKE(dia2code,0.8.5)
+AM_INIT_AUTOMAKE(dia2code,0.8.6)
 
 dnl Checks for programs.
 AC_PROG_CC
