@@ -1,4 +1,4 @@
-Unreleased:  Version 0.8.6
+05 Jun 2014:  Version 0.8.6
 - Added generation of header guard for C++ (-t cpp)
 - Fixed null pointer dereference crash in handling of UML - Association
   observed on loading files example2.dia and example3.dia from
