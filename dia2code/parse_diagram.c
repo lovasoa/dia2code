@@ -605,14 +605,12 @@ xmlNodePtr getNextObject(xmlNodePtr from) {
 
 umlclasslist parse_diagram(char *diafile) {
     xmlDocPtr ptr;
-    xmlChar *objtype, *attrtype, *tmptype, *tmptype2;
-    xmlChar *objid;
     xmlChar *end1 = NULL;
     xmlChar *end2 = NULL;
 
-    xmlNodePtr  object = NULL, attribute;
-    umlclasslist classlist, tmplist, endlist = NULL;
-    umlpackagelist packagelist, dummypcklist, tmppcklist, endpcklist = NULL;
+    xmlNodePtr object = NULL;
+    umlclasslist classlist = NULL, endlist = NULL;
+    umlpackagelist packagelist = NULL, dummypcklist, endpcklist = NULL;
 
     ptr = xmlParseFile(diafile);
 
@@ -624,18 +622,15 @@ umlclasslist parse_diagram(char *diafile) {
     /* we search for the first "object" node */
     recursive_search( ptr->xmlRootNode->xmlChildrenNode->next, &object );
 
-    classlist = NULL;
-    packagelist = NULL;
-
     while (object != NULL) {
-        objtype = xmlGetProp(object, "type");
+        xmlChar *objtype = xmlGetProp(object, "type");
         /* Here we have a Dia object */
         if ( eq("UML - Class", objtype) ) {
             /* Here we have a class definition */
-            tmplist = parse_class(object);
+            umlclasslist tmplist = parse_class(object);
             if (tmplist != NULL) {
                 /* We get the ID of the object here*/
-                objid = xmlGetProp(object, "id");
+                xmlChar *objid = xmlGetProp(object, "id");
                 sscanf(objid, "%79s", tmplist->key->id);
                 free(objid);
 
@@ -647,11 +642,11 @@ umlclasslist parse_diagram(char *diafile) {
                     endlist = tmplist;
                 }
             }
-        } else if ( eq("UML - LargePackage",objtype) || eq("UML - SmallPackage",objtype)) {
-            tmppcklist = parse_package(object);
+        } else if ( eq("UML - LargePackage", objtype) || eq("UML - SmallPackage", objtype) ) {
+            umlpackagelist tmppcklist = parse_package(object);
             if ( tmppcklist != NULL ) {
                 /* We get the ID of the object here*/
-                objid = xmlGetProp(object, "id");
+                xmlChar *objid = xmlGetProp(object, "id");
                 sscanf(objid, "%79s", tmppcklist->key->id);
                 free(objid);
             }
@@ -679,36 +674,22 @@ umlclasslist parse_diagram(char *diafile) {
     recursive_search( ptr->xmlRootNode->xmlChildrenNode->next, &object );
 
     while ( object != NULL ) {
-        objtype = xmlGetProp(object, "type");
+        xmlChar *objtype = xmlGetProp(object, "type");
         if ( eq("UML - Association", objtype) ) {
-          char *name = NULL, *name_a = NULL, *name_b = NULL;
-          char *multiplicity_a = NULL, *multiplicity_b = NULL;
+            char *name = NULL, *name_a = NULL, *name_b = NULL;
+            char *multiplicity_a = NULL, *multiplicity_b = NULL;
             char direction = 0;
             char composite = 0;
-            attribute = object->xmlChildrenNode;
+            xmlNodePtr attribute = object->xmlChildrenNode;
 
-            while ( attribute != NULL) {
-                attrtype = xmlGetProp(attribute, "name");
+            while (attribute != NULL) {
+                xmlChar *attrtype = xmlGetProp(attribute, "name");
 
                 if (attrtype != NULL) {
-                    if ( eq("name", attrtype) && attribute->xmlChildrenNode->xmlChildrenNode ) {
-                        name = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
-                    }
-                    else if ( eq("role_a", attrtype) ) {
-                        name_a = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
-                    }
-                    else if ( eq("role_b", attrtype) ) {
-                        name_b = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
-                    }
-                    else if ( eq("multipicity_a", attrtype) ) {
-                        multiplicity_a = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
-                    }
-                    else if ( eq("multipicity_b", attrtype) ) {
-                        multiplicity_b = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
-                    } 
-                    else if ( eq("direction", attrtype) ) {
-                        tmptype = xmlGetProp(attribute -> xmlChildrenNode, "val");
-                        if ( eq("0", tmptype) ) {
+                    xmlNodePtr child = attribute->xmlChildrenNode;
+                    if ( eq("direction", attrtype) ) {
+                        xmlChar *tmptype = xmlGetProp(child, "val");
+                        if ( eq(tmptype, "0") ) {
                             direction = 1;
                         }
                         else {
@@ -717,8 +698,8 @@ umlclasslist parse_diagram(char *diafile) {
                         free(tmptype);
                     }
                     else if ( eq("assoc_type", attrtype) ) {
-                        tmptype = xmlGetProp(attribute -> xmlChildrenNode, "val");
-                        if ( eq("1", tmptype) ) {
+                        xmlChar *tmptype = xmlGetProp(child, "val");
+                        if ( eq(tmptype, "1") ) {
                             composite = 0;
                         }
                         else {
@@ -726,25 +707,82 @@ umlclasslist parse_diagram(char *diafile) {
                         }
                         free(tmptype);
                     }
+                    else if ( child->xmlChildrenNode ) {
+                        xmlNodePtr grandchild = child->xmlChildrenNode;
+                        if ( eq(attrtype, "name") ) {
+                            name = grandchild->content;
+                        }
+                        else if ( eq(attrtype, "role_a") ) {
+                            name_a = grandchild->content;
+                        }
+                        else if ( eq(attrtype, "role_b") ) {
+                            name_b = grandchild->content;
+                        }
+                        else if ( eq(attrtype, "multipicity_a") ) {
+                            multiplicity_a = grandchild->content;
+                        }
+                        else if ( eq(attrtype, "multipicity_b") ) {
+                            multiplicity_b = grandchild->content;
+                        } 
+                        else if ( eq(attrtype, "ends") ) {
+                            if ( eq(child->name, "composite") ) {
+				while (grandchild) {
+                                    xmlNodePtr ggchild = grandchild->xmlChildrenNode;
+				    if (ggchild->xmlChildrenNode) {
+                                        attrtype = xmlGetProp(grandchild, "name");
+                                        if ( eq(attrtype, "role") ) {
+                                            name_a = ggchild->xmlChildrenNode->content;
+                                        }
+                                        else if ( eq(attrtype, "multiplicity") ) {
+                                            multiplicity_a = ggchild->xmlChildrenNode->content;
+                                        }
+                                        else if ( eq(attrtype, "aggregate") ) {
+                                            /* todo */
+                                        }
+                                    }
+				    grandchild = grandchild->next;
+                                }
+                            }
+                            child = child->next;
+                            if ( child != NULL && eq(child->name, "composite") ) {
+                                grandchild = child->xmlChildrenNode;
+				while (grandchild) {
+                                    xmlNodePtr ggchild = grandchild->xmlChildrenNode;
+				    if (ggchild->xmlChildrenNode) {
+                                        attrtype = xmlGetProp(grandchild, "name");
+                                        if ( eq(attrtype, "role") ) {
+                                            name_b = ggchild->xmlChildrenNode->content;
+                                        }
+                                        else if ( eq(attrtype, "multiplicity") ) {
+                                            multiplicity_b = ggchild->xmlChildrenNode->content;
+                                        }
+                                        else if ( eq(attrtype, "aggregate") ) {
+                                            /* todo */
+                                        }
+                                    }
+				    grandchild = grandchild->next;
+                                }
+                            }
+                        }
+                    }
+                    free(attrtype);
                 }
-
-                if ( eq("connections", attribute -> name) ) {
+                else if ( eq(attribute->name, "connections") ) {
                     end1 = xmlGetProp(attribute->xmlChildrenNode, "to");
                     end2 = xmlGetProp(attribute->xmlChildrenNode->next, "to");
                 }
 
-                free(attrtype);
                 attribute = attribute->next;
             }
 
             if (end1 != NULL && end2 != NULL) {
                 char *thisname = name;
                 if (direction == 1) {
-                    if (thisname != NULL && (!*thisname || eq("##", thisname)))
+                    if (thisname == NULL || !*thisname || eq("##", thisname))
                         thisname = name_a;
                     associate(classlist, thisname, composite, end1, end2, multiplicity_a);
                 } else {
-                    if (thisname != NULL && (!*thisname || eq("##", thisname)))
+                    if (thisname == NULL || !*thisname || eq("##", thisname))
                         thisname = name_b;
                     associate(classlist, thisname, composite, end2, end1, multiplicity_b);
                 }
@@ -753,7 +791,7 @@ umlclasslist parse_diagram(char *diafile) {
             }
 
         } else if ( eq("UML - Dependency", objtype) ) {
-            attribute = object->xmlChildrenNode;
+            xmlNodePtr attribute = object->xmlChildrenNode;
             while ( attribute != NULL ) {
                 if ( eq("connections", attribute->name) ) {
                     end1 = xmlGetProp(attribute->xmlChildrenNode, "to");
@@ -765,7 +803,7 @@ umlclasslist parse_diagram(char *diafile) {
                 attribute = attribute->next;
             }
         } else if ( eq("UML - Realizes", objtype) ) {
-            attribute = object->xmlChildrenNode;
+            xmlNodePtr attribute = object->xmlChildrenNode;
             while ( attribute != NULL ) {
                 if ( eq("connections", attribute->name) ) {
                     end1 = xmlGetProp(attribute->xmlChildrenNode, "to");
@@ -788,9 +826,9 @@ umlclasslist parse_diagram(char *diafile) {
        implementations. generate_code_java relies on this. */
     recursive_search( ptr->xmlRootNode->xmlChildrenNode->next, &object );
     while ( object != NULL ) {
-        objtype = xmlGetProp(object, "type");
+        xmlChar *objtype = xmlGetProp(object, "type");
         if ( eq("UML - Generalization", objtype) ) {
-            attribute = object->xmlChildrenNode;
+            xmlNodePtr attribute = object->xmlChildrenNode;
             while ( attribute != NULL ) {
                 if ( eq("connections", attribute->name) ) {
                     end1 = xmlGetProp(attribute->xmlChildrenNode, "to");
@@ -816,9 +854,9 @@ umlclasslist parse_diagram(char *diafile) {
     /* Build the relationships between packages */
     dummypcklist = packagelist;
     while ( dummypcklist != NULL ) {
-        tmppcklist = packagelist;
+        umlpackagelist tmppcklist = packagelist;
         while ( tmppcklist != NULL ) {
-            if ( is_inside(&dummypcklist->key->geom,&tmppcklist->key->geom) ) {
+            if ( is_inside(&dummypcklist->key->geom, &tmppcklist->key->geom) ) {
                 if ( tmppcklist->key->parent == NULL ) {
                     tmppcklist->key->parent = dummypcklist->key;
                 } else {
@@ -835,7 +873,7 @@ umlclasslist parse_diagram(char *diafile) {
     /* Associate packages to classes */
     dummypcklist = packagelist;
     while ( dummypcklist != NULL ) {
-        tmplist = classlist;
+        umlclasslist tmplist = classlist;
         while ( tmplist != NULL ) {
             if ( is_inside(&dummypcklist->key->geom,&tmplist->key->geom) ) {
                 if ( tmplist->key->package == NULL ) {
