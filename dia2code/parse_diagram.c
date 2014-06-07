@@ -45,7 +45,7 @@ void parse_dia_string(xmlNodePtr stringnode, char *buffer) {
     xmlChar *content;
 
     content = xmlNodeGetContent(stringnode);
-    if ( sscanf(content, sscanfmt(), buffer) == 0) {
+    if (sscanf(content, sscanfmt(), buffer) == 0) {
         buffer[0] = 0;
     }
     free(content);
@@ -58,7 +58,7 @@ void parse_dia_string_large(xmlNodePtr stringnode, char *buffer) {
 
     content = xmlNodeGetContent(stringnode);
     sprintf (fmt, "#%%%d[^#]#", LARGE_BUFFER - 1);
-    if ( sscanf(content, fmt, buffer) == 0) {
+    if (sscanf(content, fmt, buffer) == 0) {
         buffer[0] = 0;
     }
     free(content);
@@ -81,7 +81,7 @@ int parse_boolean(xmlNodePtr booleannode) {
 
 void addparent(umlclasslist base, umlclasslist derived) {
     umlclasslist tmp;
-    tmp = (umlclasslist) my_malloc ( sizeof(umlclassnode) );
+    tmp = NEW (umlclassnode);
     tmp->key = base->key;
     tmp->next = derived->parents;
     derived->parents = tmp;
@@ -89,15 +89,16 @@ void addparent(umlclasslist base, umlclasslist derived) {
 
 void adddependency(umlclasslist dependent, umlclasslist dependee) {
     umlclasslist tmp;
-    tmp = (umlclasslist) my_malloc ( sizeof(umlclassnode) );
+    tmp = NEW (umlclassnode);
     tmp->key = dependent->key;
     tmp->next = dependee->dependencies;
     dependee->dependencies = tmp;
 }
 
-void addaggregate(char * name, char composite, umlclasslist base, umlclasslist associate) {
+void addaggregate(char *name, char composite, umlclasslist base,
+                  umlclasslist associate, char *multiplicity) {
     umlassoclist tmp;
-    tmp = (umlassoclist) my_malloc ( sizeof(umlassocnode) );
+    tmp = NEW (umlassocnode);
     if (name != NULL) {
         sscanf(name, sscanfmt(), tmp->name);
         if (tmp->name[0] == '\0') {
@@ -108,6 +109,10 @@ void addaggregate(char * name, char composite, umlclasslist base, umlclasslist a
         printf("warning: unnamed association between %s and %s\n", base->key->name, associate->key->name);
         strcpy(tmp->name, "unnamed");
     }
+    if (multiplicity != NULL)
+        sscanf(multiplicity, sscanfmt(), tmp->multiplicity);
+    else
+        sprintf(tmp->multiplicity, "1");
     tmp->key = base->key;
     tmp->composite = composite;
     tmp->next = associate->associations;
@@ -123,12 +128,13 @@ void inherit_realize ( umlclasslist classlist, char * base, char * derived ) {
     }
 }
 
-void associate ( umlclasslist classlist, char * name, char composite, char * base, char * aggregate) {
+void associate ( umlclasslist classlist, char * name, char composite,
+                 char * base, char * aggregate, char *multiplicity) {
     umlclasslist umlbase, umlaggregate;
     umlbase = find(classlist, base);
     umlaggregate = find(classlist, aggregate);
     if ( umlbase != NULL && umlaggregate != NULL) {
-        addaggregate(name, composite, umlbase, umlaggregate);
+        addaggregate(name, composite, umlbase, umlaggregate, multiplicity);
     }
 }
 
@@ -235,7 +241,7 @@ void parse_attribute(xmlNodePtr node, umlattribute *tmp) {
 umlattrlist parse_attributes(xmlNodePtr node) {
     umlattrlist list = NULL, an;
     while ( node != NULL ) {
-        an = (umlattrlist) my_malloc(sizeof(umlattrnode));
+        an = NEW (umlattrnode);
         an->next = NULL;
         parse_attribute(node->xmlChildrenNode, &(an->key));
         list = insert_attribute(an, list);
@@ -260,7 +266,7 @@ void parse_operation(xmlNodePtr node, umloperation *tmp) {
 umloplist parse_operations(xmlNodePtr node) {
     umloplist list = NULL, on;
     while ( node != NULL ) {
-        on = (umlopnode*) my_malloc(sizeof(umlopnode));
+        on = NEW (umlopnode);
         on->next = NULL;
         on->key.implementation = NULL;
         parse_operation(node->xmlChildrenNode, &(on->key));
@@ -280,8 +286,7 @@ umltemplatelist parse_templates(xmlNodePtr node) {
     while ( node != NULL) {
         if ( node->xmlChildrenNode->xmlChildrenNode->xmlChildrenNode != NULL &&
                 node->xmlChildrenNode->next->xmlChildrenNode->xmlChildrenNode != NULL ) {
-
-            tn = (umltemplatenode*) my_malloc(sizeof(umltemplatenode));
+            tn = NEW (umltemplatenode);
             tn->next = NULL;
             parse_template(node->xmlChildrenNode, &(tn->key));
             list = insert_template(tn, list);
@@ -304,8 +309,8 @@ void make_javabean_methods(umlclass *myself) {
     while (attrlist != NULL) {
         if ( ! attrlist->key.isabstract) {
             /* The SET method */
-            operation = (umloplist) my_malloc (sizeof(umlopnode));
-            parameter = (umlattrlist) my_malloc (sizeof(umlattrnode));
+            operation = NEW (umlopnode);
+            parameter = NEW (umlattrnode);
 
             sprintf(parameter->key.name, "value");
             strncpy(parameter->key.type, attrlist->key.type, SMALL_BUFFER);
@@ -317,14 +322,14 @@ void make_javabean_methods(umlclass *myself) {
             parameter->next = NULL;
             operation->key.parameters = parameter;
 
-            operation->key.implementation = (char*) my_malloc (90);
+            operation->key.implementation = (char*) my_malloc (BIG_BUFFER);
             sprintf(operation->key.implementation, "    ");
-            strncat(operation->key.implementation, attrlist->key.name, 76);
+            strcat(operation->key.implementation, attrlist->key.name);
             strcat(operation->key.implementation, " = value;");
 
             tmpname = strtoupperfirst(attrlist->key.name);
             sprintf(operation->key.attr.name, "set");
-            strncat(operation->key.attr.name, tmpname, 76);
+            strncat(operation->key.attr.name, tmpname, SMALL_BUFFER - 1);
             free(tmpname);
             operation->key.attr.isabstract = 0;
             operation->key.attr.isstatic = 0;
@@ -337,7 +342,7 @@ void make_javabean_methods(umlclass *myself) {
             myself->operations = insert_operation(operation, myself->operations);
 
             /* The GET or IS method */
-            operation = (umloplist) my_malloc (sizeof(umlopnode));
+            operation = NEW (umlopnode);
             operation->key.parameters = NULL;
             tmpname = strtoupperfirst(attrlist->key.name);
             if ( eq(attrlist->key.type, "boolean") ) {
@@ -345,12 +350,12 @@ void make_javabean_methods(umlclass *myself) {
             } else {
                 sprintf(operation->key.attr.name, "get");
             }
-            strncat(operation->key.attr.name, tmpname, 76);
+            strncat(operation->key.attr.name, tmpname, SMALL_BUFFER - 1);
             free(tmpname);
 
-            operation->key.implementation = (char*) my_malloc (90);
+            operation->key.implementation = (char*) my_malloc (BIG_BUFFER);
             sprintf(operation->key.implementation, "    return ");
-            strncat(operation->key.implementation, attrlist->key.name, 76);
+            strcat(operation->key.implementation, attrlist->key.name);
             strcat(operation->key.implementation, ";");
 
             operation->key.attr.isabstract = 0;
@@ -358,7 +363,7 @@ void make_javabean_methods(umlclass *myself) {
             operation->key.attr.isconstant = 0;
             operation->key.attr.visibility = '0';
             operation->key.attr.value[0] = 0;
-            strncpy(operation->key.attr.type, attrlist->key.type, SMALL_BUFFER);
+            strncpy(operation->key.attr.type, attrlist->key.type, SMALL_BUFFER - 1);
             operation->next = NULL;
 
             myself->operations = insert_operation(operation, myself->operations);
@@ -407,8 +412,8 @@ umlpackagelist parse_package(xmlNodePtr package) {
     xmlChar *attrname;
     //debug( 4, "parse_package %s", package->name );
 
-    listmyself = (umlpackagelist) my_malloc ( sizeof ( umlpackagenode));
-    myself = (umlpackage*) my_malloc(sizeof(umlpackage));
+    listmyself = NEW (umlpackagenode);
+    myself = NEW (umlpackage);
 
     myself->parent = NULL;
 
@@ -442,8 +447,8 @@ umlclasslist parse_class(xmlNodePtr class) {
     umlclasslist listmyself;
     umlclass *myself;
 
-    listmyself = (umlclasslist) my_malloc (sizeof (umlclassnode));
-    myself = (umlclass*) my_malloc (sizeof(umlclass));
+    listmyself = NEW (umlclassnode);
+    myself = NEW (umlclass);
     myself->package = NULL;
 
     listmyself->key = myself;
@@ -533,8 +538,8 @@ void lolipop_implementation(umlclasslist classlist, xmlNodePtr object) {
     implementator = find(classlist, id);
     free(id);
     if (implementator != NULL && strlen(name) > 2) {
-        interface = (umlclasslist) my_malloc (sizeof (umlclassnode));
-        interface->key = (umlclass *) my_malloc (sizeof(umlclass));
+        interface = NEW (umlclassnode);
+        interface->key = NEW (umlclass);
         interface->parents = NULL;
         interface->next = NULL;
         sprintf(interface->key->id, "00");
@@ -676,7 +681,8 @@ umlclasslist parse_diagram(char *diafile) {
     while ( object != NULL ) {
         objtype = xmlGetProp(object, "type");
         if ( eq("UML - Association", objtype) ) {
-            char * name = NULL;
+          char *name = NULL, *name_a = NULL, *name_b = NULL;
+          char *multiplicity_a = NULL, *multiplicity_b = NULL;
             char direction = 0;
             char composite = 0;
             attribute = object->xmlChildrenNode;
@@ -688,10 +694,21 @@ umlclasslist parse_diagram(char *diafile) {
                     if ( eq("name", attrtype) && attribute->xmlChildrenNode->xmlChildrenNode ) {
                         name = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
                     }
-
-                    else if ( ! strcmp("direction", attrtype) ) {
+                    else if ( eq("role_a", attrtype) ) {
+                        name_a = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
+                    }
+                    else if ( eq("role_b", attrtype) ) {
+                        name_b = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
+                    }
+                    else if ( eq("multipicity_a", attrtype) ) {
+                        multiplicity_a = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
+                    }
+                    else if ( eq("multipicity_b", attrtype) ) {
+                        multiplicity_b = attribute -> xmlChildrenNode -> xmlChildrenNode -> content;
+                    } 
+                    else if ( eq("direction", attrtype) ) {
                         tmptype = xmlGetProp(attribute -> xmlChildrenNode, "val");
-                        if ( !strcmp("0", tmptype) ) {
+                        if ( eq("0", tmptype) ) {
                             direction = 1;
                         }
                         else {
@@ -699,10 +716,9 @@ umlclasslist parse_diagram(char *diafile) {
                         }
                         free(tmptype);
                     }
-
-                    else if ( ! strcmp("assoc_type", attrtype) ) {
+                    else if ( eq("assoc_type", attrtype) ) {
                         tmptype = xmlGetProp(attribute -> xmlChildrenNode, "val");
-                        if ( !strcmp("1", tmptype) ) {
+                        if ( eq("1", tmptype) ) {
                             composite = 0;
                         }
                         else {
@@ -712,7 +728,7 @@ umlclasslist parse_diagram(char *diafile) {
                     }
                 }
 
-                if ( ! strcmp("connections", attribute -> name) ) {
+                if ( eq("connections", attribute -> name) ) {
                     end1 = xmlGetProp(attribute->xmlChildrenNode, "to");
                     end2 = xmlGetProp(attribute->xmlChildrenNode->next, "to");
                 }
@@ -722,10 +738,15 @@ umlclasslist parse_diagram(char *diafile) {
             }
 
             if (end1 != NULL && end2 != NULL) {
+                char *thisname = name;
                 if (direction == 1) {
-                    associate(classlist, name, composite, end1, end2);
+                    if (thisname != NULL && (!*thisname || eq("##", thisname)))
+                        thisname = name_a;
+                    associate(classlist, thisname, composite, end1, end2, multiplicity_a);
                 } else {
-                    associate(classlist, name, composite, end2, end1);
+                    if (thisname != NULL && (!*thisname || eq("##", thisname)))
+                        thisname = name_b;
+                    associate(classlist, thisname, composite, end2, end1, multiplicity_b);
                 }
                 free(end1);
                 free(end2);

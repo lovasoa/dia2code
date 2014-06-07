@@ -3,12 +3,13 @@ Author:
 - Richard Torkar <richard.torkar@htu.se>: maintainer
 
 Contributors: (in alphabetical order, by last name)
-- Cyrille Chepelov <chepelov@calixo.net> Pyhton code generation, Debian package management,
+- Cyrille Chepelov <chepelov@calixo.net> Python code generation, Debian package management,
   Hurd conformance
 - Harald Fielker <hfielker@softsolutions.de> PHP code generation.
 - Thomas Hansen <thomas.hansen@adramatch.com> C# code generation.
 - Alejandro Imass <aimass@yabarana.com> Improved foreign keys in SQL generation
 - Oliver Kellogg <okellogg@users.sourceforge.net> Fixes for scan_tree.c and IDL generation
+- Dima Levchenko <dimalev@users.sf.net> AS3 code generation, association multiplicities
 - Ruben Lopez <ryu@gpul.org>, C code generation
 - Steffen Macke <sdteffen@gmail.com> batch shapefile generation, win32 installer
 - Chris McGee <sirnewton_01@yahoo.ca> Dependencies, Associations, C++ Templates, SQL, IDL

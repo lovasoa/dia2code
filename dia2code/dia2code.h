@@ -81,7 +81,7 @@ struct umlattrnode {
 typedef struct umlattrnode umlattrnode;
 typedef umlattrnode *umlattrlist;
 
-struct umloperation{
+struct umloperation {
     umlattribute attr;
     umlattrlist parameters;
     char *implementation; /* the previous source code of the method - parsed from existing file */
@@ -92,22 +92,22 @@ struct umlopnode {
     umloperation key;
     struct umlopnode *next;
 };
+typedef struct umlopnode umlopnode;
 
-struct umltemplate{
+typedef umlopnode *umloplist;
+
+struct umltemplate {
     char name[SMALL_BUFFER];
     char type[SMALL_BUFFER];
 };
 typedef struct umltemplate umltemplate;
 
-typedef struct umlopnode umlopnode;
-typedef umlopnode *umloplist;
-
 struct umltemplatenode {
         umltemplate key;
         struct umltemplatenode *next;
 };
-
 typedef struct umltemplatenode umltemplatenode;
+
 typedef umltemplatenode *umltemplatelist;
 
 struct geometry {
@@ -132,6 +132,7 @@ struct umlpackagenode {
     struct umlpackagenode * next;
 };
 typedef struct umlpackagenode umlpackagenode;
+
 typedef umlpackagenode * umlpackagelist;
 
 struct umlclass {
@@ -153,27 +154,29 @@ struct umlassocnode {
     char name[SMALL_BUFFER];
     char composite;
     struct umlassocnode * next;
+    char multiplicity[10]; /* association can declare multiplicity */
 };
+typedef struct umlassocnode umlassocnode;
 
-struct  umlclassnode {
+typedef umlassocnode * umlassoclist;
+
+struct umlclassnode {
     umlclass * key;
     struct umlclassnode * parents;
     struct umlassocnode * associations;
     struct umlclassnode * dependencies;
     struct umlclassnode * next;
 };
-typedef struct umlassocnode umlassocnode;
-typedef umlassocnode * umlassoclist;
+typedef struct umlclassnode umlclassnode;
 
-typedef struct  umlclassnode umlclassnode;
 typedef umlclassnode * umlclasslist;
 
 struct namenode {
    char *name;
    struct namenode *next;
 };
-
 typedef struct namenode namenode;
+
 typedef namenode * namelist;
 
 

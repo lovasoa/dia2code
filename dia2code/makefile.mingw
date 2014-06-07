@@ -1,4 +1,4 @@
-## Built mingw version of dia2code using cygwin.
+ Built mingw version of dia2code using cygwin.
 
 ## adjust to match your path to libxml2
 
@@ -8,7 +8,7 @@
 
 bin_PROGRAMS = dia2code.exe
 INCLUDES = -I. -I../../libxml2-2.4.3/include -I../../libxml2-2.4.3/include/libxml
-dia2code_SOURCES = dia2code.c main.c parse_diagram.c scan_tree.c generate_code_c.c generate_code_java.c generate_code_cpp.c generate_code_ada.c generate_code_sql.c generate_code_python.c generate_code_csharp.c
+dia2code_SOURCES = dia2code.c main.c parse_diagram.c scan_tree.c generate_code_ada.c generate_code_as3.c generate_code_c.c generate_code_cpp.c generate_code_csharp.c generate_code_idl.c generate_code_java.c generate_code_php.c generate_code_php_five.c generate_code_python.c generate_code_ruby.c generate_code_shp.c generate_code_sql.c
 
 LIBS = -L ../../libxml2-2.4.3/lib/so/ -lxml2
 
@@ -17,8 +17,10 @@ PROGRAMS =  $(bin_PROGRAMS)
 LDFLAGS = -mno-cygwin -fnative-struct 
 
 dia2code_OBJECTS =  dia2code.o main.o parse_diagram.o scan_tree.o \
-generate_code_c.o generate_code_java.o generate_code_cpp.o \
-generate_code_ada.o generate_code_sql.o generate_code_python.o generate_code_csharp.o
+generate_code_ada.o generate_code_as3.o generate_code_c.o generate_code_cpp.o \
+generate_code_csharp.o generate_code_idl.o generate_code_java.o generate_code_php.o \
+generate_code_php_five.o generate_code_python.o generate_code_ruby.o \
+generate_code_shp.o generate_code_sql.o
 
 CFLAGS = -mno-cygwin -fnative-struct $(INCLUDES)
 
@@ -30,6 +32,5 @@ dia2code.exe: $(dia2code_OBJECTS)
 
 clean:
 	rm $(dia2code_OBJECTS) $(bin_PROGRAMS)
-
 
 

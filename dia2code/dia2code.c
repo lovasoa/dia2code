@@ -233,22 +233,24 @@ umlattrlist copy_attributes(umlattrlist src)
  */
 char *create_package_dir( const batch *batch, umlpackage *pkg )
 {
-    char * fulldirname, *dirname;
+    char *fulldirname, *dirname, fulldirnamedup[BIG_BUFFER];
     int ret;
     /* created directories permissions */
     mode_t dir_mask = S_IRUSR | S_IWUSR | S_IXUSR |S_IRGRP | S_IXGRP;
-    if( pkg == NULL ) {
+    if (pkg == NULL) {
         return NULL;
     }
-    if( (batch->buildtree == 0) || (pkg->name == NULL )) {
+    if (batch->buildtree == 0 || pkg->name == NULL) {
         pkg->directory = batch->outdir;
     } else {
-        fulldirname = strdup( batch->outdir );
+        fulldirname = (char*)my_malloc(BIG_BUFFER);
+        sprintf(fulldirname, "%s", batch->outdir);
         dirname = strdup(pkg->name);
         dirname = strtok( dirname, "." );
-        while( dirname != NULL ) {
-            sprintf( fulldirname, "%s/%s", fulldirname, dirname );
-            /* TODO : should create only if not existant */
+        while (dirname != NULL) {
+            sprintf( fulldirnamedup, "%s/%s", fulldirname, dirname );
+            sprintf( fulldirname, "%s", fulldirnamedup );
+            /* TODO : should create only if not existent */
             ret = mkdir( fulldirname, dir_mask );
             dirname = strtok( NULL, "." );
         }
