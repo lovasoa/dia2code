@@ -1,4 +1,4 @@
- Built mingw version of dia2code using cygwin.
+## Built mingw version of dia2code using cygwin.
 
 ## adjust to match your path to libxml2
 
