@@ -1,3 +1,7 @@
+unreleased :  Version 0.8.7
+- Added ActionScript-3 code generator by Dima Levchenko
+- Added evaluation of association role names and multiplicities (dimalev)
+
 05 Jun 2014:  Version 0.8.6
 - Added generation of header guard for C++ (-t cpp)
 - Fixed null pointer dereference crash in handling of UML - Association

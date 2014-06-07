@@ -8,8 +8,8 @@ This program generates code for many languages from an UML Dia Diagram.
 DESCRIPTION
 
 This program is a small utility that makes code from a Dia diagram. Supported
-languages are: Ada, C, C++, C#, IDL, Java, PHP(4,5), Python, Ruby, shapefiles,
-and SQL create statement files.
+languages are: ActionScript3, Ada, C, C++, C#, IDL, Java, PHP(4,5), Python, Ruby,
+shapefiles, and SQL create statement files.
 
 Its intended purpose is to ease the programmer's work by generating
 the structure of the classes in an Object Oriented language
@@ -19,7 +19,8 @@ the structure of the classes in an Object Oriented language
 
 STATUS
 
-Dia2Code generates Ada, C, C++, IDL, Java, PHP, Python, C#, and Ruby files.
+Dia2Code generates ActionScript, Ada, C, C++, C#, IDL, Java, PHP, Python, Ruby,
+and shape files.
 It can also generate a file with SQL's CREATE TABLE statements and .bat files for
 creating shapes.  Templates and packages are supported but need testing.
 
@@ -92,10 +93,10 @@ Where <parameters> can be any combination of:
 -h|--help
    prints help on parameters and exits inmediately
 
--t (ada|c|cpp|idl|java|php|python|shp|sql|csharp)
-  tells dia2code to either create C++ (cpp), Java (java), C (c),
-  Ada (ada), Python (python), SQL "create table" files (sql) and 
-  C# (csharp).
+-t (ada|as3|c|cpp|csharp|idl|java|php|php5|python|shp|sql)
+  tells dia2code to either create Ada (ada), ActionScript (as3), C (c), C++
+  (cpp), C# (csharp), Java (java), PHP4 (php), PHP5 (php5), Python (python),
+  shape files (shp), or SQL "create table" files (sql).
   The default is C++.
 
 -d <outdir>
