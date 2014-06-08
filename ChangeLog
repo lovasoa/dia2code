@@ -1,6 +1,9 @@
 unreleased :  Version 0.8.7
 - Added ActionScript-3 code generator by Dima Levchenko
 - Added evaluation of association role names and multiplicities (dimalev)
+- Added support for roles and multiplicities in "UML - Association" version 0
+- Fixed infinite loop in Ada code generation for static (class_scope) attributes
+- Fixed missing Ada code generation for private static variable
 
 05 Jun 2014:  Version 0.8.6
 - Added generation of header guard for C++ (-t cpp)
@@ -24,7 +27,6 @@ unreleased :  Version 0.8.7
   http://sourceforge.net/p/dia2code/discussion/48621/thread/9013af8d
 - Applied patch for preventing infinite loop on generating code for classes
   with circular dependency, see http://sourceforge.net/p/dia2code/patches/23/
-
 
 07 Jul 2012: Version 0.8.5
 - Support for properties in C# code by Jedrek P <smaug@smaug.int.pl>, see

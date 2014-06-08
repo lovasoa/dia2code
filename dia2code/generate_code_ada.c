@@ -214,8 +214,7 @@ gen_static_attributes (umlattrlist umla, int do_private)
         umlclassnode *ref;
 
         if (!umla->key.isstatic ||
-            (umla->key.visibility == '0' && do_private ||
-             umla->key.visibility != '0' && !do_private)) {
+            (umla->key.visibility != '0' && !do_private)) {
             umla = umla->next;
             continue;
         }
@@ -256,6 +255,7 @@ gen_static_attributes (umlattrlist umla, int do_private)
                 emit ("%s", adaname (umla->key.type));
             emit (";\n\n");
         }
+        umla = umla->next;
     }
     return number_of_static_attributes;
 }
