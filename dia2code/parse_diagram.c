@@ -100,16 +100,8 @@ void addaggregate(char *name, char composite, umlclasslist base,
                   umlclasslist associate, char *multiplicity) {
     umlassoclist tmp;
     tmp = NEW (umlassocnode);
-    if (name != NULL) {
+    if (name != NULL && strlen (name) > 2)
         sscanf(name, sscanfmt(), tmp->name);
-        if (tmp->name[0] == '\0') {
-            ++anon_cnt;
-            sprintf (tmp->name, "unnamed_%d", anon_cnt);
-        }
-    } else {
-        printf("warning: unnamed association between %s and %s\n", base->key->name, associate->key->name);
-        strcpy(tmp->name, "unnamed");
-    }
     if (multiplicity != NULL)
         sscanf(multiplicity, sscanfmt(), tmp->multiplicity);
     else

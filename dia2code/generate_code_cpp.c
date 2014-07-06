@@ -3,7 +3,7 @@
                              -------------------
     begin                : Sat Dec 16 2000
     copyright            : (C) 2000-2001 by Javier O'Hara
-                           (C) 2002 by Oliver Kellogg
+                           (C) 2002-2014 by Oliver Kellogg
     email                : joh314@users.sourceforge.net
                            okellogg@users.sourceforge.net
  ***************************************************************************/
@@ -244,13 +244,16 @@ gen_class (umlclassnode *node)
         */
         while (assoc != NULL) {
             umlclassnode *ref;
-            ref = find_by_name (gb->classlist, assoc->key->name);
-            print ("");
-            if (ref != NULL)
-                emit ("%s", fqname (ref, !assoc->composite));
-            else
-                emit ("%s", cppname (assoc->key->name));
-            emit (" %s;\n", assoc->name);
+            if (assoc->name[0] != '\0')
+            {
+                ref = find_by_name (gb->classlist, assoc->key->name);
+                print ("");
+                if (ref != NULL)
+                    emit ("%s", fqname (ref, !assoc->composite));
+                else
+                    emit ("%s", cppname (assoc->key->name));
+                emit (" %s;\n", assoc->name);
+            }
             assoc = assoc->next;
         }
     }
