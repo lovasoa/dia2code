@@ -2,8 +2,17 @@ unreleased :  Version 0.8.7
 - Added ActionScript-3 code generator by Dima Levchenko
 - Added evaluation of association role names and multiplicities (dimalev)
 - Added support for roles and multiplicities in "UML - Association" version 0
-- Fixed infinite loop in Ada code generation for static (class_scope) attributes
+- Fixed infinite loop in Ada code generation for static (class_scope)
+  attributes
 - Fixed missing Ada code generation for private static variable
+- Removed support for unnamed associations, it created more problems than
+  benefit. See http://sourceforge.net/p/dia2code/patches/21/#a9df
+- Added support for embedded '#' in Dia comments, see dia2code2.patch at
+  http://sourceforge.net/p/dia2code/patches/24/
+- Changed C++ code generation for destructor of abstract class to emit
+  neither a default destructor implementation nor pure virtual "= 0", see
+  dia2code1.patch at http://sourceforge.net/p/dia2code/patches/21/
+
 
 05 Jun 2014:  Version 0.8.6
 - Added generation of header guard for C++ (-t cpp)
