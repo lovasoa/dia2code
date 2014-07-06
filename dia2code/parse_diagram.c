@@ -17,6 +17,10 @@
 
 #include "parse_diagram.h"
 
+#ifndef MIN
+#define MIN(x, y) (x < y ? x : y)
+#endif
+
 /* In case of unnamed associations, the attribute will get the name
    "unnamed_" followed by the anon_cnt converted to string:  */
 static unsigned anon_cnt = 0;
@@ -57,10 +61,7 @@ void parse_dia_string_large(xmlNodePtr stringnode, char *buffer) {
     char fmt[16];
 
     content = xmlNodeGetContent(stringnode);
-    sprintf (fmt, "#%%%d[^#]#", LARGE_BUFFER - 1);
-    if (sscanf(content, fmt, buffer) == 0) {
-        buffer[0] = 0;
-    }
+    strncpy (buffer, content + 1, MIN(strlen(content) - 2, LARGE_BUFFER - 1));
     free(content);
 }
 
