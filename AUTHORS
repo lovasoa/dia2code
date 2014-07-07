@@ -3,6 +3,7 @@ Author:
 - Richard Torkar <richard.torkar@htu.se>: maintainer
 
 Contributors: (in alphabetical order, by last name)
+- bansan <bansan@users.sourceforge.net> Improvements to C++ code generation
 - Cyrille Chepelov <chepelov@calixo.net> Python code generation, Debian package management,
   Hurd conformance
 - Harald Fielker <hfielker@softsolutions.de> PHP code generation.
