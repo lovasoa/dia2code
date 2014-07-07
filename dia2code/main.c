@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
     void (*generators[NO_GENERATORS])(batch *);
 
     char * notice = "\
-dia2code version 0.8.4, Copyright (C) 2000-2001 Javier O'Hara\n\
+dia2code version " VERSION ", Copyright (C) 2000-2001 Javier O'Hara\n\
 Dia2Code comes with ABSOLUTELY NO WARRANTY\n\
 This is free software, and you are welcome to redistribute it\n\
 under certain conditions; read the COPYING file for details.\n";
