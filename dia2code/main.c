@@ -315,7 +315,7 @@ parameter = -1;   /* error */
     /* Code generation */
     if ( !generator ) {
         generator = generators[DEFAULT_TARGET];
-    };
+    }
     (*generator)(thisbatch);
 
     param_list_destroy();
