@@ -1,3 +1,12 @@
+Unreleased:  Version 0.8.8
+- Applied dia2code.patch3 from http://bugs.debian.org/240091
+  (java code: interface bug fix and better pretty printing)
+  to dia2code/generate_code_java.c. Author Stefano Zacchiroli explains:
+  > "import Foo;" clauses are invalid Java code if Foo is not a fully
+  > qualified namespace (e.g. "my.name.space.Foo"). The attached patch [...]
+  > adds a test which makes the Java code generator output the "import"
+  > clauses only when the class name is fully qualified.
+
 07 Jul 2014:  Version 0.8.7
 - Added ActionScript-3 code generator by Dima Levchenko
 - Added evaluation of association role names and multiplicities (dimalev)

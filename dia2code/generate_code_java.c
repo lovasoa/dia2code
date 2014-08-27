@@ -273,7 +273,11 @@ void generate_code_java(batch *b)
                 else
                 {
                     /* No info for this class' package, we include it directly */
-                    d2c_fprintf(outfile, "import %s;\n",used_classes->key->name);
+                    if (index(used_classes->key->name, '.') != NULL)
+                        d2c_fprintf(outfile, "import %s;\n", used_classes->key->name);
+                    else
+                        d2c_fprintf(outfile, "// not generating import for unqualified name %s\n",
+                                    used_classes->key->name);
                 }
                 used_classes = used_classes->next;
             }
