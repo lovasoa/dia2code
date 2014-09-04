@@ -118,11 +118,11 @@ void generate_code_php(batch *b)
 
                 /* header */
                 /* add license to the header */
-                if(b->license != NULL){
-                    char lc;
+                if (b->license != NULL) {
+                    int lc;
                     rewind(licensefile);
-                    while((lc = fgetc(licensefile)) != EOF){
-                        fprintf(outfile,"%c",lc);
+                    while ((lc = fgetc(licensefile)) != EOF) {
+                        fprintf(outfile,"%c", (char) lc);
                     }
                 }
 

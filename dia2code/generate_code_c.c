@@ -85,12 +85,12 @@ void generate_code_c(batch *b) {
                 }
 
                 /* add license to the header */
-                if(b->license != NULL){
-                    char lc;
+                if (b->license != NULL) {
+                    int lc;
                     rewind(licensefile);
-                    while((lc = fgetc(licensefile)) != EOF){
-                        fprintf(outfileh,"%c",lc);
-                        fprintf(outfilecpp,"%c",lc);
+                    while ((lc = fgetc(licensefile)) != EOF) {
+                        fprintf(outfileh,"%c", (char) lc);
+                        fprintf(outfilecpp,"%c", (char) lc);
                     }
                 }
 

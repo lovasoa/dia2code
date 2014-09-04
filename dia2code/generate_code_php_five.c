@@ -258,10 +258,10 @@ int d2c_php_print_operations(FILE *outfile, umlclasslist tmplist)
 
 int d2c_php_print_license(FILE *outfile, FILE *licensefile)
 {
-    char lc;
+    int lc;
     rewind(licensefile);
     while ((lc = fgetc(licensefile)) != EOF) {
-        fprintf(outfile, "%c", lc);
+        fprintf(outfile, "%c", (char) lc);
     }
     return 0;
 }

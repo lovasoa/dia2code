@@ -85,10 +85,10 @@ void generate_code_ruby(batch *b) {
 /* header */
                 /* add license to the header */
                 if (b->license != NULL) {
-                    char lc;
+                    int lc;
                     rewind(licensefile);
-                    while((lc = fgetc(licensefile)) != EOF){
-                        fprintf(outfile,"%c",lc);
+                    while ((lc = fgetc(licensefile)) != EOF) {
+                        fprintf(outfile,"%c", (char) lc);
                     }
                 }
 

@@ -379,10 +379,10 @@ generate_code_idl (batch *b)
 
         /* add license to the header */
         if (b->license != NULL) {
-            char lc;
+            int lc;
             rewind (licensefile);
             while ((lc = fgetc (licensefile)) != EOF)
-                emit ("%c",lc);
+                emit ("%c", (char) lc);
         }
 
         put_hfence (name);

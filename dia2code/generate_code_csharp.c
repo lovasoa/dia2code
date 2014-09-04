@@ -69,10 +69,10 @@ void generate_code_csharp (batch *b) {
 
         /* add license to the header */
         if (b->license != NULL) {
-            char lc;
+            int lc;
             rewind (licensefile);
             while ((lc = fgetc (licensefile)) != EOF)
-                print ("%c", lc);
+                print ("%c", (char) lc);
         }
         emit ("%s", "using System;\n\n");
 

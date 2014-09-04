@@ -6,6 +6,8 @@ Unreleased:  Version 0.8.8
   > qualified namespace (e.g. "my.name.space.Foo"). The attached patch [...]
   > adds a test which makes the Java code generator output the "import"
   > clauses only when the class name is fully qualified.
+- Fixed infinite loop on reading license file, see fgetc.patch at
+  http://sourceforge.net/p/dia2code/patches/25/
 
 07 Jul 2014:  Version 0.8.7
 - Added ActionScript-3 code generator by Dima Levchenko

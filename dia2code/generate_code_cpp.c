@@ -613,10 +613,10 @@ generate_code_cpp (batch *b)
 
         /* add license to the header */
         if (b->license != NULL) {
-            char lc;
+            int lc;
             rewind (licensefile);
             while ((lc = fgetc (licensefile)) != EOF)
-                print ("%c", lc);
+                print ("%c", (char) lc);
         }
 
         includes = NULL;

@@ -237,10 +237,10 @@ void generate_code_as3(batch *b)
             /* add license to the header */
             if (b->license != NULL)
             {
-                char lc;
+                int lc;
                 rewind(licensefile);
-                while((lc = fgetc(licensefile)) != EOF)
-                    d2c_fputc(lc, outfile);
+                while ((lc = fgetc(licensefile)) != EOF)
+                    d2c_fputc( (char) lc, outfile);
             }
 
             tmppcklist = make_package_list(class->package);

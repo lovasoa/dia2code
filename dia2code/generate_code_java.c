@@ -228,12 +228,12 @@ void generate_code_java(batch *b)
             }
 
             /* add license to the header */
-            if(b->license != NULL)
+            if (b->license != NULL)
             {
-                char lc;
+                int lc;
                 rewind(licensefile);
-                while((lc = fgetc(licensefile)) != EOF)
-                    d2c_fputc(lc, outfile);
+                while ((lc = fgetc(licensefile)) != EOF)
+                    d2c_fputc(lc, (char) outfile);
             }
 
             
