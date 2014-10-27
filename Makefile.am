@@ -7,4 +7,4 @@ EXTRA_DIST = AUTHORS COPYING ChangeLog INSTALL README TODO dia2code.lsm Makefile
 ####### kdevelop will overwrite this part!!! (end)############
 AUTOMAKE_OPTIONS = foreign
 
-
+ACLOCAL_AMFLAGS	=	-I m4

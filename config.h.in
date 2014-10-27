@@ -1,13 +1,7 @@
-/* config.h.in.  Generated from configure.in by autoheader.  */
-/* Define if the C compiler supports BOOL */
-#undef HAVE_BOOL
+/* config.h.in.  Generated from configure.ac by autoheader.  */
 
-#undef VERSION
-
-#undef PACKAGE
-
-/* Define if you need the GNU extensions to compile */
-#undef _GNU_SOURCE
+/* dlopen is supported */
+#undef DSO
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
@@ -38,6 +32,10 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
+
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
+#undef LT_OBJDIR
 
 /* Name of package */
 #undef PACKAGE

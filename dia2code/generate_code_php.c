@@ -95,7 +95,7 @@ void generate_code_php(batch *b)
 
             if (tmppcklist) {
                 /* here we calculate and create the directory if necessary */
-                outdir = create_package_dir( b, tmppcklist->key );
+                create_package_dir( b, tmppcklist->key );
                 /* create the destination filename */
                 sprintf(outfilename, "%s/%s.php", outdir, tmplist->key->name);
             } else {

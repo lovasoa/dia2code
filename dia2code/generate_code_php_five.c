@@ -248,8 +248,8 @@ int d2c_php_print_operations(FILE *outfile, umlclasslist tmplist)
 
     while (umlo != NULL) {
         /* print each function */
-        int result = d2c_php_print_func_comments(outfile, umlo);
-        int r2 = d2c_php_print_func_code(outfile, umlo);
+        d2c_php_print_func_comments(outfile, umlo);
+        d2c_php_print_func_code(outfile, umlo);
         umlo = umlo->next;
     }
     return 0;

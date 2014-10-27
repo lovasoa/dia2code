@@ -21,18 +21,9 @@
 #include "dia2code.h"
 
 void generate_code_shp(batch *b) {
-    /*
-    umlclasslist tmplist,parents,dependencies;
-    umlassoclist associations;
-    namelist used_classes,tmpnamelist;
-    int tmpv;
-    umlattrlist umla,tmpa;
-    umloplist umlo;
-    */
     umlclasslist tmplist;
     umlclasslist parentlist, parentlist2;
     umlattrlist umla;
-    int tmpv;
     char *tmpname;
     char outfilename[BIG_BUFFER];
     FILE * outfileshp, *dummyfile;
@@ -79,8 +70,6 @@ void generate_code_shp(batch *b) {
 
                 free(tmpname);
 
-                tmpv = -1;
-  
                 if(tmplist->key->isabstract == 0) {
 
                     /* create attribute table */
@@ -155,8 +144,8 @@ void generate_code_shp(batch *b) {
 
                     }
                 }
-            }            
-            fclose(outfileshp);
+                fclose(outfileshp);
+            }
         }
         tmplist = tmplist->next;
     }

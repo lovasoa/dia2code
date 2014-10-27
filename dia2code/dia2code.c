@@ -41,12 +41,11 @@ void debug( int level, char *fmt, ... )
 {
     static char debug_buffer[HUGE_BUFFER];
     va_list argptr;
-    int cnt;
     //printf( "debug call\n" );
     if( level != DBG_LEVEL ) 
         return;
     va_start(argptr, fmt);
-    cnt = vsprintf(debug_buffer, fmt, argptr);
+    vsprintf(debug_buffer, fmt, argptr);
     va_end(argptr);
     fprintf( stderr, "DBG %d: %s\n", level, debug_buffer );
     fflush( stderr);
@@ -234,7 +233,6 @@ umlattrlist copy_attributes(umlattrlist src)
 char *create_package_dir( const batch *batch, umlpackage *pkg )
 {
     char *fulldirname, *dirname, fulldirnamedup[BIG_BUFFER];
-    int ret;
     /* created directories permissions */
     mode_t dir_mask = S_IRUSR | S_IWUSR | S_IXUSR |S_IRGRP | S_IXGRP;
     if (pkg == NULL) {
@@ -251,7 +249,7 @@ char *create_package_dir( const batch *batch, umlpackage *pkg )
             sprintf( fulldirnamedup, "%s/%s", fulldirname, dirname );
             sprintf( fulldirname, "%s", fulldirnamedup );
             /* TODO : should create only if not existent */
-            ret = mkdir( fulldirname, dir_mask );
+            mkdir( fulldirname, dir_mask );
             dirname = strtok( NULL, "." );
         }
         /* set the package directory used later for source file creation */
@@ -719,6 +717,7 @@ int d2c_backup(char *filename)
             if (errno != ENOENT)
             {
                 fprintf(stderr, "Error %d while trying to delete file %s\n", errno, backup_filename);
+                free(backup_filename);
                 return -1;
             }
         }
@@ -727,10 +726,12 @@ int d2c_backup(char *filename)
             if (errno != ENOENT)
             {
                 fprintf(stderr, "Error %d while trying to rename %s to %s\n", errno, filename, backup_filename);
+                free(backup_filename);
                 return -1;
             }
         }
     }
+    free(backup_filename);
     return 0;
 }
 
@@ -846,11 +847,10 @@ int _d2c_fprintf(FILE *f, char *fmt, ...)
 int d2c_directprintf(FILE *f, char *fmt, ...)
 {
     va_list argptr;
-    int cnt;
 
     d2c_indentate(f);
     va_start(argptr, fmt);
-    cnt = vfprintf(f, fmt, argptr);
+    vfprintf(f, fmt, argptr);
     va_end(argptr);
     return 0;
 }

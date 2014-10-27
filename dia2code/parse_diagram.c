@@ -530,7 +530,7 @@ void lolipop_implementation(umlclasslist classlist, xmlNodePtr object) {
     }
     implementator = find(classlist, id);
     free(id);
-    if (implementator != NULL && strlen(name) > 2) {
+    if (implementator != NULL && name != NULL && strlen(name) > 2) {
         interface = NEW (umlclassnode);
         interface->key = NEW (umlclass);
         interface->parents = NULL;

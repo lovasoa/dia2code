@@ -68,7 +68,6 @@ pass_by_reference (umlclass *cl)
     if (strlen (st) == 0)
         return 1;
     if (is_typedef_stereo (st)) {
-        umlattrlist umla = cl->attributes;
         umlclassnode *ref = find_by_name (gb->classlist, cl->name);
         if (ref == NULL)
             return 0;
@@ -326,7 +325,7 @@ gen_class (umlclassnode *node)
             indentlevel++;
         }
         while (umlo != NULL) {
-            umlattrlist tmpa = umlo->key.parameters;
+            umlattrlist tmpa;
             if (is_valuetype) {
                 if (umlo->key.attr.visibility != '0')
                     fprintf (stderr, "CORBAValue %s/%s: must be public\n",

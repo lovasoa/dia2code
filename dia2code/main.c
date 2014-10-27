@@ -54,9 +54,9 @@ find_dia2code_module(const char *lang) {
     printf("module name : %s\n", modulename);
     generator = dlsym(handle, modulename);
 
-    if ( modulepath ) free(modulepath);
-    if ( modulename ) free(modulename);
-    if ( homedir ) free(homedir);
+    free(modulepath);
+    free(modulename);
+    free(homedir);
 
     return generator;
 }
