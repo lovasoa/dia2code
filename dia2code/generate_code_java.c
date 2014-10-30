@@ -233,7 +233,7 @@ void generate_code_java(batch *b)
                 int lc;
                 rewind(licensefile);
                 while ((lc = fgetc(licensefile)) != EOF)
-                    d2c_fputc(lc, (char) outfile);
+                    d2c_fputc(lc, outfile);
             }
 
             
