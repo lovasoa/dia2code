@@ -787,8 +787,8 @@ umlclasslist parse_diagram(char *diafile) {
             xmlNodePtr attribute = object->xmlChildrenNode;
             while ( attribute != NULL ) {
                 if ( eq("connections", attribute->name) ) {
-                    end1 = xmlGetProp(attribute->xmlChildrenNode, "to");
-                    end2 = xmlGetProp(attribute->xmlChildrenNode->next, "to");
+                    end1 = xmlGetProp(attribute->xmlChildrenNode->next, "to");
+                    end2 = xmlGetProp(attribute->xmlChildrenNode, "to");
                     make_depend(classlist, end1, end2);
                     free(end1);
                     free(end2);
