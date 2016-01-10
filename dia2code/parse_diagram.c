@@ -194,7 +194,9 @@ void parse_attribute(xmlNodePtr node, umlattribute *tmp) {
             free(attrval);
         } else if ( ! strcmp("abstract", nodename)) {
             tmp->isabstract = parse_boolean(node->xmlChildrenNode);
-        } else if ( ! strcmp("class_scope", nodename)) {
+        } else if ( ! strcmp("class_scope", nodename) ||
+                    ! strcmp("primary_key", nodename)) {
+            // the SQL code generator defines static attributes as primary keys
             tmp->isstatic = parse_boolean(node->xmlChildrenNode);
         }
         free(nodename);
