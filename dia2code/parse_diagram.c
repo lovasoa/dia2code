@@ -408,6 +408,7 @@ umlclasslist parse_class(xmlNodePtr class) {
     myself = (umlclass*) my_malloc (sizeof(umlclass));
 
     myself->package = NULL;
+    myself->isabstract = 0;
 
     listmyself->key = myself;
     listmyself->parents = NULL;
