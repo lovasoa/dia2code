@@ -152,7 +152,7 @@ void generate_code_sql(batch *b) {
         }
         tmplist = tmplist->next;
     }
-    fprintf(stderr, "Finished!");
+    fprintf(stderr, "Finished!\n");
     fclose(outfilesql);
 }
 
