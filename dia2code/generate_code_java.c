@@ -129,7 +129,7 @@ void generate_code_java(batch *b)
             if (file_found)
             {
                 d2c_parse_impl(dummyfile, "//", "");
-                close(dummyfile);
+                fclose(dummyfile);
                 if (d2c_backup(outfilename))
                     exit(5);
             }
@@ -343,4 +343,3 @@ void generate_code_java(batch *b)
         tmplist = tmplist->next;
     }
 }
-
