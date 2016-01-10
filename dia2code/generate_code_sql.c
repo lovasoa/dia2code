@@ -53,7 +53,12 @@ void generate_code_sql(batch *b) {
     tmpdirlgth = strlen(b->outdir);
 
     tmplist = b->classlist;
-    
+
+    if (tmplist == NULL) {
+        fprintf(stderr, "Sorry, no class found in your file.\n");
+        exit(4);
+    }
+
     tmpname = strtolower(tmplist->key->name);
 
     /* This prevents buffer overflows */
