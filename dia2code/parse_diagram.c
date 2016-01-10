@@ -471,7 +471,7 @@ umlclasslist parse_class(xmlNodePtr class) {
 */
 void lolipop_implementation(umlclasslist classlist, xmlNodePtr object) {
     xmlNodePtr attribute;
-    xmlChar *id = NULL, *name = NULL;
+    xmlChar *id = NULL, *name = "";
     xmlChar *attrname;
     umlclasslist interface, implementator;
 
@@ -484,8 +484,6 @@ void lolipop_implementation(umlclasslist classlist, xmlNodePtr object) {
             if ( ! strcmp("text", attrname) && attribute->xmlChildrenNode != NULL &&
                     attribute->xmlChildrenNode->xmlChildrenNode != NULL ){
                 name = attribute->xmlChildrenNode->xmlChildrenNode->content;
-            } else {
-                name = "";
             }
             free(attrname);
         }

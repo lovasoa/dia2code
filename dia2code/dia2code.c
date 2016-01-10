@@ -332,6 +332,7 @@ endless_string * new_endless_string()
     endless_string *es = my_malloc(sizeof(endless_string));
     es->start = NULL;
     es->end = NULL;
+    return es;
 }
 
 void destroy_endless_string(endless_string * es)
@@ -759,7 +760,7 @@ void param_list_destroy()
 param_list * d2c_parameter_add(char *name, char *value)
 {
     param_list *entry;
-    entry = malloc(sizeof(d2c_parameters));
+    entry = malloc(sizeof(param_list));
     entry->name = strdup(name);
     entry->value = value ? strdup(value) : NULL;
     entry->next = d2c_parameters;

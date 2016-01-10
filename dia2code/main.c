@@ -39,6 +39,12 @@ find_dia2code_module(const char *lang) {
     else
         homedir = strdup(".");
 
+    // handle strdup fail
+    if (homedir == NULL) {
+      fprintf(stderr, "Memory error, aborting");
+      exit(4);
+    }
+
     modulename = (char*)malloc(strlen(DSO_PREFIX) + strlen(lang) + 1);
     sprintf(modulename, "%s%s", DSO_PREFIX, lang);
 
@@ -254,7 +260,7 @@ parameter = -1;   /* error */
 #else
             strcpy(inifile, "~/.dia2code/dia2code.ini");
 #endif
-            process_initialization_file(inifile, 0);           
+            process_initialization_file(inifile, 0);
         }
     }
 
@@ -379,7 +385,7 @@ int process_initialization_file(char *filename, int exit_if_not_found)
     int line = 0;
     int slen;
     char s[HUGE_BUFFER];
-    
+
     if (f == NULL)
     if (exit_if_not_found)
     {
@@ -415,6 +421,6 @@ int process_initialization_file(char *filename, int exit_if_not_found)
         parse_command(name, param);
     }
     fclose(f);
-    
+
     return 1;
 }

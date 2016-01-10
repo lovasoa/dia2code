@@ -68,7 +68,6 @@ pass_by_reference (umlclass *cl)
     if (strlen (st) == 0)
         return 1;
     if (eq (st, "CORBATypedef")) {
-        umlattrlist umla = cl->attributes;
         umlclassnode *ref = find_by_name (gb->classlist, cl->name);
         if (ref == NULL)
             return 0;
@@ -625,4 +624,3 @@ generate_code_cpp (batch *b)
         d = d->next;
     }
 }
-

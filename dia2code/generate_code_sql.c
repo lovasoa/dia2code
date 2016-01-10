@@ -39,7 +39,6 @@ void generate_code_sql(batch *b) {
     */
     umlclasslist tmplist;
     umlattrlist umla;
-    int tmpv;
     char *tmpname;
     char outfilename[256];
     FILE * outfilesql, *dummyfile;
@@ -103,7 +102,6 @@ void generate_code_sql(batch *b) {
 
             /* Attributes (columns) */
             fprintf(outfilesql, "-- Attributes --\n");
-            tmpv = -1;
             umla = tmplist->key->attributes;
             inherit_attributes (tmplist->parents, umla);
             while ( umla != NULL) {

@@ -54,7 +54,7 @@ char *d2c_php_visibility(char vis)
     }
 }
 
-/* 
+/*
  * php5 allows declaration of method arg types,
  * but only for non-built in types, return empty string for them
  */
@@ -62,7 +62,7 @@ int d2c_php_show_arg(char *arg)
 {
 // convert to lower case ?
     char *tmp = strtolower(arg);
-    int result = 1;    
+    int result = 1;
     if (eq("int", tmp)||
         eq("integer", tmp)||
         eq("bool", tmp) ||
@@ -72,7 +72,7 @@ int d2c_php_show_arg(char *arg)
         eq("array", tmp)) {
         result = 0;
     }
-    
+
     free(tmp);
     return result;
 }
@@ -80,9 +80,9 @@ int d2c_php_show_arg(char *arg)
 /**
  * write comment block for a function
  */
-int d2c_php_print_func_comments(FILE *outfile, umloplist umlo)
+void d2c_php_print_func_comments(FILE *outfile, umloplist umlo)
 {
-    
+
     umlattrlist parama;
     char *tmpname;
     // begin function comments
@@ -97,33 +97,32 @@ int d2c_php_print_func_comments(FILE *outfile, umloplist umlo)
                 TABS, parama->key.type, parama->key.name);
         parama= parama->next;
     }
-    
+
     if (strlen(umlo->key.attr.type) > 0) {
         fprintf(outfile, "%s * @return %s XXX\n",
                 TABS, umlo->key.attr.type);
     }
-    
+
     fprintf(outfile, "%s * @access ", TABS );
     tmpname = d2c_php_visibility(umlo->key.attr.visibility);
     fprintf(outfile, "%s\n", tmpname);
-    
+
     if (umlo->key.attr.isabstract) {
         fprintf(outfile, "%s * @abstract\n", TABS );
         umlo->key.attr.value[0] = '0';
     }
-    
+
     if (umlo->key.attr.isstatic) {
         fprintf(outfile, "%s * @static ", TABS);
     }
-    
+
     fprintf(outfile, "%s */\n", TABS );
-    return 0;
 }
 
 /*
- *    write the function body 
+ *    write the function body
  */
-int d2c_php_print_func_code(FILE *outfile, umloplist umlo)
+void d2c_php_print_func_code(FILE *outfile, umloplist umlo)
 {
     char *tmpname = d2c_php_visibility(umlo->key.attr.visibility);
     fprintf(outfile, TABS);
@@ -162,7 +161,6 @@ int d2c_php_print_func_code(FILE *outfile, umloplist umlo)
         // don't print an empty body for abstract methods
         fprintf(outfile, ";\n\n");
     }
-    return 0;
 }
 
 /*
@@ -201,8 +199,8 @@ int d2c_php_print_attributes(FILE *outfile, umlclasslist tmplist)
         fprintf(outfile, "%s * XXX\n", TABS );
         fprintf(outfile, "%s *\n", TABS );
         fprintf(outfile, "%s * @var    %s\n", TABS, umla->key.type);
-        fprintf(outfile, "%s * @access ", TABS); 
-    
+        fprintf(outfile, "%s * @access ", TABS);
+
         char *tmpname = d2c_php_visibility(umla->key.visibility);
         fprintf(outfile, "%s\n", tmpname);
         if (umla->key.isstatic) {
@@ -225,17 +223,16 @@ int d2c_php_print_attributes(FILE *outfile, umlclasslist tmplist)
 /*
  * print class methods
  */
-int d2c_php_print_operations(FILE *outfile, umlclasslist tmplist)
+void d2c_php_print_operations(FILE *outfile, umlclasslist tmplist)
 {
     umloplist umlo = tmplist->key->operations;
     fprintf(outfile, "%s// Operations\n", TABS);
     while (umlo != NULL) {
         // print each function
-        int result = d2c_php_print_func_comments(outfile, umlo);
-        int r2 = d2c_php_print_func_code(outfile, umlo);
+        d2c_php_print_func_comments(outfile, umlo);
+        d2c_php_print_func_code(outfile, umlo);
         umlo = umlo->next;
     }
-    return 0;
 }
 
 
@@ -289,13 +286,13 @@ int d2c_php_print_class_desc(FILE *outfile, umlclasslist tmplist)
 {
     umlpackagelist tmppcklist;
     fprintf(outfile, "/**\n" );
-    
+
     fprintf(outfile, " * XXX detailed description\n" );
     fprintf(outfile, " *\n" );
     fprintf(outfile, " * @author    XXX\n" );
     fprintf(outfile, " * @version   XXX\n" );
     fprintf(outfile, " * @copyright XXX\n" );
-    
+
     tmppcklist = make_package_list(tmplist->key->package);
     if ( tmppcklist != NULL ) {
         int packcounter = 0;
@@ -313,11 +310,11 @@ int d2c_php_print_class_desc(FILE *outfile, umlclasslist tmplist)
         }
         fprintf(outfile, "\n");
     }
-    
+
     if (tmplist->key->isabstract) {
         fprintf(outfile, " * @abstract\n" );
     }
-    
+
     fprintf(outfile, " */\n" );
         return 0;
 }
@@ -333,14 +330,14 @@ int d2c_php_print_class_decl(FILE *outfile, umlclasslist tmplist)
     tmpname = d2c_php_class_type(tmplist);
     // print class 'type' and name
     fprintf(outfile, "%s %s", tmpname, tmplist->key->name);
-    
+
     parents = tmplist->parents;
     if (parents != NULL) {
         while (parents != NULL) {
             tmpname = strtolower(parents->key->stereotype);
             if (eq(tmpname, "interface")) {
                 fprintf(outfile, " implements ");
-            }    
+            }
             else {
                 fprintf(outfile, " extends ");
             }
@@ -375,9 +372,9 @@ FILE *d2c_php_getoutfile(umlclasslist tmplist, batch *b, FILE *outfile, int maxl
 /*
  * main function called to begin output
  * */
-void generate_code_php_five(batch *b) 
+void generate_code_php_five(batch *b)
 {
-    umlclasslist tmplist; 
+    umlclasslist tmplist;
     char *tmpname;
     char outfilename[90];
     FILE * outfile, *dummyfile, *licensefile = NULL;
@@ -395,7 +392,7 @@ void generate_code_php_five(batch *b)
         licensefile = fopen(b->license, "r");
         if(!licensefile) {
             fprintf(stderr, "Can't open the license file.\n");
-            exit(2); 
+            exit(2);
         }
     }
     // for each class
@@ -439,4 +436,3 @@ void generate_code_php_five(batch *b)
         tmplist = tmplist->next;
     }
 }
-
