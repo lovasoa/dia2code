@@ -95,7 +95,7 @@ void generate_code_sql(batch *b) {
 
             if (tmplist->key->isabstract) {
                 tmplist = tmplist->next;
-	        continue;
+                continue;
             }
 
             /* Class (table) */
