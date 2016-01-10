@@ -1,0 +1,35 @@
+## Built mingw version of dia2code using cygwin.
+
+## adjust to match your path to libxml2
+
+## Use: make -f makefile.mingw
+
+################################################################
+
+bin_PROGRAMS = dia2code.exe
+INCLUDES = -I. -I../../libxml2-2.4.3/include -I../../libxml2-2.4.3/include/libxml
+dia2code_SOURCES = dia2code.c main.c parse_diagram.c scan_tree.c generate_code_c.c generate_code_java.c generate_code_cpp.c generate_code_ada.c generate_code_sql.c generate_code_python.c generate_code_csharp.c
+
+LIBS = -L ../../libxml2-2.4.3/lib/so/ -lxml2
+
+PROGRAMS =  $(bin_PROGRAMS)
+
+LDFLAGS = -mno-cygwin -fnative-struct 
+
+dia2code_OBJECTS =  dia2code.o main.o parse_diagram.o scan_tree.o \
+generate_code_c.o generate_code_java.o generate_code_cpp.o \
+generate_code_ada.o generate_code_sql.o generate_code_python.o generate_code_csharp.o
+
+CFLAGS = -mno-cygwin -fnative-struct $(INCLUDES)
+
+all:			\
+	$(PROGRAMS)
+
+dia2code.exe: $(dia2code_OBJECTS)
+	gcc $(LDFLAGS) $(dia2code_OBJECTS) -o $@ $(LIBS)
+
+clean:
+	rm $(dia2code_OBJECTS) $(bin_PROGRAMS)
+
+
+

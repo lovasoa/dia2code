@@ -1,0 +1,22 @@
+Author:
+- Javier O'Hara <joh314@users.sourceforge.net>: author and mantainer
+- Richard Torkar <richard.torkar@htu.se>: maintainer
+
+Contributors: (in alphabetical order, by last name)
+- Cyrille Chepelov <chepelov@calixo.net> Pyhton code generation, Debian package management,
+  Hurd conformance
+- Harald Fielker <hfielker@softsolutions.de> PHP code generation.
+- Ruben Lopez <ryu@gpul.org>, C code generation
+- Steffen Macke <sdteffen@yahoo.com> batch shapefile generation, win32
+  installer
+- Chris McGee <sirnewton_01@yahoo.ca> Dependencies, Associations, C++ Templates, SQL
+  IDL code generation.
+- Takashi Okamoto <toraneko@kun.ne.jp> License inclusion mechanism.
+- Thomas Preymesser <tp@odn.de> Ada code generation
+- Jérôme Slangen <jeromes@mail.be> Wildcard class list mechanism.
+- Takaaki Tateishi <> Dynamic Shared Objects for dynamic code generator modules.
+- Martin Vidner <mvidner@users.sourceforge.net> Porting to libxml2.
+- Thomas Hansen <thomas.hansen@adramatch.com> C# code generation.
+- Oliver Kellogg <okellogg@users.sourceforge.net> Fixes for scan_tree.c and idl generation.
+- Dmitry V. Sabanin <sdmitry@lrn.ru> Ruby code generation.
+

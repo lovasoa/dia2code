@@ -1,0 +1,90 @@
+.TH dia2code 1 "September 2, 2001"
+.LO 1
+.SH NAME
+dia2code \- Generate code from Dia files
+.SH SYNOPSIS
+.B dia2code
+[\-h]
+[\-\-help]
+[\-t \fIada|c|cpp|java|php|python|shp|sql\fR]
+[\-d \fIdir\fR]
+[\-nc]
+[\-c]
+[\-cl \fIclasslist\fR]
+[\-v]
+diagramfile
+
+.SH DESCRIPTION
+.PP
+.B dia2code
+generates code from a Dia file containing a UML diagram. Output code can
+be: Ada, C, C++, C#, Java, PHP, Python, Ruby, Shape File or SQL create statements.
+.SH OPTIONS
+.PP
+.TP
+.B \-h \-\-help
+Print help text and exit.
+.TP
+.B \-t ada|c|cpp|cs|java|php|php5|python|ruby|shp|sql
+Selects the output language, default is C++.
+.TP
+.B \-d dir
+Output generated files to <dir>, default is "."
+.TP
+.B \-nc
+Do not overwrite files that already exist.
+.TP
+.B \-cl classlist
+Generate code only for the classes specified in the comma-separated <classlist>.
+ E.g: Base,Derived.
+.TP
+.B \-v
+Invert the class list selection.  When used without -cl prevents any file from
+ being created.
+.TP
+.B \-l licensefile
+Prepend the specified license to every source file generated.
+.TP
+.B diagramfile
+The Dia file that holds the diagram to be read.
+.SH AUTHOR
+.PP
+Written by Javier O'Hara <joh314@users.sourceforge.net>
+with contributions from Ruben Lopez <ryu@gpul.org> (C code generation),
+Chris McGee <sirnewton_01@yahoo.ca> (Dependencies, Associations, C++ Templates,
+ SQL),
+Takashi Okamoto <toraneko@kun.ne.jp> (License inclusion mechanism),
+Thomas Preymesser <tp@odn.de> (Ada code generation),
+Jérôme Slangen <jeromes@mail.be> (Wildcard class list mechanism),
+Takaaki Tateishi <> (Dynamic Shared Objects for dynamic code generator modules),
+Martin Vidner <mvidner@users.sourceforge.net> (Porting to libxml2).
+
+.SH THANKS
+.PP
+Thanks to Collin Starkweather, Richard Torkar and Slush Gore for the extra
+help.
+.SH REPORTING BUGS
+.PP
+Report bugs to
+.br
+<http://sourceforge.net/bugs/?func=addbug&group_id=15307>.
+.SH COPYRIGHT
+.PP
+Copyright \(co 2000-2001 Javier O'Hara
+.br
+This is free software, and you are welcome to redistribute it
+under certain conditions; read the COPYING file for details.
+.SH SEE ALSO
+.PP
+dia(1)
+.SH ALSO SEE ALSO
+.PP
+The
+.B Dia
+homepage:
+<http://www.lysator.liu.se/~alla/dia>
+.br
+The
+.B dia2code
+homepage:
+<http://dia2code.sourceforge.net>
