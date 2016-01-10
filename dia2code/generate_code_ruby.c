@@ -174,7 +174,7 @@ void generate_code_ruby(batch *b) {
                     if ( strlen(tmplist->key->comment) > 0 ) {
                         fprintf(outfile,"# %s\n",tmplist->key->comment);
                     } else {
-                        fprintf(outfile,"# XXX\n",tmplist->key->comment);
+                        fprintf(outfile,"# XXX\n");
                     }
 
                     if (tmplist->key->isabstract) {
