@@ -30,3 +30,12 @@
 
 # Debug files
 *.dSYM/
+
+# Project specific
+*Makefile
+config.h
+config.log
+config.status
+.deps/
+dia2code/dia2code
+stamp-h1
