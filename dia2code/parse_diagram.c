@@ -583,7 +583,7 @@ umlclasslist parse_diagram(char *diafile) {
     while (object != NULL) {
         objtype = xmlGetProp(object, "type");
         /* Here we have a Dia object */
-        if ( !strcmp("UML - Class", objtype) ) {
+        if ( !strcmp("UML - Class", objtype) || !strcmp("Database - Table", objtype)) {
             /* Here we have a class definition */
             tmplist = parse_class(object);
             if (tmplist != NULL) {
