@@ -18,4 +18,4 @@
 #include "dia2code.h"
 
 umlclasslist parse_diagram(char *diafile);
-
+umlattrlist insert_attribute(umlattrlist n, umlattrlist l);
