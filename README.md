@@ -1,11 +1,11 @@
-Dia2Code v. 0.8.3
+#Dia2Code v. 0.9.0-lovasoa
 
-SUMMARY
+##SUMMARY
 
 This program generates code for many languages from an UML Dia Diagram.
 
 
-DESCRIPTION
+##DESCRIPTION
 
 This program is a small utility that makes code from a Dia diagram. Supported
 languages are: Ada, C, C++, C#, IDL, Java, PHP(4,5), Python, Ruby, shapefiles,
@@ -17,7 +17,7 @@ the structure of the classes in an Object Oriented language
 (a Dia Diagram).
 
 
-STATUS
+##STATUS
 
 Dia2Code generates Ada, C, C++, IDL, Java, PHP, Python, C#, and Ruby files.
 It can also generate a file with SQL's CREATE TABLE statements and .bat files for
@@ -41,13 +41,13 @@ Packages are implemented considering the geometry information of the objects
 Feel free to have a try and send me your comments.
 
 
-LICENSE
+##LICENSE
 
 This program is distributed under the GNU GPL.  Read the COPYING
 file for details.
 
 
-REQUIREMENTS
+##REQUIREMENTS
 
 I've only tested it under Linux/i386 and Win32.  I have notices of
 successful compilation on *BSD and GNU Hurd. It should work with
@@ -61,7 +61,7 @@ other platforms, but your mileage may vary.
 - automake and autoconf (actually, optional)
 
 
-INSTALLATION
+##INSTALLATION
 
 Usually:
 
@@ -71,7 +71,7 @@ Usually:
 
         # make install
 
-Read the INSTALL file for details.
+Read the `INSTALL` file for details.
 
 If that doesn't work for you, try (from the innermost dia2code directory):
 
@@ -83,12 +83,13 @@ I've modified Makefile.am and configure.in so "configure" will hopefully
 find everything it needs.
 
 
-OPERATION
+##OPERATION
 
     $ dia2code <parameters>
 
-Where <parameters> can be any combination of:
+Where `<parameters>` can be any combination of:
 
+```
 -h|--help
    prints help on parameters and exits inmediately
 
@@ -121,49 +122,50 @@ Where <parameters> can be any combination of:
 <diagramfile>
   Name of the dia file (compressed or not) that contains the
   UML diagram to be parsed.
+```
 
 The only mandatory parameter is the diagram file name.
 
 Note: Parameters can be specified in any order.
 
 
-EXAMPLES
+##EXAMPLES
 
     $ dia2code -t java test.dia
 
-    Will generate the *.java files for the classes in the test.dia diagram
-    and put them in the current directory.
+Will generate the *.java files for the classes in the test.dia diagram
+and put them in the current directory.
 
     $ dia2code -nc -d ~/C++ hw.dia
 
-    Will generate the *.cpp and *.h files for the classes in the test.dia
-    diagram and  put them in the directory ~/C++.  It won't overwrite any
-    existant file.
+Will generate the *.cpp and *.h files for the classes in the test.dia
+diagram and  put them in the directory ~/C++.  It won't overwrite any
+existant file.
 
     $ dia2code -t java -cl Base,Derived test.dia
 
-    Will create the Java files only for classes "Base" and "Derived".
+Will create the Java files only for classes "Base" and "Derived".
 
     $ dia2code -cl B*,*Foo test.dia
 
-    Will create the *.cpp and *.h files for classes that begin with "B" or
-    end with "Foo".
-    NOTE: You can only specify one asterisk and either at the beginning or end
-    of the pattern.
-    NOTE2: You may have to quote the asterisks when typing on the shell
-    (e.g. "\*" instead of "*")
+Will create the `*.cpp` and `*.h` files for classes that begin with "B" or
+end with "Foo".
+NOTE: You can only specify one asterisk and either at the beginning or end
+of the pattern.
+NOTE2: You may have to quote the asterisks when typing on the shell
+(e.g. "\\*" instead of "*")
 
     $ dia2code -cl Foo -v foobar.dia
 
-    Will create C++ code for all classes but "Foo".
+Will create C++ code for all classes but "Foo".
 
     $ dia2code -v test.dia
 
-    Will not create any files.  Don't know if it may be useful, but it surely
-    is syntactically correct.
+Will not create any files.  Don't know if it may be useful, but it surely
+is syntactically correct.
 
 
-HOW IT WORKS
+##HOW IT WORKS
 
 1. Parse the diagram file with xmlParseFile().
 2. Parse the tree generated in 1 for UML classes to build an
@@ -174,12 +176,12 @@ HOW IT WORKS
 4. Generate the structure of the classes (write it into files)
    from the class list.
 
-Steps 1-3 are done in parse_diagram().
-Step 4 is done in generate_code_*().
-Both functions are called from main().
+Steps 1-3 are done in `parse_diagram()`.
+Step 4 is done in `generate_code_*()`.
+Both functions are called from `main()`.
 
 
-NOTES ON UML
+##NOTES ON UML
 
 What you should put into your diagram
 
@@ -199,7 +201,7 @@ These are optional:
   will output no type at all for it.
 
 
-Stereotypes
+###Stereotypes
 
 In IDL, C++, and Ada, some stereotypes are supported that all begin with
 "CORBA". These are: CORBAConstant, CORBAEnum, CORBATypedef, CORBAStruct,
@@ -251,7 +253,7 @@ one's avaliable.  The generate_code_cpp just happens to do the same, but I feel
 it is most useful when generating Java code.
 
 
-Visibility
+###Visibility
 
 Dia2Code does not handle the "implementation" visibility for methods (yet).
 So when you have a class that implements a method that was declared
@@ -260,7 +262,7 @@ parent class' method.   The visibility of the method is not printed if it is
 "implementation"; this may be a source of bugs.
 
 
-Method's return type
+###Method's return type
 
 If you leave the "type" entry in the method declaration empty, then no
 type will be declared for it.  This is useful with constructors, when the
@@ -270,7 +272,7 @@ if this is a good practice, I just thought it was reasonable. Everyone is
 welcome to discuss it.
 
 
-Packages
+###Packages
 
 The UML standard states that there are (mostly) two ways of representing
 packages: a large box with all the elements inside (Large Package in Dia)
@@ -296,14 +298,14 @@ or Ada package.
 
 
 
-INFORMATION FOR DEVELOPERS
-(more will come in the future)
+##INFORMATION FOR DEVELOPERS
 
 Code Generators:
 
 A code generator function is a function that takes a pointer to a
 batch structure.  The structure looks like this:
 
+```c
 struct batch {
     umlclasslist classlist;
     char *       outdir;
@@ -311,6 +313,7 @@ struct batch {
     namelist     classes;
     int          mask;
 };
+```
 
 The classes to generate are in classlist.
 
@@ -328,6 +331,7 @@ flag that inverts this selection.
 
 Some example code:
 
+```c
 #include "dia2code.h"
 #include "decls.h"
 #include "includes.h"
@@ -394,7 +398,7 @@ generate_code_foo (batch *b)
         d = d->next;
     }
 }
-
+```
 
 Generating import/include clauses:
 
@@ -417,7 +421,7 @@ find_classes() will suffice.  For generators of Java code, that use
 heavily the package information, the list_classes() is more suitable.
 
 
-BUGS
+##BUGS
 
 Note: some bugs may not be listed here.
 
@@ -427,20 +431,23 @@ Note: some bugs may not be listed here.
   OK with small diagrams but may slow down with BIG ones.
 
 
-AUTHOR
+##AUTHORS
 
+###Original author
 Javier O'Hara <joh314@users.sourceforge.net>
 
-MAINTAINER
+###MAINTAINER
 
 Richard Torkar <richard.torkar@htu.se>
 
-Contributors: (in alphabetical order, by last name)
+###Contributors
+(in alphabetical order, by last name)
 - Cyrille Chepelov <chepelov@calixo.net> Pyhton code generation, Debian package management,
   Hurd conformance.
 - Harald Fielker <hfielker@softsolutions.de> PHP code generation.
 - Oliver Kellogg <okellogg@users.sourceforge.net>, CORBA stereotype and
   package support
+- Ophir Lojkine (@lovasoa), bug fixes and support for database diagrams
 - Ruben Lopez <ryu@gpul.org>, C code generation.
 - Steffen Macke <sdteffen@yahoo.com> batch shapefile generation, win32
   installer.
@@ -449,13 +456,13 @@ Contributors: (in alphabetical order, by last name)
 - Takashi Okamoto <toraneko@kun.ne.jp> License inclusion mechanism.
 - Thomas Preymesser <tp@odn.de> Ada code generation.
 - Dmitry V. Sabanin <sdmitry@lrn.ru> Ruby code generation.
-- Jérôme Slangen <jeromes@mail.be> Wildcard class list mechanism.
+- JÃ©rÃ´me Slangen <jeromes@mail.be> Wildcard class list mechanism.
 - Takaaki Tateishi <> Dynamic Shared Objects for dynamic code generator modules.
 - Martin Vidner <mvidner@users.sourceforge.net> Porting to libxml2.
 - Thomas Hansen <thomas.hansen@adramatch.com> C# code generation.
 
 
-THANKS
+### THANKS
 
 Thanks to Collin Starkweather and Slush Gore for the extra help.  
 Also, thanks to all the people that have contacted me with
