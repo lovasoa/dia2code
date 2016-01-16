@@ -6,6 +6,7 @@ Contributors: (in alphabetical order, by last name)
 - Cyrille Chepelov <chepelov@calixo.net> Pyhton code generation, Debian package management,
   Hurd conformance
 - Harald Fielker <hfielker@softsolutions.de> PHP code generation.
+- Ophir LOJKINE <@lovasoa> bug fixes, import of database diagrams
 - Ruben Lopez <ryu@gpul.org>, C code generation
 - Steffen Macke <sdteffen@yahoo.com> batch shapefile generation, win32
   installer
