@@ -55,7 +55,7 @@ char *d2c_php_visibility(char vis)
     }
 }
 
-/* 
+/*
  * php5 allows declaration of method arg types,
  * but only for non-built in types, return empty string for them
  */
@@ -63,7 +63,7 @@ int d2c_php_show_arg(char *arg)
 {
 /* convert to lower case ? */
     char *tmp = strtolower(arg);
-    int result = 1;    
+    int result = 1;
     if (eq("int", tmp)||
         eq("integer", tmp)||
         eq("bool", tmp) ||
@@ -73,7 +73,7 @@ int d2c_php_show_arg(char *arg)
         eq("array", tmp)) {
         result = 0;
     }
-    
+
     free(tmp);
     return result;
 }
@@ -81,7 +81,7 @@ int d2c_php_show_arg(char *arg)
 /**
  * write comment block for a function
  */
-int d2c_php_print_func_comments(FILE *outfile, umloplist umlo)
+void d2c_php_print_func_comments(FILE *outfile, umloplist umlo)
 {
     
     umlattrlist parama;
@@ -119,19 +119,18 @@ int d2c_php_print_func_comments(FILE *outfile, umloplist umlo)
         fprintf(outfile, "%s * @abstract\n", TABS );
         umlo->key.attr.value[0] = '0';
     }
-    
+
     if (umlo->key.attr.isstatic) {
         fprintf(outfile, "%s * @static ", TABS);
     }
-    
+
     fprintf(outfile, "%s */\n", TABS );
-    return 0;
 }
 
 /*
- *    write the function body 
+ *    write the function body
  */
-int d2c_php_print_func_code(FILE *outfile, umloplist umlo)
+void d2c_php_print_func_code(FILE *outfile, umloplist umlo)
 {
     char *tmpname = d2c_php_visibility(umlo->key.attr.visibility);
     fprintf(outfile, TABS);
@@ -170,7 +169,6 @@ int d2c_php_print_func_code(FILE *outfile, umloplist umlo)
         /* don't print an empty body for abstract methods */
         fprintf(outfile, ";\n\n");
     }
-    return 0;
 }
 
 /*
@@ -240,7 +238,7 @@ int d2c_php_print_attributes(FILE *outfile, umlclasslist tmplist)
 /*
  * print class methods
  */
-int d2c_php_print_operations(FILE *outfile, umlclasslist tmplist)
+void d2c_php_print_operations(FILE *outfile, umlclasslist tmplist)
 {
     umloplist umlo = tmplist->key->operations;
     if (umlo != NULL)
@@ -252,7 +250,6 @@ int d2c_php_print_operations(FILE *outfile, umlclasslist tmplist)
         d2c_php_print_func_code(outfile, umlo);
         umlo = umlo->next;
     }
-    return 0;
 }
 
 
@@ -315,7 +312,7 @@ int d2c_php_print_class_desc(FILE *outfile, umlclasslist tmplist)
     fprintf(outfile, " * @author    XXX\n" );
     fprintf(outfile, " * @version   XXX\n" );
     fprintf(outfile, " * @copyright XXX\n" );
-    
+
     tmppcklist = make_package_list(tmplist->key->package);
     if ( tmppcklist != NULL ) {
         int packcounter = 0;
@@ -333,11 +330,11 @@ int d2c_php_print_class_desc(FILE *outfile, umlclasslist tmplist)
         }
         fprintf(outfile, "\n");
     }
-    
+
     if (tmplist->key->isabstract) {
         fprintf(outfile, " * @abstract\n" );
     }
-    
+
     fprintf(outfile, " */\n" );
         return 0;
 }
@@ -353,14 +350,14 @@ int d2c_php_print_class_decl(FILE *outfile, umlclasslist tmplist)
     tmpname = d2c_php_class_type(tmplist);
     /* print class 'type' and name */
     fprintf(outfile, "%s %s", tmpname, tmplist->key->name);
-    
+
     parents = tmplist->parents;
     if (parents != NULL) {
         while (parents != NULL) {
             tmpname = strtolower(parents->key->stereotype);
             if (eq(tmpname, "interface")) {
                 fprintf(outfile, " implements ");
-            }    
+            }
             else {
                 fprintf(outfile, " extends ");
             }

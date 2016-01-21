@@ -39,6 +39,12 @@ find_dia2code_module(const char *lang) {
     else
         homedir = strdup(".");
 
+    // handle strdup fail
+    if (homedir == NULL) {
+      fprintf(stderr, "Memory error, aborting");
+      exit(4);
+    }
+
     modulename = (char*)malloc(strlen(DSO_PREFIX) + strlen(lang) + 1);
     sprintf(modulename, "%s%s", DSO_PREFIX, lang);
 
@@ -453,6 +459,6 @@ int process_initialization_file(char *filename, int exit_if_not_found)
         parse_command(name, param);
     }
     fclose(f);
-    
+
     return 1;
 }

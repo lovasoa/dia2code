@@ -1,5 +1,45 @@
+# Object files
 *.o
-Makefile
+*.ko
+*.obj
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+
+# Project specific
+*Makefile
+config.h
+config.log
+config.status
+.deps/
 dia2code/dia2code
+stamp-h1
+stamp-h2
 dia2code/libdia2code.a
 config.*
+libtool

@@ -122,6 +122,10 @@ namelist parse_class_names(const char *s) {
     token = strtok (cp, delim);
     while ( token != NULL ) {
         namenode *tmp = NEW (namenode);
+        if (tmp == NULL) {
+            fprintf(stderr, "Out of memory\n");
+            exit(1);
+        }
         tmp->name = strdup(token);
         if (tmp->name == NULL) {
             fprintf(stderr, "Out of memory\n");

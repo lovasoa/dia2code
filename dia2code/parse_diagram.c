@@ -221,7 +221,9 @@ void parse_attribute(xmlNodePtr node, umlattribute *tmp) {
             free(attrval);
         } else if ( eq("abstract", nodename)) {
             tmp->isabstract = parse_boolean(node->xmlChildrenNode);
-        } else if ( eq("class_scope", nodename)) {
+        } else if ( eq("class_scope", nodename) ||
+                    eq("primary_key", nodename)) {
+            // the SQL code generator defines static attributes as primary keys
             tmp->isstatic = parse_boolean(node->xmlChildrenNode);
         } else if ( eq("query", nodename)) {
             tmp->isconstant = parse_boolean(node->xmlChildrenNode);
@@ -443,6 +445,7 @@ umlclasslist parse_class(xmlNodePtr class) {
     listmyself = NEW (umlclassnode);
     myself = NEW (umlclass);
     myself->package = NULL;
+    myself->isabstract = 0;
 
     listmyself->key = myself;
     listmyself->parents = NULL;
@@ -508,7 +511,7 @@ umlclasslist parse_class(xmlNodePtr class) {
 */
 void lolipop_implementation(umlclasslist classlist, xmlNodePtr object) {
     xmlNodePtr attribute;
-    xmlChar *id = NULL, *name = NULL;
+    xmlChar *id = NULL, *name = "";
     xmlChar *attrname;
     umlclasslist interface, implementator;
 
@@ -618,7 +621,7 @@ umlclasslist parse_diagram(char *diafile) {
     while (object != NULL) {
         xmlChar *objtype = xmlGetProp(object, "type");
         /* Here we have a Dia object */
-        if ( eq("UML - Class", objtype) ) {
+        if ( eq("UML - Class", objtype) || eq("Database - Table", objtype)) {
             /* Here we have a class definition */
             umlclasslist tmplist = parse_class(object);
             if (tmplist != NULL) {

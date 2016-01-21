@@ -82,7 +82,7 @@ Max Berger and Patrice Neff.
 - The win32 files were not included in 0.8, now they are in.
 - Fixed the bug with grouped objects.
 - Fixed the bug with integer parsing in 64 bit systems. Thanks to
-Patrik St‰hli.
+Patrik St√§hli.
 - Updated generate_code_php.  Thanks to Harald Fielker.
 The following changes where made by Chris McGee:
 - Fixed the NO_GENERATORS number to reflect the actual number of
@@ -96,7 +96,7 @@ code generators that are actually there.
 - Added support for wildcards to the list specified with "-cl".
 Now one can put an asterisk either at the beggining or the end. Example:
 "dia2code -cl Foo*,*bar", will create files only for classes which names
-start with "Foo" or end with "bar".  Thanks to JÈrÙme Slangen.
+start with "Foo" or end with "bar".  Thanks to J√©r√¥me Slangen.
 - Added the PHP code generator.  Thanks to Harald Fielker.
 - Added support for license file inclusion (-l). Thanks to Takashi Okamoto.
 The following changes were done by Steffen Macke:
