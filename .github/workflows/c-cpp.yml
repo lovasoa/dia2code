@@ -18,3 +18,4 @@ jobs:
     - run: ./configure
     - run: make
     - run: sudo make install
+    - run: make check
