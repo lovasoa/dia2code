@@ -25,7 +25,8 @@ int process_initialization_file(char *filename, int exit_if_not_found);
 
 #ifdef DSO
 static void *
-find_dia2code_module(const char *lang) {
+find_dia2code_module(const char *lang)
+{
     char *homedir;
     char *modulepath;
     char *modulename;
@@ -34,50 +35,55 @@ find_dia2code_module(const char *lang) {
     void (*generator)();
 
     homedir = getenv("HOME");
-    if ( homedir )
+    if (homedir)
         homedir = strdup(homedir);
     else
         homedir = strdup(".");
 
     // handle strdup fail
-    if (homedir == NULL) {
-      fprintf(stderr, "Memory error, aborting");
-      exit(4);
+    if (homedir == NULL)
+    {
+        fprintf(stderr, "Memory error, aborting");
+        exit(4);
     }
 
-    modulename = (char*)malloc(strlen(DSO_PREFIX) + strlen(lang) + 1);
+    modulename = (char *)malloc(strlen(DSO_PREFIX) + strlen(lang) + 1);
     sprintf(modulename, "%s%s", DSO_PREFIX, lang);
 
-    modulepath = (char*)malloc(strlen(homedir) + strlen(modulename)
-                               + strlen(MODULE_DIR) + strlen(DSO_SUFFIX) + 3);
+    modulepath = (char *)malloc(strlen(homedir) + strlen(modulename) + strlen(MODULE_DIR) + strlen(DSO_SUFFIX) + 3);
     sprintf(modulepath, "%s/%s/%s%s", homedir, MODULE_DIR, modulename, DSO_SUFFIX);
 
     handle = dlopen(modulepath, RTLD_NOW | RTLD_GLOBAL);
-    if ( !handle ) {
+    if (!handle)
+    {
         fprintf(stderr, "can't find the module: %s\n", dlerror());
         exit(2);
     }
     printf("module name : %s\n", modulename);
     generator = dlsym(handle, modulename);
 
-    if ( modulepath ) free(modulepath);
-    if ( modulename ) free(modulename);
-    if ( homedir ) free(homedir);
+    if (modulepath)
+        free(modulepath);
+    if (modulename)
+        free(modulename);
+    if (homedir)
+        free(homedir);
 
     return generator;
 }
 #endif /* DSO */
 
-char *outdir = NULL;   /* Output directory */
+char *outdir = NULL; /* Output directory */
 
-int INDENT_CNT = 4; // This should be a parameter in the command line
+int INDENT_CNT = 4;          // This should be a parameter in the command line
 int bOpenBraceOnNewline = 1; // This should also be a command-line parameter
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     int i;
-    char *license = NULL;  /* License file */
-    int clobber = 1;   /*  Overwrite files while generating code*/
-    char *infile = NULL;    /* The input file */
+    char *license = NULL; /* License file */
+    int clobber = 1;      /*  Overwrite files while generating code*/
+    char *infile = NULL;  /* The input file */
     namelist classestogenerate = NULL;
     int classmask = 0, parameter = 0;
     batch *thisbatch;
@@ -87,20 +93,20 @@ int main(int argc, char **argv) {
     void (*generator)(batch *);
     void (*generators[NO_GENERATORS])(batch *);
 
-    char * notice = "\
+    char *notice = "\
 dia2code version 0.8.3, Copyright (C) 2000-2001 Javier O'Hara\n\
 Dia2Code comes with ABSOLUTELY NO WARRANTY\n\
 This is free software, and you are welcome to redistribute it\n\
 under certain conditions; read the COPYING file for details.\n";
 
     char *help = "[-h|--help] [-d <dir>] [-nc] [-cl <classlist>]\n\
-       [-t (ada|c|cpp|csharp|idl|java|php|php5|python|ruby|shp|sql)] [-v]\n\
+       [-t (ada|c|cpp|csharp|idl|java|php|php5|php8|python|ruby|shp|sql)] [-v]\n\
        [-l <license file>] [-ini <initialization file>]<diagramfile>";
 
     char *bighelp = "\
     -h --help            Print this help and exit\n\
     -t <target>          Selects the output language. <target> can be\n\
-                         one of: ada,c,cpp,idl,java,php,php5,python,ruby,shp,sql or csharp. \n\
+                         one of: ada,c,cpp,idl,java,php,php5,php8,python,ruby,shp,sql or csharp. \n\
                          Default is C++\n\
     -d <dir>             Output generated files to <dir>, default is \".\" \n\
     -l <license>         License file to prepend to generated files.\n\
@@ -136,9 +142,10 @@ under certain conditions; read the COPYING file for details.\n";
     generators[9] = generate_code_csharp;
     generators[10] = generate_code_php_five;
     generators[11] = generate_code_ruby;
+    generators[12] = generate_code_php8;
 
-
-    if (argc < 2) {
+    if (argc < 2)
+    {
         fprintf(stderr, "%s\nUsage: %s %s\n", notice, argv[0], help);
         exit(2);
     }
@@ -146,94 +153,147 @@ under certain conditions; read the COPYING file for details.\n";
     iniParameterProcessed = 0;
 
     /* Argument parsing: rewritten from scratch */
-    for (i = 1; i < argc; i++) {
-        switch ( parameter ) {
+    for (i = 1; i < argc; i++)
+    {
+        switch (parameter)
+        {
         case 0:
-            if ( eq (argv[i], "-t") ) {
+            if (eq(argv[i], "-t"))
+            {
                 parameter = 1;
-            } else if ( eq (argv[i], "-d") ) {
+            }
+            else if (eq(argv[i], "-d"))
+            {
                 parameter = 2;
-            } else if ( eq (argv[i], "-nc") ) {
+            }
+            else if (eq(argv[i], "-nc"))
+            {
                 clobber = 0;
-            } else if ( eq (argv[i], "-cl") ) {
+            }
+            else if (eq(argv[i], "-cl"))
+            {
                 parameter = 3;
-            } else if ( eq (argv[i], "-l") ) {
+            }
+            else if (eq(argv[i], "-l"))
+            {
                 parameter = 4;
-            } else if ( eq (argv[i], "-ext") ) {
+            }
+            else if (eq(argv[i], "-ext"))
+            {
                 parameter = 5;
-            } else if ( eq (argv[i], "-bext") ) {
+            }
+            else if (eq(argv[i], "-bext"))
+            {
                 parameter = 6;
-            } else if ( eq (argv[i], "-ini") ) {
+            }
+            else if (eq(argv[i], "-ini"))
+            {
                 parameter = 7;
-            } else if ( eq (argv[i], "-v") ) {
+            }
+            else if (eq(argv[i], "-v"))
+            {
                 classmask = 1 - classmask;
-            } else if ( eq("-h", argv[i]) || eq("--help", argv[i]) ) {
+            }
+            else if (eq("-h", argv[i]) || eq("--help", argv[i]))
+            {
                 printf("%s\nUsage: %s %s\n\n%s\n", notice, argv[0], help, bighelp);
                 exit(0);
-            } else {
+            }
+            else
+            {
                 infile = argv[i];
             }
             break;
-        case 1:   /* Which code generator */
+        case 1: /* Which code generator */
             parameter = 0;
-            if ( eq (argv[i], "cpp") ) {
+            if (eq(argv[i], "cpp"))
+            {
                 generator = generators[0];
-            } else if ( eq (argv[i], "java") ) {
+            }
+            else if (eq(argv[i], "java"))
+            {
                 generator = generators[1];
-            } else if ( eq (argv[i], "c") ) {
+            }
+            else if (eq(argv[i], "c"))
+            {
                 generator = generators[2];
-            } else if ( eq (argv[i], "sql") ) {
+            }
+            else if (eq(argv[i], "sql"))
+            {
                 generator = generators[3];
-            } else if ( eq (argv[i], "ada") ) {
+            }
+            else if (eq(argv[i], "ada"))
+            {
                 generator = generators[4];
-            } else if ( eq (argv[i], "python") ) {
+            }
+            else if (eq(argv[i], "python"))
+            {
                 generator = generators[5];
-            } else if ( eq (argv[i], "php") ) {
+            }
+            else if (eq(argv[i], "php"))
+            {
                 generator = generators[6];
-            } else if ( eq (argv[i], "shp") ) {
+            }
+            else if (eq(argv[i], "shp"))
+            {
                 generator = generators[7];
-            } else if ( eq (argv[i], "idl") ) {
+            }
+            else if (eq(argv[i], "idl"))
+            {
                 generator = generators[8];
-            } else if ( eq (argv[i], "csharp") ) {
+            }
+            else if (eq(argv[i], "csharp"))
+            {
                 generator = generators[9];
-            } else if ( eq(argv[i], "php5") ) {
+            }
+            else if (eq(argv[i], "php5"))
+            {
                 generator = generators[10];
-            } else if ( eq(argv[i], "ruby") ) {
+            }
+            else if (eq(argv[i], "ruby"))
+            {
                 generator = generators[11];
-            } else {
+            }
+            else if (eq(argv[i], "php8"))
+            {
+                generator = generators[12];
+            }
+            else
+            {
 #ifdef DSO
                 generator = find_dia2code_module(argv[i]);
-                if ( ! generator ) {
+                if (!generator)
+                {
                     fprintf(stderr, "can't find the generator: %s\n", dlerror());
-                    parameter = -1;   /* error */
+                    parameter = -1; /* error */
                 }
 #else
-parameter = -1;   /* error */
+                parameter = -1; /* error */
 #endif
             }
             break;
-        case 2:   /* Which output directory */
+        case 2: /* Which output directory */
             outdir = argv[i];
             parameter = 0;
             break;
-        case 3:   /* Which classes to consider */
+        case 3: /* Which classes to consider */
             classestogenerate = parse_class_names(argv[i]);
             classmask = 1 - classmask;
             parameter = 0;
             break;
-        case 4:   /* Which license file */
+        case 4: /* Which license file */
             license = argv[i];
             parameter = 0;
             break;
-        case 5:   /* Which file extension */
+        case 5: /* Which file extension */
             file_ext = argv[i];
             parameter = 0;
             break;
-        case 6:   /* Which implementation file extension */
+        case 6: /* Which implementation file extension */
             body_file_ext = argv[i];
             parameter = 0;
             break;
-        case 7:   /* Use initialization file */
+        case 7: /* Use initialization file */
             process_initialization_file(argv[i], 1);
             iniParameterProcessed = 1;
             parameter = 0;
@@ -242,7 +302,8 @@ parameter = -1;   /* error */
     }
     /* parameter != 0 means the command line was invalid */
 
-    if ( parameter != 0 || infile == NULL ) {
+    if (parameter != 0 || infile == NULL)
+    {
         printf("%s\nUsage: %s %s\n\n%s\n", notice, argv[0], help, bighelp);
         exit(2);
     }
@@ -264,9 +325,7 @@ parameter = -1;   /* error */
         }
     }
 
-
-
-    thisbatch = (batch*)my_malloc(sizeof(batch));
+    thisbatch = (batch *)my_malloc(sizeof(batch));
 
     LIBXML_TEST_VERSION;
     xmlKeepBlanksDefault(0);
@@ -281,7 +340,8 @@ parameter = -1;   /* error */
     thisbatch->mask = classmask;
 
     /* Code generation */
-    if ( !generator ) {
+    if (!generator)
+    {
         generator = generators[DEFAULT_TARGET];
     };
     (*generator)(thisbatch);
@@ -305,13 +365,12 @@ typedef struct ini_parse_command
 #define PARSE_TYPE_TRUEFALSE 5
 
 ini_parse_command ini_parse_commands[] =
-{
-    {"file.outdir", PARSE_TYPE_STRDUP, &outdir},
-    {"indent.brace.newline", PARSE_TYPE_YESNO, &indent_open_brace_on_newline},
-    {"indent.size", PARSE_TYPE_INT, &indent_count},
-    {"generate.backup", PARSE_TYPE_YESNO, &generate_backup},
-    {NULL, -1, NULL}
-};
+    {
+        {"file.outdir", PARSE_TYPE_STRDUP, &outdir},
+        {"indent.brace.newline", PARSE_TYPE_YESNO, &indent_open_brace_on_newline},
+        {"indent.size", PARSE_TYPE_INT, &indent_count},
+        {"generate.backup", PARSE_TYPE_YESNO, &generate_backup},
+        {NULL, -1, NULL}};
 
 void parse_command(char *name, char *value)
 {
@@ -322,14 +381,14 @@ void parse_command(char *name, char *value)
     while (1)
     {
         ini_parse_command *cmd = &ini_parse_commands[i];
-        if(cmd->name == NULL)
+        if (cmd->name == NULL)
             break;
         if (eq(cmd->name, name) == 0)
         {
             i++;
             continue;
         }
-        switch(cmd->type)
+        switch (cmd->type)
         {
         case PARSE_TYPE_FUNCTION:
             method = cmd->ref;
@@ -348,29 +407,36 @@ void parse_command(char *name, char *value)
             css = (char **)cmd->ref;
             if (*css)
                 free(*css);
-               *css = strdup(value);
+            *css = strdup(value);
             break;
 
         case PARSE_TYPE_YESNO:
-            switch(tolower(value[0]))
+            switch (tolower(value[0]))
             {
-            case 'y': *(int *)(cmd->ref) = 1; break;
-            case 'n': *(int *)(cmd->ref) = 0; break;
+            case 'y':
+                *(int *)(cmd->ref) = 1;
+                break;
+            case 'n':
+                *(int *)(cmd->ref) = 0;
+                break;
             default:
                 fprintf(stderr, "Invalid yes/no value for %s(%s)\n", name, value);
             }
             break;
 
         case PARSE_TYPE_TRUEFALSE:
-            switch(tolower(value[0]))
+            switch (tolower(value[0]))
             {
-            case 't': *(int *)(cmd->ref) = 1; break;
-            case 'f': *(int *)(cmd->ref) = 0; break;
+            case 't':
+                *(int *)(cmd->ref) = 1;
+                break;
+            case 'f':
+                *(int *)(cmd->ref) = 0;
+                break;
             default:
                 fprintf(stderr, "Invalid true/false value for %s(%s)\n", name, value);
             }
             break;
-
 
         default:
             break;
@@ -387,13 +453,13 @@ int process_initialization_file(char *filename, int exit_if_not_found)
     char s[HUGE_BUFFER];
 
     if (f == NULL)
-    if (exit_if_not_found)
-    {
-        fprintf(stderr, "Could not open initialization file %s\n", filename);
-        exit(-1);
-    }
-    else
-        return 0;
+        if (exit_if_not_found)
+        {
+            fprintf(stderr, "Could not open initialization file %s\n", filename);
+            exit(-1);
+        }
+        else
+            return 0;
 
     while (fgets(s, HUGE_BUFFER - 1, f) != NULL)
     {

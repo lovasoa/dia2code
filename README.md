@@ -95,7 +95,7 @@ Where `<parameters>` can be any combination of:
 
 -t (ada|c|cpp|idl|java|php|python|shp|sql|csharp)
   tells dia2code to either create C++ (cpp), Java (java), C (c),
-  Ada (ada), Python (python), SQL "create table" files (sql) and 
+  Ada (ada), Python (python), SQL "create table" files (sql) and
   C# (csharp).
   The default is C++.
 
@@ -245,6 +245,9 @@ the class:
   If the type of the attribute is "boolean" then the name will be: "boolean isA()".
 - A "void setA(T value);" method, with a paramter, "value", with type conformant to
   the type of the attribute.
+
+For generating PHP, the "interface" stereotype is recognized and produces an
+interface rather than a class.
 
 Note: actually, dia2code will not output these things, but it will create the
 methods and paste into each one the suggested implementation.  These methods will
@@ -464,8 +467,6 @@ Richard Torkar <richard.torkar@htu.se>
 
 ### THANKS
 
-Thanks to Collin Starkweather and Slush Gore for the extra help.  
+Thanks to Collin Starkweather and Slush Gore for the extra help.
 Also, thanks to all the people that have contacted me with
 suggestions and bug reports.
-
-
