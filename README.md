@@ -1,11 +1,11 @@
-#Dia2Code v. 0.9.0-lovasoa
+# Dia2Code v. 0.9.0-lovasoa
 
-##SUMMARY
+## SUMMARY
 
 This program generates code for many languages from an UML Dia Diagram.
 
 
-##DESCRIPTION
+## DESCRIPTION
 
 This program is a small utility that makes code from a Dia diagram. Supported
 languages are: Ada, C, C++, C#, IDL, Java, PHP(4,5), Python, Ruby, shapefiles,
@@ -17,7 +17,7 @@ the structure of the classes in an Object Oriented language
 (a Dia Diagram).
 
 
-##STATUS
+## STATUS
 
 Dia2Code generates Ada, C, C++, IDL, Java, PHP, Python, C#, and Ruby files.
 It can also generate a file with SQL's CREATE TABLE statements and .bat files for
@@ -26,7 +26,7 @@ creating shapes.  Templates and packages are supported but need testing.
 The basic functionality can now be considered complete.  Minor releases
 should fix bugs and add small improvements.
 
-The generation of #include and import directives is done considering the
+The generation of # include and import directives is done considering the
 types used in each class but, generally, only if those types are
 declared themselves in the diagram.  Classes are searched in the types of:
 attributes, parents, method's return types, method's parameters, dependencies
@@ -41,13 +41,13 @@ Packages are implemented considering the geometry information of the objects
 Feel free to have a try and send me your comments.
 
 
-##LICENSE
+## LICENSE
 
 This program is distributed under the GNU GPL.  Read the COPYING
 file for details.
 
 
-##REQUIREMENTS
+## REQUIREMENTS
 
 I've only tested it under Linux/i386 and Win32.  I have notices of
 successful compilation on *BSD and GNU Hurd. It should work with
@@ -61,7 +61,7 @@ other platforms, but your mileage may vary.
 - automake and autoconf (actually, optional)
 
 
-##INSTALLATION
+## INSTALLATION
 
 Usually:
 
@@ -83,7 +83,7 @@ I've modified Makefile.am and configure.in so "configure" will hopefully
 find everything it needs.
 
 
-##OPERATION
+## OPERATION
 
     $ dia2code <parameters>
 
@@ -129,7 +129,7 @@ The only mandatory parameter is the diagram file name.
 Note: Parameters can be specified in any order.
 
 
-##EXAMPLES
+## EXAMPLES
 
     $ dia2code -t java test.dia
 
@@ -165,7 +165,7 @@ Will not create any files.  Don't know if it may be useful, but it surely
 is syntactically correct.
 
 
-##HOW IT WORKS
+## HOW IT WORKS
 
 1. Parse the diagram file with xmlParseFile().
 2. Parse the tree generated in 1 for UML classes to build an
@@ -181,7 +181,7 @@ Step 4 is done in `generate_code_*()`.
 Both functions are called from `main()`.
 
 
-##NOTES ON UML
+## NOTES ON UML
 
 What you should put into your diagram
 
@@ -201,7 +201,7 @@ These are optional:
   will output no type at all for it.
 
 
-###Stereotypes
+### Stereotypes
 
 In IDL, C++, and Ada, some stereotypes are supported that all begin with
 "CORBA". These are: CORBAConstant, CORBAEnum, CORBATypedef, CORBAStruct,
@@ -256,7 +256,7 @@ one's avaliable.  The generate_code_cpp just happens to do the same, but I feel
 it is most useful when generating Java code.
 
 
-###Visibility
+### Visibility
 
 Dia2Code does not handle the "implementation" visibility for methods (yet).
 So when you have a class that implements a method that was declared
@@ -265,7 +265,7 @@ parent class' method.   The visibility of the method is not printed if it is
 "implementation"; this may be a source of bugs.
 
 
-###Method's return type
+### Method's return type
 
 If you leave the "type" entry in the method declaration empty, then no
 type will be declared for it.  This is useful with constructors, when the
@@ -275,7 +275,7 @@ if this is a good practice, I just thought it was reasonable. Everyone is
 welcome to discuss it.
 
 
-###Packages
+### Packages
 
 The UML standard states that there are (mostly) two ways of representing
 packages: a large box with all the elements inside (Large Package in Dia)
@@ -301,7 +301,7 @@ or Ada package.
 
 
 
-##INFORMATION FOR DEVELOPERS
+## INFORMATION FOR DEVELOPERS
 
 Code Generators:
 
@@ -335,9 +335,9 @@ flag that inverts this selection.
 Some example code:
 
 ```c
-#include "dia2code.h"
-#include "decls.h"
-#include "includes.h"
+# include "dia2code.h"
+# include "decls.h"
+# include "includes.h"
 
 generate_code_foo (batch *b)
 {
@@ -386,7 +386,7 @@ generate_code_foo (batch *b)
             namelist incfile = includes;
             while (incfile != NULL) {
                 if (!eq (incfile->name, name)) {
-                    emit ("#include \"%s.h\"\n", incfile->name);
+                    emit ("# include \"%s.h\"\n", incfile->name);
                 }
                 incfile = incfile->next;
             }
@@ -424,7 +424,7 @@ find_classes() will suffice.  For generators of Java code, that use
 heavily the package information, the list_classes() is more suitable.
 
 
-##BUGS
+## BUGS
 
 Note: some bugs may not be listed here.
 
@@ -434,16 +434,16 @@ Note: some bugs may not be listed here.
   OK with small diagrams but may slow down with BIG ones.
 
 
-##AUTHORS
+## AUTHORS
 
-###Original author
+### Original author
 Javier O'Hara <joh314@users.sourceforge.net>
 
-###MAINTAINER
+### MAINTAINER
 
 Richard Torkar <richard.torkar@htu.se>
 
-###Contributors
+### Contributors
 (in alphabetical order, by last name)
 - Cyrille Chepelov <chepelov@calixo.net> Pyhton code generation, Debian package management,
   Hurd conformance.
