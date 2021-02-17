@@ -17,6 +17,10 @@ jobs:
       run: sudo apt-get install libxml2 libxml2-dev
     - run: ./configure
     - run: make
+    - uses: actions/upload-artifact@v2
+      with:
+        name: dia2code-linux
+        path: ./dia2code
     - run: sudo make install
     - run: make check
     - name: php8 test
