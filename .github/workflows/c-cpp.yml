@@ -19,3 +19,5 @@ jobs:
     - run: make
     - run: sudo make install
     - run: make check
+    - name: php8 test
+      run: bash ./tests/php8_test.sh
